@@ -1,0 +1,45 @@
+name: Deploy Frontend to AWS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Sync frontend to S3
+        run: |
+          aws s3 sync . s3://${{ vars.AWS_S3_BUCKET }} \
+            --delete \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude "venv/*" \
+            --exclude "__pycache__/*" \
+            --exclude "chroma_db/*" \
+            --exclude "chroma_db_legacy_*/*" \
+            --exclude "docs/*" \
+            --exclude "*.py" \
+            --exclude "requirements.txt" \
+            --exclude "Procfile" \
+            --exclude "Dockerfile"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ vars.AWS_CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"

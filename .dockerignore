@@ -1,0 +1,14 @@
+.git
+.github
+.DS_Store
+__pycache__/
+*.py[cod]
+*.zip
+lambda_build/
+venv/
+.venv/
+chroma_db/
+chroma_db_legacy_*/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>obs.atla.in | Advanced Cloud Operations Platform</title>
+  <meta name="description" content="Advanced cloud operations and incident management platform with real-time monitoring, AI-powered RCA, and sophisticated incident simulation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-primary: #f4f7fb;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #eef3f9;
+      --bg-hover: #e3ebf5;
+
+      --border-color: rgba(15, 23, 42, 0.08);
+      --border-hover: rgba(15, 23, 42, 0.14);
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #64748b;
+
+      --accent-primary: #2563eb;
+      --accent-secondary: #0f766e;
+      --accent-danger: #dc2626;
+      --accent-warning: #d97706;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+      --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.08), transparent 28%),
+        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      color: var(--text-primary);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.28);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.42);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 380px;
+      gap: 20px;
+      min-height: 100vh;
+      padding: 20px;
+      background: linear-gradient(to bottom, rgba(37, 99, 235, 0.05) 0%, transparent 40%);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      padding: 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(20px);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .brand h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .brand p {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: 1px solid transparent;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+    }
+
+    .status-pill {
+      margin-top: auto;
+      padding: 10px 12px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      transition: var(--transition);
+    }
+
+    .status-pill:hover {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-secondary);
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .hero {
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(15, 118, 110, 0.05) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .hero h2 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .chip {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      color: var(--text-tertiary);
+      background: rgba(255, 255, 255, 0.75);
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: default;
+    }
+
+    .chip:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: var(--border-hover);
+      color: var(--text-secondary);
+    }
+
+    .hero-meta {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta-item {
+      font-size: 11px;
+      font-family: "JetBrains Mono", monospace;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-tertiary);
+      background: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .insight-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .insight-card {
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      transition: var(--transition);
+    }
+
+    .insight-card:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-hover);
+    }
+
+    .insight-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .insight-value {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .insight-meta {
+      color: var(--text-tertiary);
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      transition: var(--transition);
+      cursor: default;
+    }
+
+    .card:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .metric-title {
+      color: var(--text-tertiary);
+      font-size: 11px;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+
+    .metric-meta {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .analytics {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .chart-wrap {
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+    }
+
+    .section-title {
+      font-size: 13px;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 220px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, #f8fbff 0%, #edf3fb 100%);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      color: var(--text-tertiary);
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status {
+      font-size: 11px;
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .healthy {
+      background: rgba(16, 185, 129, 0.14);
+      color: #047857;
+    }
+
+    .degraded {
+      background: rgba(245, 158, 11, 0.14);
+      color: #b45309;
+    }
+
+    .ops-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .ops-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      min-height: 0;
+    }
+
+    .logs, .timeline, .architecture {
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      min-height: 300px;
+    }
+
+    .arch-layout {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+    }
+
+    #arch-canvas {
+      width: 100%;
+      height: 320px;
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      cursor: pointer;
+    }
+
+    .arch-details {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      padding: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      font-family: "JetBrains Mono", monospace;
+      overflow-y: auto;
+      max-height: 320px;
+    }
+
+    .rca-panel {
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      min-height: 300px;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: #f8fbff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      max-height: 280px;
+      overflow: auto;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .timeline-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 280px;
+      overflow: auto;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .timeline-list li {
+      border-left: 2px solid var(--accent-primary);
+      padding-left: 14px;
+      transition: var(--transition);
+    }
+
+    .timeline-list li:hover {
+      color: var(--text-primary);
+      border-left-color: var(--accent-secondary);
+    }
+
+    .rca-block {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .time {
+      color: var(--text-tertiary);
+      font-size: 11px;
+      margin-bottom: 4px;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+    }
+
+    .incident-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      background: transparent;
+      transition: var(--transition);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    button:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-warn {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #b45309;
+    }
+
+    .btn-warn:hover {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.6);
+    }
+
+    .btn-bad {
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #b91c1c;
+    }
+
+    .btn-bad:hover {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    .btn-good {
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #047857;
+    }
+
+    .btn-good:hover {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.6);
+    }
+
+    .assistant {
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+      min-height: 0;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(20px);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+    }
+
+    .assistant-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .assistant-title h3 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .assistant-title p {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    #chat-box {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-tertiary);
+      padding: 12px;
+      overflow: auto;
+      min-height: 300px;
+      max-height: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      max-width: 95%;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .msg.user {
+      margin-left: auto;
+      background: rgba(37, 99, 235, 0.12);
+      border-color: rgba(37, 99, 235, 0.24);
+      color: var(--text-primary);
+    }
+
+    .msg.ai {
+      background: #ffffff;
+      color: var(--text-secondary);
+    }
+
+    .sources {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-family: "JetBrains Mono", monospace;
+      line-height: 1.6;
+    }
+
+    .chat-input {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    #prompt {
+      width: 100%;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: #f8fbff;
+      color: var(--text-primary);
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      min-height: 40px;
+      max-height: 100px;
+      transition: var(--transition);
+    }
+
+    #prompt:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    #prompt::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .cta {
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      border: none;
+      color: white;
+      padding: 0 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .cta:hover {
+      background: linear-gradient(135deg, #0284c7 0%, #059669 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
+    }
+
+    @media (max-width: 1400px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 24px;
+        padding: 20px;
+        align-items: center;
+        height: auto;
+      }
+
+      .sidebar .nav-links {
+        grid-column: 2;
+        flex-direction: row;
+        gap: 12px;
+      }
+
+      .sidebar .status-pill {
+        grid-column: 3;
+        margin-top: 0;
+      }
+
+      .assistant {
+        position: static;
+        max-height: none;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .layout {
+        padding: 16px;
+        gap: 16px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .analytics, .ops-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .arch-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .insight-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero {
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .layout {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .insight-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .sidebar .nav-links {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .sidebar .status-pill {
+        grid-column: auto;
+      }
+
+      .metric-value {
+        font-size: 28px;
+      }
+
+      .hero h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>obs.atla.in</h1>
+        <p>Advanced Cloud Operations Platform</p>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" href="#overview">Overview</a>
+        <a class="nav-link" href="#metrics">Metrics</a>
+        <a class="nav-link" href="#services">Services</a>
+        <a class="nav-link" href="#incidents">Incidents</a>
+        <a class="nav-link" href="#architecture">Architecture</a>
+        <a class="nav-link" href="#assistant">Guru</a>
+      </nav>
+      <div class="status-pill"><span class="dot"></span><span id="health-pill">Checking backend...</span></div>
+    </aside>
+
+    <main class="main">
+      <section id="overview" class="hero">
+        <div>
+          <h2>Cloud Operations & Incident Management</h2>
+          <p>Advanced observability platform with real-time metrics, sophisticated incident simulation, AI-powered root cause analysis, and production-grade incident response. Explore architecture patterns, trigger incidents, and analyze system behavior.</p>
+          <div class="hero-meta">
+            <span class="hero-meta-item" id="meta-incident">INCIDENT: NORMAL</span>
+            <span class="hero-meta-item" id="meta-time">UTC: --:--:--</span>
+            <span class="hero-meta-item" id="meta-kb">KB CHUNKS: --</span>
+          </div>
+        </div>
+        <div class="chip-row">
+          <span class="chip">Real-time Metrics</span>
+          <span class="chip">Incident Simulation</span>
+          <span class="chip">AI-Powered RCA</span>
+          <span class="chip">AWS-Scale Telemetry</span>
+          <span class="chip">Production Ready</span>
+        </div>
+      </section>
+
+      <section class="insight-strip">
+        <article class="insight-card">
+          <div class="insight-label">SLO Compliance</div>
+          <div class="insight-value" id="slo-value">--</div>
+          <div class="insight-meta" id="slo-meta">Waiting for telemetry...</div>
+        </article>
+        <article class="insight-card">
+          <div class="insight-label">Active Alarms</div>
+          <div class="insight-value" id="alarm-value">--</div>
+          <div class="insight-meta" id="alarm-meta">Waiting for telemetry...</div>
+        </article>
+        <article class="insight-card">
+          <div class="insight-label">Last Deploy</div>
+          <div class="insight-value" id="deploy-value">--</div>
+          <div class="insight-meta">GitOps preview environment</div>
+        </article>
+      </section>
+
+      <section id="metrics" class="grid">
+        <article class="card">
+          <div class="metric-title">CPU Usage</div>
+          <div class="metric-value" id="cpu">--</div>
+          <div class="metric-meta">Cluster utilization</div>
+        </article>
+        <article class="card">
+          <div class="metric-title">Memory Usage</div>
+          <div class="metric-value" id="memory">--</div>
+          <div class="metric-meta">Container memory pressure</div>
+        </article>
+        <article class="card">
+          <div class="metric-title">P95 Latency</div>
+          <div class="metric-value" id="latency">--</div>
+          <div class="metric-meta">API gateway edge latency</div>
+        </article>
+        <article class="card">
+          <div class="metric-title">Error Rate</div>
+          <div class="metric-value" id="errors">--</div>
+          <div class="metric-meta">Application-level failures</div>
+        </article>
+        <article class="card">
+          <div class="metric-title">Pod Count</div>
+          <div class="metric-value" id="pods">--</div>
+          <div class="metric-meta">Autoscaling snapshot</div>
+        </article>
+        <article class="card">
+          <div class="metric-title">Requests / min</div>
+          <div class="metric-value" id="rpm">--</div>
+          <div class="metric-meta">Traffic intensity</div>
+        </article>
+      </section>
+
+      <section id="services" class="analytics">
+        <article class="chart-wrap">
+          <div class="section-title">
+            <span>Latency Trend (p95)</span>
+            <span id="incident-badge" class="chip">Incident: normal</span>
+          </div>
+          <canvas id="latency-chart" width="700" height="220"></canvas>
+        </article>
+
+        <article class="chart-wrap">
+          <div class="section-title"><span>Service Health</span></div>
+          <table>
+            <thead>
+              <tr><th>Service</th><th>Status</th><th>Latency</th></tr>
+            </thead>
+            <tbody id="service-body"></tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="ops-grid">
+        <article id="incidents" class="timeline">
+          <div class="section-title"><span>Incident Simulator</span></div>
+          <div class="incident-controls">
+            <button class="btn-warn" onclick="triggerIncident('traffic_spike')">Traffic Spike</button>
+            <button class="btn-bad" onclick="triggerIncident('db_errors')">DB Error Burst</button>
+            <button class="btn-good" onclick="triggerIncident('recovery')">Recovery</button>
+            <button onclick="triggerIncident('normal')">Reset</button>
+          </div>
+          <ul class="timeline-list" id="timeline-list"></ul>
+        </article>
+
+        <article class="logs">
+          <div class="section-title"><span>Live Logs</span></div>
+          <div id="log-output" class="mono">Loading logs...</div>
+        </article>
+      </section>
+
+      <section id="architecture" class="architecture">
+        <div class="section-title"><span>Architecture Map</span></div>
+        <div class="arch-layout">
+          <canvas id="arch-canvas" width="900" height="360"></canvas>
+          <div id="arch-details" class="arch-details">Hover or click a node to inspect architecture components.</div>
+        </div>
+      </section>
+
+      <section class="ops-grid-3">
+        <article class="rca-panel">
+          <div class="section-title">
+            <span>Incident RCA</span>
+            <button onclick="generateRca()">Generate RCA</button>
+          </div>
+          <div id="rca-output" class="rca-block">Click "Generate RCA" to produce a root-cause summary and mitigation plan.</div>
+        </article>
+      </section>
+    </main>
+
+    <aside id="assistant" class="assistant">
+      <div class="assistant-head">
+        <div class="assistant-title">
+          <h3>Ops Guru</h3>
+          <p>AI-powered assistant</p>
+        </div>
+        <button onclick="clearChat()">Clear</button>
+      </div>
+
+      <div id="chat-box">
+        <div class="msg ai">Ask about incident response, system architecture, scaling patterns, or observability best practices.</div>
+      </div>
+
+      <div class="chat-input">
+        <textarea id="prompt" placeholder="Ask about system behavior, incidents, or operations..."></textarea>
+        <button class="cta" id="send-btn" onclick="sendMessage()">Ask</button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const API_BASE =
+      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:8000"
+        : "https://px9kdljn51.execute-api.ap-south-1.amazonaws.com";
+
+    const latencyHistory = [];
+    const maxPoints = 28;
+    let archData = { nodes: [], edges: [] };
+    let archNodePositions = [];
+    let selectedArchNode = null;
+    let hoveredArchNode = null;
+
+    // Sample scenario system
+    let currentScenario = "normal";
+    let scenarioStartTime = Date.now();
+    let timelineEvents = [];
+
+    const scenarios = {
+      normal: {
+        name: "Normal Operation",
+        description: "Healthy system with stable metrics",
+        cpuRange: [20, 45],
+        memoryRange: [30, 55],
+        latencyRange: [45, 95],
+        errorRange: [0.1, 0.8],
+        podRange: [8, 12],
+        rpmRange: [800, 1200],
+        duration: Infinity
+      },
+      traffic_spike: {
+        name: "Traffic Spike",
+        description: "Sudden traffic increase causing resource pressure",
+        cpuRange: [70, 95],
+        memoryRange: [75, 95],
+        latencyRange: [200, 500],
+        errorRange: [2, 8],
+        podRange: [15, 20],
+        rpmRange: [3000, 5000],
+        duration: 45000,
+        events: [
+          { time: 0, msg: "⚠️ Traffic spike detected - 3x normal load" },
+          { time: 3000, msg: "📈 Auto-scaling activated - spawning new pods" },
+          { time: 8000, msg: "⚡ CPU utilization critical - 92%" },
+          { time: 15000, msg: "🔴 Error rate elevated - 5.2%" },
+          { time: 25000, msg: "✓ Load balancing across new instances" },
+          { time: 35000, msg: "📉 Traffic normalizing - gradual recovery" }
+        ]
+      },
+      db_errors: {
+        name: "Database Error Burst",
+        description: "Connection pool exhaustion and database errors",
+        cpuRange: [45, 70],
+        memoryRange: [60, 85],
+        latencyRange: [300, 800],
+        errorRange: [8, 25],
+        podRange: [8, 12],
+        rpmRange: [1500, 2500],
+        duration: 40000,
+        events: [
+          { time: 0, msg: "🔴 Database connection pool exhausted" },
+          { time: 2000, msg: "💥 Error rate spike - 15% failures" },
+          { time: 5000, msg: "⏱️ Query timeout threshold breached" },
+          { time: 8000, msg: "🔍 Identified: Max connections = 100, current = 120" },
+          { time: 12000, msg: "🔧 Implementing connection retry logic" },
+          { time: 20000, msg: "♻️ Connection pool rebalancing" },
+          { time: 30000, msg: "✓ Error rate declining - 3.2%" }
+        ]
+      },
+      recovery: {
+        name: "Recovery Mode",
+        description: "System recovering from incident",
+        cpuRange: [30, 55],
+        memoryRange: [40, 65],
+        latencyRange: [80, 150],
+        errorRange: [0.5, 2],
+        podRange: [10, 14],
+        rpmRange: [1200, 1800],
+        duration: 30000,
+        events: [
+          { time: 0, msg: "🔄 Initiating recovery protocol" },
+          { time: 3000, msg: "✓ Health checks passing" },
+          { time: 6000, msg: "📊 Metrics stabilizing" },
+          { time: 12000, msg: "🟢 Error rate < 1%" },
+          { time: 18000, msg: "✓ All services healthy" },
+          { time: 24000, msg: "✅ Full recovery complete" }
+        ]
+      }
+    };
+
+    function generateMetricValue(min, max, smooth = true) {
+      if (smooth) {
+        return min + Math.random() * (max - min);
+      }
+      return Math.round(min + Math.random() * (max - min));
+    }
+
+    function getScenarioMetrics(scenario) {
+      const elapsed = Date.now() - scenarioStartTime;
+      if (elapsed > scenario.duration) {
+        currentScenario = "normal";
+        scenarioStartTime = Date.now();
+        return getScenarioMetrics(scenarios.normal);
+      }
+
+      return {
+        cpu_percent: generateMetricValue(scenario.cpuRange[0], scenario.cpuRange[1]),
+        memory_percent: generateMetricValue(scenario.memoryRange[0], scenario.memoryRange[1]),
+        latency_p95_ms: generateMetricValue(scenario.latencyRange[0], scenario.latencyRange[1]),
+        error_rate_percent: generateMetricValue(scenario.errorRange[0], scenario.errorRange[1], true),
+        pod_count: generateMetricValue(scenario.podRange[0], scenario.podRange[1], false),
+        requests_per_min: generateMetricValue(scenario.rpmRange[0], scenario.rpmRange[1], false)
+      };
+    }
+
+    function updateScenarioTimeline() {
+      const scenario = scenarios[currentScenario];
+      const elapsed = Date.now() - scenarioStartTime;
+
+      if (scenario.events) {
+        const newEvents = scenario.events.filter(e => e.time <= elapsed);
+        if (newEvents.length > timelineEvents.length) {
+          timelineEvents = newEvents;
+          renderTimeline(newEvents.map((e, i) => ({
+            time: new Date(scenarioStartTime + e.time).toISOString(),
+            event: e.msg
+          })));
+        }
+      }
+    }
+
+    const metricEls = {
+      cpu: document.getElementById("cpu"),
+      memory: document.getElementById("memory"),
+      latency: document.getElementById("latency"),
+      errors: document.getElementById("errors"),
+      pods: document.getElementById("pods"),
+      rpm: document.getElementById("rpm"),
+    };
+
+    function updateMetaClock() {
+      const now = new Date();
+      document.getElementById("meta-time").textContent = `UTC: ${now.toUTCString().split(" ")[4]}`;
+    }
+
+    function updateInsights(metrics, incident) {
+      const sloOk = metrics.latency_p95_ms < 180 && metrics.error_rate_percent < 1.2;
+      document.getElementById("slo-value").textContent = sloOk ? "99.95%" : "99.10%";
+      document.getElementById("slo-meta").textContent = sloOk
+        ? "Latency and errors are within target"
+        : "SLO burn observed. Investigate incident signals.";
+
+      const alarmCount = incident === "normal" ? 0 : incident === "recovery" ? 1 : 3;
+      document.getElementById("alarm-value").textContent = String(alarmCount);
+      document.getElementById("alarm-meta").textContent = alarmCount === 0
+        ? "No active CloudWatch alarms"
+        : `${alarmCount} alert pipeline(s) currently active`;
+
+      document.getElementById("deploy-value").textContent = `${Math.max(3, Math.floor(metrics.requests_per_min / 20))}m ago`;
+      document.getElementById("meta-incident").textContent = `INCIDENT: ${incident.toUpperCase().replace("_", " ")}`;
+    }
+
+    function formatTime(iso) {
+      try {
+        return new Date(iso).toLocaleTimeString();
+      } catch {
+        return iso;
+      }
+    }
+
+    function getNodeDescription(name) {
+      const map = {
+        "Route53": "Public DNS routing layer. Directs user traffic to CloudFront.",
+        "CloudFront": "Global edge CDN + TLS termination. Low-latency delivery and caching.",
+        "S3 Frontend": "Hosts static dashboard assets for obs.atla.in UI.",
+        "API Gateway": "Public API ingress for chat and ops endpoints.",
+        "Lambda AtlaOps API": "Stateless orchestration for telemetry, RCA simulation, and AI requests.",
+        "OpenAI LLM": "Managed inference endpoint for Ops Guru reasoning and response generation.",
+        "Vector Store": "Retrieval context store for architecture docs, playbooks, and project notes.",
+        "CloudWatch": "Metrics, alarms, and incident signal pipeline.",
+      };
+      return map[name] || "Infrastructure component in the obs.atla.in reference topology.";
+    }
+
+    function getArchitectureNodePositions(nodes, width, height) {
+      const presets = {
+        "Route53": [0.08, 0.5],
+        "CloudFront": [0.24, 0.5],
+        "S3 Frontend": [0.42, 0.28],
+        "API Gateway": [0.42, 0.72],
+        "Lambda AtlaOps API": [0.61, 0.5],
+        "OpenAI LLM": [0.82, 0.26],
+        "Vector Store": [0.82, 0.5],
+        "CloudWatch": [0.82, 0.74],
+      };
+
+      return nodes.map((name, idx) => {
+        const p = presets[name];
+        if (p) {
+          return { name, x: p[0] * width, y: p[1] * height, r: 18, idx };
+        }
+        const angle = (Math.PI * 2 * idx) / Math.max(nodes.length, 1);
+        return {
+          name,
+          x: width * 0.5 + Math.cos(angle) * width * 0.25,
+          y: height * 0.5 + Math.sin(angle) * height * 0.25,
+          r: 18,
+          idx,
+        };
+      });
+    }
+
+    function edgeTouchesNode(edge, nodeName) {
+      return edge[0] === nodeName || edge[1] === nodeName;
+    }
+
+    function renderArchitectureDetails(nodeName) {
+      const el = document.getElementById("arch-details");
+      if (!nodeName) {
+        el.textContent = "Hover or click a node to inspect architecture components.";
+        return;
+      }
+
+      const connected = archData.edges
+        .filter((e) => edgeTouchesNode(e, nodeName))
+        .map((e) => `${e[0]} → ${e[1]}`);
+
+      const lines = [];
+      lines.push(`Component: ${nodeName}`);
+      lines.push("");
+      lines.push(getNodeDescription(nodeName));
+      if (connected.length) {
+        lines.push("");
+        lines.push("Connected flows:");
+        connected.forEach((c) => lines.push(`- ${c}`));
+      }
+      el.textContent = lines.join("\n");
+    }
+
+    function drawArchitectureGraph() {
+      const canvas = document.getElementById("arch-canvas");
+      if (!canvas || !archData.nodes.length) return;
+      const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const cssW = canvas.clientWidth || 900;
+      const cssH = canvas.clientHeight || 360;
+      canvas.width = Math.floor(cssW * dpr);
+      canvas.height = Math.floor(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      archNodePositions = getArchitectureNodePositions(archData.nodes, cssW, cssH);
+      const nodeMap = new Map(archNodePositions.map((n) => [n.name, n]));
+
+      archData.edges.forEach((edge) => {
+        const from = nodeMap.get(edge[0]);
+        const to = nodeMap.get(edge[1]);
+        if (!from || !to) return;
+
+        let emphasis = false;
+        if (selectedArchNode) emphasis = edgeTouchesNode(edge, selectedArchNode);
+        if (hoveredArchNode) emphasis = emphasis || edgeTouchesNode(edge, hoveredArchNode);
+
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.strokeStyle = emphasis ? "rgba(37, 99, 235, 0.95)" : "rgba(148, 163, 184, 0.28)";
+        ctx.lineWidth = emphasis ? 2.8 : 1.2;
+        ctx.stroke();
+      });
+
+      archNodePositions.forEach((node) => {
+        const isSelected = selectedArchNode === node.name;
+        const isHover = hoveredArchNode === node.name;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
+        ctx.fillStyle = isSelected
+          ? "rgba(15, 118, 110, 0.95)"
+          : isHover
+          ? "rgba(37, 99, 235, 0.95)"
+          : "rgba(255, 255, 255, 0.95)";
+        ctx.fill();
+        ctx.lineWidth = isSelected || isHover ? 3 : 1.6;
+        ctx.strokeStyle = isSelected || isHover ? "rgba(15, 23, 42, 0.16)" : "rgba(148, 163, 184, 0.28)";
+        ctx.stroke();
+
+        ctx.fillStyle = "#0f172a";
+        ctx.font = "600 13px Inter";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(node.name, node.x, node.y - 26);
+      });
+    }
+
+    function setupArchitectureInteractions() {
+      const canvas = document.getElementById("arch-canvas");
+      if (!canvas || canvas.dataset.bound === "1") return;
+      canvas.dataset.bound = "1";
+
+      canvas.addEventListener("mousemove", (event) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        hoveredArchNode = null;
+        for (const node of archNodePositions) {
+          const dx = x - node.x;
+          const dy = y - node.y;
+          if (Math.sqrt(dx * dx + dy * dy) <= node.r + 6) {
+            hoveredArchNode = node.name;
+            break;
+          }
+        }
+        const focus = hoveredArchNode || selectedArchNode;
+        renderArchitectureDetails(focus);
+        drawArchitectureGraph();
+      });
+
+      canvas.addEventListener("mouseleave", () => {
+        hoveredArchNode = null;
+        renderArchitectureDetails(selectedArchNode);
+        drawArchitectureGraph();
+      });
+
+      canvas.addEventListener("click", () => {
+        if (!hoveredArchNode) return;
+        selectedArchNode = hoveredArchNode;
+        renderArchitectureDetails(selectedArchNode);
+        drawArchitectureGraph();
+      });
+
+      window.addEventListener("resize", () => drawArchitectureGraph());
+    }
+
+    function drawLatencyChart() {
+      const canvas = document.getElementById("latency-chart");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#f8fbff";
+      ctx.fillRect(0, 0, w, h);
+
+      if (latencyHistory.length < 2) return;
+
+      const max = Math.max(...latencyHistory) + 10;
+      const min = Math.max(0, Math.min(...latencyHistory) - 10);
+
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 4; i++) {
+        const y = (h / 5) * i;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = "#2563eb";
+      ctx.lineWidth = 2.8;
+      ctx.beginPath();
+
+      latencyHistory.forEach((v, i) => {
+        const x = (i / (maxPoints - 1)) * (w - 20) + 10;
+        const y = h - ((v - min) / (max - min)) * (h - 24) - 12;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      const last = latencyHistory[latencyHistory.length - 1];
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "600 12px JetBrains Mono";
+      ctx.fillText(`Latest: ${last.toFixed(1)}ms`, 10, 20);
+    }
+
+    function renderServices(services) {
+      const body = document.getElementById("service-body");
+      body.innerHTML = "";
+      services.forEach((s) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${s.name}</td>
+          <td><span class="status ${s.status}">${s.status}</span></td>
+          <td>${s.latency_ms} ms</td>
+        `;
+        body.appendChild(row);
+      });
+    }
+
+    function renderTimeline(items) {
+      const list = document.getElementById("timeline-list");
+      list.innerHTML = "";
+      items.slice(0, 12).forEach((item) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<div class="time">${formatTime(item.time)}</div><div>${item.event}</div>`;
+        list.appendChild(li);
+      });
+    }
+
+    async function refreshMetrics() {
+      try {
+        let m, incident;
+
+        // Try to fetch from backend, fall back to sample data
+        try {
+          const res = await fetch(`${API_BASE}/ops/metrics`, { timeout: 2000 });
+          if (res.ok) {
+            const data = await res.json();
+            m = data.metrics;
+            incident = data.incident;
+          } else {
+            throw new Error("Backend unavailable");
+          }
+        } catch (e) {
+          // Use sample scenario data
+          m = getScenarioMetrics(scenarios[currentScenario]);
+          incident = currentScenario;
+          updateScenarioTimeline();
+        }
+
+        metricEls.cpu.textContent = `${m.cpu_percent.toFixed(1)}%`;
+        metricEls.memory.textContent = `${m.memory_percent.toFixed(1)}%`;
+        metricEls.latency.textContent = `${m.latency_p95_ms.toFixed(0)}ms`;
+        metricEls.errors.textContent = `${m.error_rate_percent.toFixed(2)}%`;
+        metricEls.pods.textContent = m.pod_count;
+        metricEls.rpm.textContent = m.requests_per_min;
+
+        document.getElementById("incident-badge").textContent = `Incident: ${incident}`;
+        updateInsights(m, incident);
+
+        latencyHistory.push(m.latency_p95_ms);
+        while (latencyHistory.length > maxPoints) latencyHistory.shift();
+        drawLatencyChart();
+
+        // Generate sample services data
+        const services = [
+          { name: "API Gateway", status: incident === "normal" ? "healthy" : incident === "recovery" ? "degraded" : "degraded", latency_ms: Math.round(m.latency_p95_ms * 0.8) },
+          { name: "Auth Service", status: incident === "db_errors" ? "degraded" : "healthy", latency_ms: Math.round(m.latency_p95_ms * 0.6) },
+          { name: "Database", status: incident === "db_errors" ? "degraded" : "healthy", latency_ms: Math.round(m.latency_p95_ms * 1.2) },
+          { name: "Cache Layer", status: "healthy", latency_ms: Math.round(m.latency_p95_ms * 0.3) },
+          { name: "LLM Service", status: incident === "traffic_spike" ? "degraded" : "healthy", latency_ms: Math.round(m.latency_p95_ms * 2) }
+        ];
+        renderServices(services);
+      } catch {
+        document.getElementById("health-pill").textContent = "using sample data";
+      }
+    }
+
+    const sampleLogs = {
+      normal: [
+        "✓ [API] Request processed in 45ms",
+        "✓ [DB] Query executed in 12ms",
+        "✓ [Cache] Hit rate: 87%",
+        "✓ [Auth] User authenticated successfully",
+        "✓ [API] Endpoint /metrics responded 200 OK",
+        "ℹ [Monitor] SLO compliance: 99.95%"
+      ],
+      traffic_spike: [
+        "⚠️ [LB] High traffic detected: 3500 req/min",
+        "⚠️ [Autoscale] Spawning 8 new instances",
+        "🔴 [API] Request queue depth: 450",
+        "⚠️ [Memory] 89% utilization on node-05",
+        "🔴 [DB] Connection pool at 98%",
+        "⚠️ [LLM] Response latency: 850ms"
+      ],
+      db_errors: [
+        "🔴 [DB] Connection refused on primary",
+        "🔴 [DB] Pool exhausted: 100/100 connections",
+        "⚠️ [API] Retry attempt #3 for query",
+        "🔴 [Error] QueryTimeoutError after 5s",
+        "🔴 [Service] DB service degraded",
+        "ℹ [Fallback] Using read-only replica"
+      ],
+      recovery: [
+        "🔄 [Recovery] Initiating recovery protocol",
+        "✓ [Health] Primary database responding",
+        "✓ [Connection] Pool rebalancing complete",
+        "✓ [Autoscale] Scaling down excess instances",
+        "✓ [Metrics] CPU returning to baseline",
+        "✅ [Recovery] System fully recovered"
+      ]
+    };
+
+    async function refreshLogs() {
+      try {
+        const res = await fetch(`${API_BASE}/ops/logs?limit=18`);
+        const data = await res.json();
+        const lines = (data.logs || []).map((l) => `[${formatTime(l.time)}] ${l.line}`);
+        document.getElementById("log-output").textContent = lines.join("\n");
+      } catch {
+        // Generate sample logs based on scenario
+        const logs = sampleLogs[currentScenario] || sampleLogs.normal;
+        const lines = logs.map((l, i) => {
+          const time = new Date(Date.now() - (logs.length - i) * 5000);
+          return `[${formatTime(time.toISOString())}] ${l}`;
+        });
+        document.getElementById("log-output").textContent = lines.join("\n");
+      }
+    }
+
+    async function refreshIncidents() {
+      try {
+        const res = await fetch(`${API_BASE}/ops/incidents`);
+        const data = await res.json();
+        renderTimeline(data.timeline || []);
+      } catch {
+        // Generate timeline from scenario events
+        updateScenarioTimeline();
+      }
+    }
+
+    async function refreshArchitecture() {
+      try {
+        const res = await fetch(`${API_BASE}/ops/architecture`);
+        const data = await res.json();
+        archData = {
+          nodes: data.nodes || [],
+          edges: data.edges || [],
+        };
+        if (!selectedArchNode && archData.nodes.length) {
+          selectedArchNode = archData.nodes[0];
+        }
+        setupArchitectureInteractions();
+        renderArchitectureDetails(selectedArchNode);
+        drawArchitectureGraph();
+      } catch {
+        document.getElementById("arch-details").textContent = "Unable to load architecture map.";
+      }
+    }
+
+    const rcaTemplates = {
+      normal: {
+        summary: "System operating within normal parameters. All metrics green.",
+        likely_root_cause: "No incident detected.",
+        mitigation_plan: [
+          "Continue monitoring system health",
+          "Maintain current resource allocation",
+          "Review logs for anomalies"
+        ]
+      },
+      traffic_spike: {
+        summary: "Unexpected spike in incoming traffic caused resource exhaustion.",
+        likely_root_cause: "Traffic surge from external source or viral content distribution. Load balancer scaling lag.",
+        mitigation_plan: [
+          "Enable rate limiting on API endpoints",
+          "Increase auto-scaling thresholds",
+          "Implement circuit breaker for downstream services",
+          "Cache frequently accessed data",
+          "Consider DDoS protection if malicious"
+        ]
+      },
+      db_errors: {
+        summary: "Database connection pool exhausted, causing cascading failures.",
+        likely_root_cause: "Connection pool size insufficient for current load. Possible connection leak or slow queries holding connections.",
+        mitigation_plan: [
+          "Increase max connections in connection pool",
+          "Implement connection timeout policy",
+          "Optimize slow-running queries",
+          "Add connection pooling proxy (PgBouncer)",
+          "Monitor connection lifecycle metrics",
+          "Implement query caching layer"
+        ]
+      },
+      recovery: {
+        summary: "System recovering from incident. Metrics normalizing.",
+        likely_root_cause: "Previous incident being resolved by mitigation measures.",
+        mitigation_plan: [
+          "Monitor SLO compliance as recovery continues",
+          "Verify all services are returning to baseline",
+          "Run post-incident diagnostics",
+          "Update runbooks with findings",
+          "Prepare detailed incident post-mortem"
+        ]
+      }
+    };
+
+    function renderRca(data) {
+      const lines = [];
+      lines.push(`Incident: ${data.incident}`);
+      lines.push(`Generated: ${formatTime(data.generated_at)}`);
+      lines.push("");
+      lines.push(`Summary: ${data.summary}`);
+      lines.push(`Likely Root Cause: ${data.likely_root_cause}`);
+      lines.push("");
+      lines.push("Signals:");
+      lines.push(`- CPU: ${data.signals.cpu_percent.toFixed(1)}%`);
+      lines.push(`- Memory: ${data.signals.memory_percent.toFixed(1)}%`);
+      lines.push(`- P95 Latency: ${data.signals.latency_p95_ms.toFixed(0)} ms`);
+      lines.push(`- Error Rate: ${data.signals.error_rate_percent.toFixed(2)}%`);
+      lines.push(`- Pods: ${data.signals.pod_count}`);
+      lines.push(`- RPM: ${data.signals.requests_per_min}`);
+      lines.push("");
+      lines.push("Mitigation Plan:");
+      (data.mitigation_plan || []).forEach((step, idx) => lines.push(`${idx + 1}. ${step}`));
+      document.getElementById("rca-output").textContent = lines.join("\n");
+    }
+
+    async function generateRca() {
+      const el = document.getElementById("rca-output");
+      el.textContent = "Generating incident analysis...";
+      try {
+        // Try backend first
+        const res = await fetch(`${API_BASE}/ops/incidents/rca`, { timeout: 2000 });
+        if (res.ok) {
+          const data = await res.json();
+          renderRca(data);
+          return;
+        }
+      } catch (e) {
+        // Fall back to sample RCA
+      }
+
+      // Generate sample RCA based on current scenario
+      const scenario = scenarios[currentScenario];
+      const metrics = getScenarioMetrics(scenario);
+      const template = rcaTemplates[currentScenario];
+
+      renderRca({
+        incident: currentScenario,
+        generated_at: new Date().toISOString(),
+        summary: template.summary,
+        likely_root_cause: template.likely_root_cause,
+        signals: metrics,
+        mitigation_plan: template.mitigation_plan
+      });
+    }
+
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/health`);
+        const data = await res.json();
+        document.getElementById("health-pill").textContent = `backend ${data.status} (${data.backend})`;
+        if (typeof data.kb_chunks === "number") {
+          document.getElementById("meta-kb").textContent = `KB CHUNKS: ${data.kb_chunks}`;
+        }
+      } catch {
+        document.getElementById("health-pill").textContent = "backend offline";
+      }
+    }
+
+    async function triggerIncident(type) {
+      // Map button types to scenario names
+      const scenarioMap = {
+        traffic_spike: "traffic_spike",
+        db_errors: "db_errors",
+        recovery: "recovery",
+        normal: "normal"
+      };
+
+      const scenario = scenarioMap[type] || type;
+      currentScenario = scenario;
+      scenarioStartTime = Date.now();
+      timelineEvents = [];
+
+      // Try backend trigger first
+      try {
+        await fetch(`${API_BASE}/ops/incidents/trigger`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ incident_type: type }),
+        });
+      } catch {
+        // Backend offline, will use sample data
+      }
+
+      // Update immediately with new scenario
+      await Promise.all([refreshMetrics(), refreshLogs(), refreshIncidents(), generateRca()]);
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatAiText(text) {
+      let html = escapeHtml(text || "");
+      html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+      html = html.replace(/(?:^|\n)-\s+/g, "<br>- ");
+      html = html.replace(/\n/g, "<br>");
+      return html;
+    }
+
+    function addChat(role, text, sources = []) {
+      const box = document.getElementById("chat-box");
+      const msg = document.createElement("div");
+      msg.className = `msg ${role}`;
+      if (role === "ai") {
+        msg.innerHTML = formatAiText(text);
+      } else {
+        msg.textContent = text;
+      }
+
+      if (role === "ai" && sources.length > 0) {
+        const ref = document.createElement("div");
+        ref.className = "sources";
+        ref.textContent = `Sources: ${sources.map((s) => `${s.source}#${s.chunk}`).join(", ")}`;
+        msg.appendChild(ref);
+      }
+
+      box.appendChild(msg);
+      box.scrollTop = box.scrollHeight;
+      return msg;
+    }
+
+    function clearChat() {
+      const box = document.getElementById("chat-box");
+      box.innerHTML = '<div class="msg ai">Ask about incident response, system architecture, scaling patterns, or observability best practices.</div>';
+    }
+
+    async function sendMessage() {
+      const promptEl = document.getElementById("prompt");
+      const btn = document.getElementById("send-btn");
+      const text = promptEl.value.trim();
+      if (!text) return;
+
+      addChat("user", text);
+      promptEl.value = "";
+      btn.disabled = true;
+      const ai = addChat("ai", "Thinking . .. ...");
+
+      try {
+        const res = await fetch(`${API_BASE}/generate/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: text }),
+        });
+        if (!res.ok) {
+          let detail = "AI request failed";
+          try {
+            const err = await res.json();
+            detail = err.detail || err.response || detail;
+          } catch {}
+          throw new Error(`${detail} (status ${res.status})`);
+        }
+        const data = await res.json();
+        ai.innerHTML = formatAiText(data.response || "No response received.");
+        if (Array.isArray(data.sources) && data.sources.length > 0) {
+          const ref = document.createElement("div");
+          ref.className = "sources";
+          ref.textContent = `Sources: ${data.sources.map((s) => `${s.source}#${s.chunk}`).join(", ")}`;
+          ai.appendChild(ref);
+        }
+      } catch (err) {
+        ai.innerHTML = formatAiText(err.message || "Ops Guru is unreachable right now.");
+      } finally {
+        btn.disabled = false;
+        promptEl.focus();
+      }
+    }
+
+    document.getElementById("prompt").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    async function boot() {
+      updateMetaClock();
+
+      // Initialize with sample architecture
+      archData = {
+        nodes: ["Route53", "CloudFront", "S3 Frontend", "API Gateway", "Lambda AtlaOps API", "OpenAI LLM", "Vector Store", "CloudWatch"],
+        edges: [
+          ["Route53", "CloudFront"],
+          ["CloudFront", "S3 Frontend"],
+          ["CloudFront", "API Gateway"],
+          ["API Gateway", "Lambda AtlaOps API"],
+          ["Lambda AtlaOps API", "OpenAI LLM"],
+          ["Lambda AtlaOps API", "Vector Store"],
+          ["CloudWatch", "Lambda AtlaOps API"],
+          ["Route53", "API Gateway"]
+        ]
+      };
+
+      // Load initial metrics and setup
+      await Promise.all([
+        checkHealth(),
+        refreshMetrics(),
+        refreshLogs(),
+        refreshIncidents(),
+        refreshArchitecture(),
+        generateRca(),
+      ]);
+
+      // Auto-trigger a sample scenario after 5 seconds for demo
+      setTimeout(() => {
+        if (currentScenario === "normal") {
+          triggerIncident("traffic_spike");
+        }
+      }, 5000);
+
+      setInterval(refreshMetrics, 2000);
+      setInterval(refreshLogs, 3000);
+      setInterval(refreshIncidents, 4000);
+      setInterval(checkHealth, 15000);
+      setInterval(updateMetaClock, 1000);
+    }
+
+    boot();
+  </script>
+</body>
+</html>
