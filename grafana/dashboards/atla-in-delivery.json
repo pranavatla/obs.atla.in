@@ -322,7 +322,8 @@
               }
             ]
           },
-          "decimals": 2
+          "decimals": 2,
+          "displayName": "4xx error rate"
         },
         "overrides": []
       },
@@ -471,7 +472,8 @@
               }
             ]
           },
-          "decimals": 2
+          "decimals": 2,
+          "displayName": "5xx error rate"
         },
         "overrides": []
       },
@@ -736,7 +738,32 @@
             "showPoints": "auto"
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "4xx"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "4xx"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byFrameRefID",
+              "options": "5xx"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "5xx"
+              }
+            ]
+          }
+        ]
       },
       "options": {
         "legend": {
