@@ -1,5 +1,5 @@
 {
-  "title": "atla.in \u00b7 Delivery & Security",
+  "title": "atla.in \u00b7 Availability, Delivery & Security",
   "uid": "atla-in-delivery",
   "description": "CloudFront delivery metrics for the atla.in portfolio.",
   "tags": [
@@ -34,6 +34,15 @@
         "hide": 0
       },
       {
+        "name": "prom",
+        "label": "Prometheus",
+        "type": "datasource",
+        "query": "prometheus",
+        "regex": "/grafanacloud-.*-prom/",
+        "current": {},
+        "hide": 0
+      },
+      {
         "name": "distribution",
         "label": "Distribution",
         "type": "constant",
@@ -46,6 +55,13 @@
         "type": "constant",
         "query": "CreatedByCloudFront-14eef7b4",
         "hide": 2
+      },
+      {
+        "name": "sm_job",
+        "label": "Uptime check",
+        "type": "constant",
+        "query": "atla.in homepage",
+        "hide": 2
       }
     ]
   },
@@ -53,6 +69,309 @@
     "list": []
   },
   "panels": [
+    {
+      "id": 30,
+      "type": "row",
+      "title": "Availability",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 31,
+      "type": "stat",
+      "title": "Status now",
+      "description": "Whether the most recent run of the uptime check succeeded from every probe. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "min(probe_success{job=\"${sm_job}\"})",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Status now"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "displayName": "Status now",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 32,
+      "type": "stat",
+      "title": "Uptime",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range])) / sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Uptime"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "displayName": "Uptime",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.99
+              },
+              {
+                "color": "green",
+                "value": 0.999
+              }
+            ]
+          },
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 33,
+      "type": "stat",
+      "title": "Check duration",
+      "description": "Average time for one check run (DNS, connect, TLS, response) across probes over the selected range. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "avg(avg_over_time(probe_duration_seconds{job=\"${sm_job}\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Check duration"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "displayName": "Check duration",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 34,
+      "type": "stat",
+      "title": "Failed check runs",
+      "description": "Number of check runs that failed over the selected range, across all probes. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range])) - sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Failed check runs"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Failed check runs",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
     {
       "id": 1,
       "type": "stat",
@@ -91,7 +410,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 5
       },
       "fieldConfig": {
         "defaults": {
@@ -164,7 +483,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 5
       },
       "fieldConfig": {
         "defaults": {
@@ -304,7 +623,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 5
       },
       "fieldConfig": {
         "defaults": {
@@ -454,7 +773,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 5
       },
       "fieldConfig": {
         "defaults": {
@@ -537,7 +856,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 4
+        "y": 9
       },
       "fieldConfig": {
         "defaults": {
@@ -731,7 +1050,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 4
+        "y": 9
       },
       "fieldConfig": {
         "defaults": {
@@ -845,7 +1164,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 17
       },
       "fieldConfig": {
         "defaults": {
@@ -881,11 +1200,11 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 12
+        "y": 17
       },
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Visitor experience needs CloudWatch RUM (planned).\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Not shown yet:** request logs (paths, status codes), availability checks (Synthetics), releases (GitHub Actions), audit events (CloudTrail)."
+        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Visitor experience needs CloudWatch RUM (planned).\n\n**Availability row:** Grafana Synthetic Monitoring check `${sm_job}` on `https://atla.in/`, every 5 minutes from 3 probes.\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Not shown yet:** request logs (paths, status codes), releases (GitHub Actions), audit events (CloudTrail)."
       }
     },
     {
@@ -897,7 +1216,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 25
       },
       "panels": []
     },
@@ -940,7 +1259,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 21
+        "y": 26
       },
       "fieldConfig": {
         "defaults": {
@@ -1007,7 +1326,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 21
+        "y": 26
       },
       "fieldConfig": {
         "defaults": {
@@ -1129,7 +1448,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 21
+        "y": 26
       },
       "fieldConfig": {
         "defaults": {
@@ -1221,7 +1540,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 25
+        "y": 30
       },
       "fieldConfig": {
         "defaults": {
@@ -1280,7 +1599,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 25
+        "y": 30
       },
       "transformations": [
         {
@@ -1377,7 +1696,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 38
       },
       "transformations": [
         {
@@ -1474,7 +1793,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 38
       },
       "transformations": [
         {
@@ -1571,7 +1890,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 38
       },
       "transformations": [
         {
