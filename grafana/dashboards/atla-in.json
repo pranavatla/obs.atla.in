@@ -1,7 +1,7 @@
 {
-  "title": "atla.in \u00b7 Availability, Visitors, Delivery & Security",
   "uid": "atla-in-delivery",
-  "description": "CloudFront delivery metrics for the atla.in portfolio.",
+  "title": "atla.in · Availability, Visitors, Delivery & Security",
+  "description": "Monitoring for https://atla.in/.",
   "tags": [
     "atla.in",
     "cloudfront",
@@ -50,13 +50,6 @@
         "hide": 2
       },
       {
-        "name": "waf_acl",
-        "label": "WAF web ACL",
-        "type": "constant",
-        "query": "CreatedByCloudFront-14eef7b4",
-        "hide": 2
-      },
-      {
         "name": "sm_job",
         "label": "Uptime check",
         "type": "constant",
@@ -68,6 +61,13 @@
         "label": "RUM app monitor",
         "type": "constant",
         "query": "atla-in",
+        "hide": 2
+      },
+      {
+        "name": "waf_acl",
+        "label": "WAF web ACL",
+        "type": "constant",
+        "query": "CreatedByCloudFront-14eef7b4",
         "hide": 2
       }
     ]
@@ -97,23 +97,22 @@
   },
   "panels": [
     {
-      "id": 30,
       "type": "row",
       "title": "Availability",
       "collapsed": false,
+      "panels": [],
+      "id": 1,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 0
-      },
-      "panels": []
+      }
     },
     {
-      "id": 31,
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the most recent run of the uptime check succeeded from every probe. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -131,12 +130,6 @@
           "legendFormat": "Status now"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 1
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "none",
@@ -171,7 +164,8 @@
                 }
               }
             }
-          ]
+          ],
+          "noValue": "No check"
         },
         "overrides": []
       },
@@ -188,13 +182,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
       }
     },
     {
-      "id": 32,
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -212,12 +212,6 @@
           "legendFormat": "Uptime"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 1
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "percentunit",
@@ -242,7 +236,8 @@
               }
             ]
           },
-          "decimals": 2
+          "decimals": 2,
+          "noValue": "No check"
         },
         "overrides": []
       },
@@ -259,13 +254,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
       }
     },
     {
-      "id": 33,
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) across probes over the selected range. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -283,12 +284,6 @@
           "legendFormat": "Check duration"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 1
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "s",
@@ -313,7 +308,8 @@
               }
             ]
           },
-          "decimals": 2
+          "decimals": 2,
+          "noValue": "No check"
         },
         "overrides": []
       },
@@ -330,13 +326,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
       }
     },
     {
-      "id": 34,
       "type": "stat",
       "title": "Failed check runs",
-      "description": "Number of check runs that failed over the selected range, across all probes. Measured \u00b7 Grafana Synthetic Monitoring check \"${sm_job}\" (probes in Frankfurt, Mumbai, N. Virginia).",
+      "description": "Check runs that failed over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -351,15 +353,9 @@
           "expr": "sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range])) - sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range]))",
           "instant": true,
           "range": false,
-          "legendFormat": "Failed check runs"
+          "legendFormat": "Failed"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 1
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -380,7 +376,8 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No check"
         },
         "overrides": []
       },
@@ -397,26 +394,32 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
       }
     },
     {
-      "id": 40,
       "type": "row",
-      "title": "Real visitors \u00b7 CloudWatch RUM",
+      "title": "Real visitors · CloudWatch RUM",
       "collapsed": false,
+      "panels": [],
+      "id": 6,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 5
-      },
-      "panels": []
+      }
     },
     {
-      "id": 41,
       "type": "stat",
       "title": "Page views",
-      "description": "Page loads recorded by the RUM script in visitors' browsers. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Page loads recorded by the RUM script in visitors' browsers. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -428,6 +431,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -445,12 +449,6 @@
           "label": "PageViewCount"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 6
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -467,8 +465,8 @@
               }
             ]
           },
-          "noValue": "No visits yet",
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -485,13 +483,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 7,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
       }
     },
     {
-      "id": 42,
       "type": "stat",
       "title": "Page load (p75)",
-      "description": "Navigation duration: from request until the page finished loading. 75% of page loads were at or below this. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Navigation duration: from request until the page finished loading. 75% of page loads were at or below this. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -503,6 +507,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -520,12 +525,6 @@
           "label": "PerformanceNavigationDuration"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 6
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
@@ -550,8 +549,8 @@
               }
             ]
           },
-          "noValue": "No visits yet",
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -568,13 +567,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 8,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
       }
     },
     {
-      "id": 43,
       "type": "stat",
       "title": "LCP (p75)",
-      "description": "Largest Contentful Paint: when the main content became visible. Good \u2264 2.5 s, poor > 4 s. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Largest Contentful Paint: when the main content became visible. Good ≤ 2.5 s, poor > 4 s. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -586,6 +591,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -603,12 +609,6 @@
           "label": "WebVitalsLargestContentfulPaint"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 8,
-        "y": 6
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
@@ -633,8 +633,8 @@
               }
             ]
           },
-          "noValue": "No visits yet",
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -651,13 +651,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 9,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
       }
     },
     {
-      "id": 44,
       "type": "stat",
       "title": "CLS (p75)",
-      "description": "Cumulative Layout Shift: how much the page jumped while loading. Good \u2264 0.1, poor > 0.25. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Cumulative Layout Shift: how much the page jumped while loading. Good ≤ 0.1, poor > 0.25. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -669,6 +675,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -686,12 +693,6 @@
           "label": "WebVitalsCumulativeLayoutShift"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 6
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "none",
@@ -716,8 +717,8 @@
               }
             ]
           },
-          "noValue": "No visits yet",
-          "decimals": 3
+          "decimals": 3,
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -734,13 +735,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 10,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
       }
     },
     {
-      "id": 45,
       "type": "stat",
       "title": "INP (p75)",
-      "description": "Interaction to Next Paint: delay between a click or tap and the page responding. Good \u2264 200 ms, poor > 500 ms. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Interaction to Next Paint: delay between a click or tap and the page responding. Good ≤ 200 ms, poor > 500 ms. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -752,6 +759,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -769,12 +777,6 @@
           "label": "WebVitalsInteractionToNextPaint"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 6
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
@@ -799,8 +801,8 @@
               }
             ]
           },
-          "noValue": "No visits yet",
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -817,13 +819,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
       }
     },
     {
-      "id": 46,
       "type": "stat",
       "title": "JavaScript errors",
-      "description": "Uncaught errors thrown in visitors' browsers. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Uncaught errors thrown in visitors' browsers. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -835,6 +843,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -852,12 +861,6 @@
           "label": "JsErrorCount"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 6
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -878,8 +881,8 @@
               }
             ]
           },
-          "noValue": "No visits yet",
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -896,13 +899,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
       }
     },
     {
-      "id": 47,
       "type": "timeseries",
       "title": "Page views and browser errors (hourly)",
-      "description": "Page views, JavaScript errors and failed requests made by the page, per hour. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "description": "Page views, JavaScript errors and failed requests made by the page, per hour. Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -914,6 +923,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -936,6 +946,7 @@
             "uid": "${datasource}"
           },
           "refId": "B",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -958,6 +969,7 @@
             "uid": "${datasource}"
           },
           "refId": "C",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -975,22 +987,18 @@
           "label": "HTTP errors"
         }
       ],
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 10
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "min": 0,
-          "noValue": "No visits yet",
           "custom": {
             "drawStyle": "bars",
+            "lineWidth": 1,
             "fillOpacity": 60,
-            "lineWidth": 1
-          }
+            "spanNulls": false,
+            "showPoints": "never"
+          },
+          "noValue": "No visits yet"
         },
         "overrides": []
       },
@@ -1004,13 +1012,32 @@
           "mode": "multi",
           "sort": "none"
         }
+      },
+      "id": 13,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 10
       }
     },
     {
-      "id": 1,
+      "type": "row",
+      "title": "Delivery · CloudFront",
+      "collapsed": false,
+      "panels": [],
+      "id": 14,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      }
+    },
+    {
       "type": "stat",
       "title": "Requests",
-      "description": "Total requests CloudFront served for atla.in in the selected range. Includes page assets and bots, so requests are not visitors. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Total requests CloudFront served in the selected range. Includes page assets and bots, so requests are not visitors. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1022,6 +1049,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -1040,15 +1068,10 @@
           "label": "Requests"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 17
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
+          "displayName": "Requests",
           "color": {
             "mode": "thresholds"
           },
@@ -1077,13 +1100,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 15,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 18
       }
     },
     {
-      "id": 2,
       "type": "stat",
       "title": "Data served",
-      "description": "Total bytes CloudFront sent to viewers in the selected range. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Total bytes CloudFront sent to viewers in the selected range. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1095,6 +1124,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -1113,15 +1143,10 @@
           "label": "BytesDownloaded"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 17
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "decbytes",
+          "displayName": "Data served",
           "color": {
             "mode": "thresholds"
           },
@@ -1150,13 +1175,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 16,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 18
       }
     },
     {
-      "id": 3,
       "type": "stat",
       "title": "4xx rate (incl. firewall blocks)",
-      "description": "Share of all requests answered with a 4xx status. This includes requests AWS WAF blocked (see Security row) and bot requests for paths that do not exist. Use 5xx and availability checks to judge site health. Weighted by requests: per minute, errors = rate \u00d7 requests; the panel shows total errors \u00f7 total requests, so quiet minutes with a single failed request don't dominate. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Share of requests answered with a 4xx status (for example 403 or 404). This includes requests AWS WAF blocked (see Security) and bot requests for paths that do not exist. Use 5xx and availability to judge site health. Weighted by requests: per minute, errors = rate × requests; the panel shows total errors ÷ total requests, so quiet minutes with a single failed request don't dominate. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1253,15 +1284,10 @@
           "hide": false
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 17
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
+          "displayName": "4xx rate (incl. firewall blocks)",
           "color": {
             "mode": "thresholds"
           },
@@ -1282,8 +1308,7 @@
               }
             ]
           },
-          "decimals": 2,
-          "displayName": "4xx rate (incl. firewall blocks)"
+          "decimals": 2
         },
         "overrides": []
       },
@@ -1296,17 +1321,23 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 17,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 18
       }
     },
     {
-      "id": 4,
       "type": "stat",
       "title": "5xx error rate",
-      "description": "Share of requests answered with a 5xx status: CloudFront or the S3 origin failed. Should stay near 0. Weighted by requests: per minute, errors = rate \u00d7 requests; the panel shows total errors \u00f7 total requests, so quiet minutes with a single failed request don't dominate. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Share of requests answered with a 5xx status: CloudFront or the origin failed. Should stay near 0. Weighted by requests: per minute, errors = rate × requests; the panel shows total errors ÷ total requests, so quiet minutes with a single failed request don't dominate. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1403,15 +1434,10 @@
           "hide": false
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 18,
-        "y": 17
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
+          "displayName": "5xx error rate",
           "color": {
             "mode": "thresholds"
           },
@@ -1432,8 +1458,7 @@
               }
             ]
           },
-          "decimals": 2,
-          "displayName": "5xx error rate"
+          "decimals": 2
         },
         "overrides": []
       },
@@ -1446,17 +1471,23 @@
           "values": false
         },
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 18,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 18
       }
     },
     {
-      "id": 5,
       "type": "timeseries",
       "title": "Requests over time",
-      "description": "Requests per period. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Requests per period. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1468,6 +1499,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -1486,20 +1518,14 @@
           "label": "Requests"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 21
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "min": 0,
           "custom": {
             "drawStyle": "bars",
-            "lineWidth": 2,
-            "fillOpacity": 10,
+            "lineWidth": 1,
+            "fillOpacity": 60,
             "spanNulls": false,
             "showPoints": "never"
           }
@@ -1516,13 +1542,19 @@
           "mode": "multi",
           "sort": "none"
         }
+      },
+      "id": 19,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
       }
     },
     {
-      "id": 6,
       "type": "timeseries",
       "title": "Error rates (hourly)",
-      "description": "Hourly share of requests returning 4xx and 5xx. Weighted by requests: per minute, errors = rate \u00d7 requests; the panel shows total errors \u00f7 total requests, so quiet minutes with a single failed request don't dominate. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Hourly share of requests returning 4xx and 5xx. Weighted by requests: per minute, errors = rate × requests; the panel shows total errors ÷ total requests, so quiet minutes with a single failed request don't dominate. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1680,12 +1712,6 @@
           "hide": false
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 21
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
@@ -1735,13 +1761,19 @@
           "mode": "multi",
           "sort": "none"
         }
+      },
+      "id": 20,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
       }
     },
     {
-      "id": 7,
       "type": "timeseries",
       "title": "Data served over time",
-      "description": "Bytes sent to viewers (downloaded) and received from them (uploaded). Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Bytes sent to viewers (downloaded) and received from them (uploaded). Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1753,6 +1785,7 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -1776,6 +1809,7 @@
             "uid": "${datasource}"
           },
           "refId": "B",
+          "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -1794,12 +1828,6 @@
           "label": "Uploaded"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 29
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "decbytes",
@@ -1808,8 +1836,8 @@
             "drawStyle": "line",
             "lineWidth": 2,
             "fillOpacity": 10,
-            "spanNulls": false,
-            "showPoints": "never"
+            "spanNulls": true,
+            "showPoints": "auto"
           }
         },
         "overrides": []
@@ -1824,41 +1852,47 @@
           "mode": "multi",
           "sort": "none"
         }
+      },
+      "id": 21,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
       }
     },
     {
-      "id": 8,
       "type": "text",
       "title": "About this data",
+      "options": {
+        "mode": "markdown",
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://atla.in/`. Portfolio: Next.js static export in S3 behind CloudFront (Free plan, AWS WAF included).\n\n**Availability:** Grafana Synthetic Monitoring check `atla.in homepage`, every 5 minutes from 3 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2OMRFTQ27WGMZ`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Security:** AWS WAF web ACL `CreatedByCloudFront-14eef7b4`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the site's GitHub Actions deploy.\n\n**Not shown:** request logs (not collected)."
+      },
+      "id": 22,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 29
-      },
-      "options": {
-        "mode": "markdown",
-        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Real-visitor experience is in the RUM row.\n\n**Availability row:** Grafana Synthetic Monitoring check `${sm_job}` on `https://atla.in/`, every 5 minutes from 3 probes.\n\n**Real visitors row:** CloudWatch RUM app monitor `${rum_app}`, reported by browsers on atla.in (no cookies, all sessions).\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the portfolio's GitHub Actions deploy (tags `atla.in`, `deploy`).\n\n**Not shown yet:** request logs (paths, status codes), audit events (CloudTrail)."
+        "y": 30
       }
     },
     {
-      "id": 20,
       "type": "row",
-      "title": "Security \u00b7 AWS WAF",
+      "title": "Security · AWS WAF",
       "collapsed": false,
+      "panels": [],
+      "id": 23,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 37
-      },
-      "panels": []
+        "y": 38
+      }
     },
     {
-      "id": 21,
       "type": "stat",
       "title": "Blocked by firewall",
-      "description": "Requests AWS WAF stopped before they reached the site, answered with 403. This is the firewall working, not the site failing. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Requests AWS WAF stopped before they reached the site, answered with 403. This is the firewall working, not the site failing. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1889,20 +1923,22 @@
           "label": "Blocked"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 0,
-        "y": 38
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
+          "displayName": "Blocked by firewall",
           "color": {
-            "mode": "fixed",
-            "fixedColor": "text"
+            "mode": "thresholds"
           },
-          "displayName": "Blocked by firewall"
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -1919,13 +1955,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 24,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 39
       }
     },
     {
-      "id": 22,
       "type": "stat",
       "title": "Allowed by firewall",
-      "description": "Requests WAF let through to CloudFront and S3. Includes bots the managed rules do not recognise. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Requests WAF let through to CloudFront and S3. Includes bots the managed rules do not recognise. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1956,20 +1998,22 @@
           "label": "Allowed"
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 8,
-        "y": 38
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
+          "displayName": "Allowed by firewall",
           "color": {
-            "mode": "fixed",
-            "fixedColor": "text"
+            "mode": "thresholds"
           },
-          "displayName": "Allowed by firewall"
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -1986,13 +2030,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 25,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 39
       }
     },
     {
-      "id": 23,
       "type": "stat",
       "title": "Share blocked",
-      "description": "Blocked \u00f7 (blocked + allowed) over the selected range. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Blocked ÷ (blocked + allowed) over the selected range. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2075,23 +2125,26 @@
           },
           "refId": "E",
           "type": "math",
-          "expression": "$C / ($C + $D) * 100"
+          "expression": "$C / ($C + $D) * 100",
+          "hide": false
         }
       ],
-      "gridPos": {
-        "h": 4,
-        "w": 8,
-        "x": 16,
-        "y": 38
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "color": {
-            "mode": "fixed",
-            "fixedColor": "text"
-          },
           "displayName": "Share blocked",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
           "decimals": 1
         },
         "overrides": []
@@ -2109,13 +2162,19 @@
         "textMode": "value",
         "justifyMode": "auto",
         "orientation": "auto"
+      },
+      "id": 26,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 39
       }
     },
     {
-      "id": 24,
       "type": "timeseries",
       "title": "Allowed vs blocked (hourly)",
-      "description": "Requests per hour by WAF decision. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Requests per hour by WAF decision. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2170,20 +2229,16 @@
           "label": "Blocked"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 42
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
           "min": 0,
           "custom": {
             "drawStyle": "bars",
-            "fillOpacity": 60,
             "lineWidth": 1,
+            "fillOpacity": 60,
+            "spanNulls": false,
+            "showPoints": "never",
             "stacking": {
               "mode": "normal"
             }
@@ -2201,13 +2256,19 @@
           "mode": "multi",
           "sort": "none"
         }
+      },
+      "id": 27,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 43
       }
     },
     {
-      "id": 25,
       "type": "table",
       "title": "Blocks by managed rule",
-      "description": "Which AWS managed rule matched blocked requests (for example path traversal, missing user agent, exploitable paths, bad IP reputation). Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Which AWS managed rule matched blocked requests (for example path traversal, missing user agent, exploitable paths, bad IP reputation). Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2229,12 +2290,6 @@
           "label": "${PROP('Dim.ManagedRuleGroupRule')}"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 42
-      },
       "transformations": [
         {
           "id": "reduce",
@@ -2298,13 +2353,19 @@
       "options": {
         "showHeader": true,
         "cellHeight": "sm"
+      },
+      "id": 28,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 43
       }
     },
     {
-      "id": 26,
       "type": "table",
       "title": "Blocked by country",
-      "description": "Countries the blocked requests came from, based on source IP. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Countries the blocked requests came from, based on source IP. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2326,12 +2387,6 @@
           "label": "${PROP('Dim.Country')}"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 50
-      },
       "transformations": [
         {
           "id": "reduce",
@@ -2395,13 +2450,19 @@
       "options": {
         "showHeader": true,
         "cellHeight": "sm"
+      },
+      "id": 29,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 51
       }
     },
     {
-      "id": 27,
       "type": "table",
       "title": "Allowed by country",
-      "description": "Countries of requests WAF allowed. Includes unrecognised bots, so it approximates, not measures, visitor location. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "Countries of requests WAF allowed. Includes unrecognised bots, so it approximates, not measures, visitor location. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2423,12 +2484,6 @@
           "label": "${PROP('Dim.Country')}"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 50
-      },
       "transformations": [
         {
           "id": "reduce",
@@ -2492,13 +2547,19 @@
       "options": {
         "showHeader": true,
         "cellHeight": "sm"
+      },
+      "id": 30,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 51
       }
     },
     {
-      "id": 28,
       "type": "table",
       "title": "Blocked by attack type",
-      "description": "WAF's classification of blocked requests. Measured \u00b7 CloudWatch AWS/WAFV2 (us-east-1) \u00b7 web ACL ${waf_acl}",
+      "description": "WAF's classification of blocked requests. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2520,12 +2581,6 @@
           "label": "${PROP('Dim.Attack')}"
         }
       ],
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 50
-      },
       "transformations": [
         {
           "id": "reduce",
@@ -2589,6 +2644,13 @@
       "options": {
         "showHeader": true,
         "cellHeight": "sm"
+      },
+      "id": 31,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 51
       }
     }
   ]
