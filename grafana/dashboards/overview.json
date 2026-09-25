@@ -2046,6 +2046,416 @@
         "x": 20,
         "y": 14
       }
+    },
+    {
+      "type": "text",
+      "title": "",
+      "options": {
+        "mode": "markdown",
+        "content": "### [gita.atla.in](/d/gita-atla-in)\nGita RAG app"
+      },
+      "id": 26,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 18
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Status now",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "min(probe_success{job=\"gita.atla.in homepage\"})",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Status now"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "displayName": "Status now",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "links": [
+        {
+          "title": "gita.atla.in dashboard",
+          "url": "/d/gita-atla-in"
+        }
+      ],
+      "id": 27,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 18
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(probe_all_success_sum{job=\"gita.atla.in homepage\"}[$__range])) / sum(increase(probe_all_success_count{job=\"gita.atla.in homepage\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Uptime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "displayName": "Uptime",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.99
+              },
+              {
+                "color": "green",
+                "value": 0.999
+              }
+            ]
+          },
+          "decimals": 2,
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "links": [
+        {
+          "title": "gita.atla.in dashboard",
+          "url": "/d/gita-atla-in"
+        }
+      ],
+      "id": 28,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 18
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Check duration",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "avg(avg_over_time(probe_duration_seconds{job=\"gita.atla.in homepage\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Check duration"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "displayName": "Check duration",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "decimals": 2,
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "links": [
+        {
+          "title": "gita.atla.in dashboard",
+          "url": "/d/gita-atla-in"
+        }
+      ],
+      "id": 29,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 18
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Requests",
+      "description": "Requests the load balancer received for gita.atla.in. Includes bots. Measured · CloudWatch AWS/ApplicationELB (ap-south-1) · load balancer k8s-gita-gitaapp-62bac50d1f.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "ap-south-1",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"k8s-gita-gitaapp-62bac50d1f\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "Requests"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Requests",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "links": [
+        {
+          "title": "gita.atla.in dashboard",
+          "url": "/d/gita-atla-in"
+        }
+      ],
+      "id": 30,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 18
+      }
+    },
+    {
+      "type": "stat",
+      "title": "5xx responses",
+      "description": "App and load balancer 5xx responses for gita.atla.in. Measured · CloudWatch AWS/ApplicationELB (ap-south-1) · load balancer k8s-gita-gitaapp-62bac50d1f.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "ap-south-1",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" \"k8s-gita-gitaapp-62bac50d1f\"', 'Sum', 300)), 0) + FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_5XX_Count\" \"k8s-gita-gitaapp-62bac50d1f\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "5xx"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "5xx responses",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "links": [
+        {
+          "title": "gita.atla.in dashboard",
+          "url": "/d/gita-atla-in"
+        }
+      ],
+      "id": 31,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 18
+      }
     }
   ]
 }

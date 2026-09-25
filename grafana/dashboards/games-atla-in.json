@@ -4,8 +4,8 @@
   "description": "Monitoring for https://games.atla.in/.",
   "tags": [
     "games.atla.in",
-    "cloudfront",
-    "measured"
+    "measured",
+    "cloudfront"
   ],
   "timezone": "browser",
   "time": {
@@ -43,17 +43,17 @@
         "hide": 0
       },
       {
-        "name": "distribution",
-        "label": "Distribution",
-        "type": "constant",
-        "query": "E1HCLV5K7MXCST",
-        "hide": 2
-      },
-      {
         "name": "sm_job",
         "label": "Uptime check",
         "type": "constant",
         "query": "games.atla.in homepage",
+        "hide": 2
+      },
+      {
+        "name": "distribution",
+        "label": "Distribution",
+        "type": "constant",
+        "query": "E1HCLV5K7MXCST",
         "hide": 2
       }
     ]
@@ -1214,7 +1214,7 @@
       "title": "About this data",
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://games.atla.in/`. Games site: S3 website endpoint (ap-south-1) behind CloudFront. No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `games.atla.in homepage`, every 5 minutes from 3 probes.\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E1HCLV5K7MXCST`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF on this distribution); deploy markers; request logs (not collected)."
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://games.atla.in/`. Games site: S3 website endpoint (ap-south-1) behind CloudFront. No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `games.atla.in homepage`, every 5 minutes from 3 probes.\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E1HCLV5K7MXCST`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF in front of this site); deploy markers; request logs (not collected)."
       },
       "id": 14,
       "gridPos": {

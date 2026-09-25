@@ -1,0 +1,1581 @@
+{
+  "uid": "gita-atla-in",
+  "title": "gita.atla.in · Availability, Traffic & AI",
+  "description": "Monitoring for https://gita.atla.in/.",
+  "tags": [
+    "gita.atla.in",
+    "measured",
+    "bedrock"
+  ],
+  "timezone": "browser",
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "refresh": "15m",
+  "timepicker": {
+    "refresh_intervals": [
+      "15m",
+      "30m",
+      "1h"
+    ]
+  },
+  "schemaVersion": 39,
+  "editable": true,
+  "graphTooltip": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "CloudWatch",
+        "type": "datasource",
+        "query": "cloudwatch",
+        "current": {},
+        "hide": 0
+      },
+      {
+        "name": "prom",
+        "label": "Prometheus",
+        "type": "datasource",
+        "query": "prometheus",
+        "regex": "/grafanacloud-.*-prom/",
+        "current": {},
+        "hide": 0
+      },
+      {
+        "name": "sm_job",
+        "label": "Uptime check",
+        "type": "constant",
+        "query": "gita.atla.in homepage",
+        "hide": 2
+      },
+      {
+        "name": "alb",
+        "label": "Load balancer",
+        "type": "constant",
+        "query": "k8s-gita-gitaapp-62bac50d1f",
+        "hide": 2
+      },
+      {
+        "name": "region",
+        "label": "Region",
+        "type": "constant",
+        "query": "ap-south-1",
+        "hide": 2
+      },
+      {
+        "name": "bedrock_region",
+        "label": "Bedrock region",
+        "type": "constant",
+        "query": "ap-south-1",
+        "hide": 2
+      },
+      {
+        "name": "price_llm_in",
+        "label": "LLM $ per 1K input tokens",
+        "type": "textbox",
+        "query": "0",
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "hide": 0
+      },
+      {
+        "name": "price_llm_out",
+        "label": "LLM $ per 1K output tokens",
+        "type": "textbox",
+        "query": "0",
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "hide": 0
+      },
+      {
+        "name": "price_embed_in",
+        "label": "Embedding $ per 1K tokens",
+        "type": "textbox",
+        "query": "0",
+        "current": {
+          "text": "0",
+          "value": "0"
+        },
+        "hide": 0
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Availability",
+      "collapsed": false,
+      "panels": [],
+      "id": 1,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Status now",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "min(probe_success{job=\"${sm_job}\"})",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Status now"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "displayName": "Status now",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
+              }
+            }
+          ],
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range])) / sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Uptime"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "displayName": "Uptime",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.99
+              },
+              {
+                "color": "green",
+                "value": 0.999
+              }
+            ]
+          },
+          "decimals": 2,
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Check duration",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "avg(avg_over_time(probe_duration_seconds{job=\"${sm_job}\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Check duration"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "displayName": "Check duration",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "decimals": 2,
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Failed check runs",
+      "description": "Check runs that failed over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prom}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prom}"
+          },
+          "refId": "A",
+          "expr": "sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range])) - sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range]))",
+          "instant": true,
+          "range": false,
+          "legendFormat": "Failed"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Failed check runs",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0,
+          "noValue": "No check"
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "type": "row",
+      "title": "Traffic · Application Load Balancer",
+      "collapsed": false,
+      "panels": [],
+      "id": 6,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Requests",
+      "description": "Requests the load balancer received in the selected range. Includes bots. Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "Requests"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Requests",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 7,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      }
+    },
+    {
+      "type": "stat",
+      "title": "App 4xx responses",
+      "description": "Requests the app answered with a 4xx status (bad input, not found). Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_4XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "4xx"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "App 4xx responses",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 8,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "type": "stat",
+      "title": "App 5xx responses",
+      "description": "Requests the app answered with a 5xx status: the app failed. Should be 0. Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "App 5xx"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "App 5xx responses",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 9,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Load balancer 5xx",
+      "description": "5xx responses generated by the load balancer itself, usually because no healthy pod could answer (502/503/504). Should be 0. Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "LB 5xx"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Load balancer 5xx",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 10,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests and server errors",
+      "description": "Requests and 5xx responses per 5 minutes. Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "Requests"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "App 5xx"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "C",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "LB 5xx"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 60,
+            "spanNulls": false,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "App response time",
+      "description": "Time from the load balancer sending a request to the app until the response started. Answers call Bedrock several times, so seconds are expected. Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"TargetResponseTime\" \"${alb}\"', 'Average', 300)",
+          "id": "",
+          "period": "300",
+          "label": "Average"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${region}",
+          "expression": "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"TargetResponseTime\" \"${alb}\"', 'p90', 300)",
+          "id": "",
+          "period": "300",
+          "label": "p90"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "spanNulls": true,
+            "showPoints": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      }
+    },
+    {
+      "type": "row",
+      "title": "AI · Amazon Bedrock",
+      "collapsed": false,
+      "panels": [],
+      "id": 13,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      }
+    },
+    {
+      "type": "stat",
+      "title": "LLM calls",
+      "description": "Converse calls to global.amazon.nova-2-lite-v1:0. One question makes several (rewrite, rerank, answer). Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "Invocations",
+          "statistic": "Sum",
+          "dimensions": {
+            "ModelId": "global.amazon.nova-2-lite-v1:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "LLM calls"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "LLM calls",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 19
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Embedding calls",
+      "description": "Calls to amazon.titan-embed-text-v2:0, which turns each search query into a vector. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "Invocations",
+          "statistic": "Sum",
+          "dimensions": {
+            "ModelId": "amazon.titan-embed-text-v2:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Embedding calls"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Embedding calls",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 15,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 19
+      }
+    },
+    {
+      "type": "stat",
+      "title": "LLM input tokens",
+      "description": "Tokens sent to global.amazon.nova-2-lite-v1:0: prompts, retrieved verses and instructions. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "InputTokenCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "ModelId": "global.amazon.nova-2-lite-v1:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Input tokens"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "LLM input tokens",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 16,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 19
+      }
+    },
+    {
+      "type": "stat",
+      "title": "LLM output tokens",
+      "description": "Tokens global.amazon.nova-2-lite-v1:0 generated. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "OutputTokenCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "ModelId": "global.amazon.nova-2-lite-v1:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Output tokens"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "LLM output tokens",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 17,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 19
+      }
+    },
+    {
+      "type": "stat",
+      "title": "LLM latency (p90)",
+      "description": "90% of calls to global.amazon.nova-2-lite-v1:0 finished within this time. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "InvocationLatency",
+          "statistic": "p90",
+          "dimensions": {
+            "ModelId": "global.amazon.nova-2-lite-v1:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "p90"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "displayName": "LLM latency (p90)",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5000
+              },
+              {
+                "color": "red",
+                "value": 15000
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 18,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 19
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Errors & throttles",
+      "description": "Client errors, server errors and throttled calls across all Bedrock models. Throttles mean a quota was hit. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${bedrock_region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/Bedrock,ModelId} (MetricName=\"InvocationClientErrors\" OR MetricName=\"InvocationServerErrors\" OR MetricName=\"InvocationThrottles\")', 'Sum', 3600)), 0)",
+          "id": "",
+          "period": "300",
+          "label": "Errors"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Errors & throttles",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 19,
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 19
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Calls per model (hourly)",
+      "description": "Bedrock invocations per hour, per model. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${bedrock_region}",
+          "expression": "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"Invocations\"', 'Sum', 3600)",
+          "id": "",
+          "period": "300",
+          "label": "${PROP('Dim.ModelId')}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 60,
+            "spanNulls": false,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "id": 20,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 23
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "LLM tokens (hourly)",
+      "description": "Input and output tokens per hour for global.amazon.nova-2-lite-v1:0. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "InputTokenCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "ModelId": "global.amazon.nova-2-lite-v1:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Input"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${bedrock_region}",
+          "namespace": "AWS/Bedrock",
+          "metricName": "OutputTokenCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "ModelId": "global.amazon.nova-2-lite-v1:0"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Output"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 60,
+            "spanNulls": false,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "id": 21,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 23
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Estimated Bedrock cost",
+      "description": "Tokens × the per-1K-token prices entered in the dashboard's price boxes (top of the page). Shows $0 until you enter prices from the AWS Bedrock pricing page for ap-south-1. An estimate: check AWS Billing for the actual charge. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${bedrock_region}",
+          "expression": "FILL(SUM(SEARCH('{AWS/Bedrock,ModelId} MetricName=\"InputTokenCount\" ModelId=\"global.amazon.nova-2-lite-v1:0\"', 'Sum', 3600)), 0) / 1000 * ${price_llm_in} + FILL(SUM(SEARCH('{AWS/Bedrock,ModelId} MetricName=\"OutputTokenCount\" ModelId=\"global.amazon.nova-2-lite-v1:0\"', 'Sum', 3600)), 0) / 1000 * ${price_llm_out} + FILL(SUM(SEARCH('{AWS/Bedrock,ModelId} MetricName=\"InputTokenCount\" ModelId=\"amazon.titan-embed-text-v2:0\"', 'Sum', 3600)), 0) / 1000 * ${price_embed_in}",
+          "id": "",
+          "period": "300",
+          "label": "Estimated cost"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "displayName": "Estimated Bedrock cost",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 4
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 22,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 23
+      }
+    },
+    {
+      "type": "text",
+      "title": "About this data",
+      "options": {
+        "mode": "markdown",
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://gita.atla.in/`. Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, answering with Amazon Bedrock. No CloudFront or WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `gita.atla.in homepage`, every 5 minutes from 3 probes.\n\n**Traffic:** CloudWatch `AWS/ApplicationELB` in `ap-south-1`, load balancer `k8s-gita-gitaapp-62bac50d1f` (created by the Kubernetes ingress). Requests include bots.\n\n**AI:** CloudWatch `AWS/Bedrock` in `ap-south-1`: answers from `global.amazon.nova-2-lite-v1:0`, search vectors from `amazon.titan-embed-text-v2:0`. The cost panel multiplies tokens by the prices you enter in the boxes at the top of the page.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF in front of this site); pod CPU, memory and restarts (Container Insights is not enabled); deploy markers; request logs (not collected)."
+      },
+      "id": 23,
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      }
+    }
+  ]
+}

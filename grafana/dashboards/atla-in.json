@@ -4,8 +4,8 @@
   "description": "Monitoring for https://atla.in/.",
   "tags": [
     "atla.in",
-    "cloudfront",
-    "measured"
+    "measured",
+    "cloudfront"
   ],
   "timezone": "browser",
   "time": {
@@ -43,13 +43,6 @@
         "hide": 0
       },
       {
-        "name": "distribution",
-        "label": "Distribution",
-        "type": "constant",
-        "query": "E2OMRFTQ27WGMZ",
-        "hide": 2
-      },
-      {
         "name": "sm_job",
         "label": "Uptime check",
         "type": "constant",
@@ -61,6 +54,13 @@
         "label": "RUM app monitor",
         "type": "constant",
         "query": "atla-in",
+        "hide": 2
+      },
+      {
+        "name": "distribution",
+        "label": "Distribution",
+        "type": "constant",
+        "query": "E2OMRFTQ27WGMZ",
         "hide": 2
       },
       {
