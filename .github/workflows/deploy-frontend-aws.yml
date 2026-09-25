@@ -22,21 +22,17 @@ jobs:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      # Publish only the public page, never repository internals. The bucket is
+      # served as-is by CloudFront, so anything synced here is downloadable.
+      # --delete removes files left behind by earlier whole-repo uploads.
+      - name: Stage public files
+        run: |
+          mkdir -p site
+          cp index.html site/
+
       - name: Sync frontend to S3
         run: |
-          aws s3 sync . s3://${{ vars.AWS_S3_BUCKET }} \
-            --delete \
-            --exclude ".git/*" \
-            --exclude ".github/*" \
-            --exclude "venv/*" \
-            --exclude "__pycache__/*" \
-            --exclude "chroma_db/*" \
-            --exclude "chroma_db_legacy_*/*" \
-            --exclude "docs/*" \
-            --exclude "*.py" \
-            --exclude "requirements.txt" \
-            --exclude "Procfile" \
-            --exclude "Dockerfile"
+          aws s3 sync site/ s3://${{ vars.AWS_S3_BUCKET }} --delete
 
       - name: Invalidate CloudFront cache
         run: |
