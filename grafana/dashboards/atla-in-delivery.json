@@ -1,5 +1,5 @@
 {
-  "title": "atla.in \u00b7 Availability, Delivery & Security",
+  "title": "atla.in \u00b7 Availability, Visitors, Delivery & Security",
   "uid": "atla-in-delivery",
   "description": "CloudFront delivery metrics for the atla.in portfolio.",
   "tags": [
@@ -61,6 +61,13 @@
         "label": "Uptime check",
         "type": "constant",
         "query": "atla.in homepage",
+        "hide": 2
+      },
+      {
+        "name": "rum_app",
+        "label": "RUM app monitor",
+        "type": "constant",
+        "query": "atla-in",
         "hide": 2
       }
     ]
@@ -393,6 +400,613 @@
       }
     },
     {
+      "id": 40,
+      "type": "row",
+      "title": "Real visitors \u00b7 CloudWatch RUM",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": []
+    },
+    {
+      "id": 41,
+      "type": "stat",
+      "title": "Page views",
+      "description": "Page loads recorded by the RUM script in visitors' browsers. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "PageViewCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "PageViewCount"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Page views",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "noValue": "No visits yet",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 42,
+      "type": "stat",
+      "title": "Page load (p75)",
+      "description": "Navigation duration: from request until the page finished loading. 75% of page loads were at or below this. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "PerformanceNavigationDuration",
+          "statistic": "p75",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "PerformanceNavigationDuration"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "displayName": "Page load (p75)",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3000
+              },
+              {
+                "color": "red",
+                "value": 6000
+              }
+            ]
+          },
+          "noValue": "No visits yet",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 43,
+      "type": "stat",
+      "title": "LCP (p75)",
+      "description": "Largest Contentful Paint: when the main content became visible. Good \u2264 2.5 s, poor > 4 s. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "WebVitalsLargestContentfulPaint",
+          "statistic": "p75",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "WebVitalsLargestContentfulPaint"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "displayName": "LCP (p75)",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2500
+              },
+              {
+                "color": "red",
+                "value": 4000
+              }
+            ]
+          },
+          "noValue": "No visits yet",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 44,
+      "type": "stat",
+      "title": "CLS (p75)",
+      "description": "Cumulative Layout Shift: how much the page jumped while loading. Good \u2264 0.1, poor > 0.25. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "WebVitalsCumulativeLayoutShift",
+          "statistic": "p75",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "WebVitalsCumulativeLayoutShift"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "displayName": "CLS (p75)",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.1
+              },
+              {
+                "color": "red",
+                "value": 0.25
+              }
+            ]
+          },
+          "noValue": "No visits yet",
+          "decimals": 3
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 45,
+      "type": "stat",
+      "title": "INP (p75)",
+      "description": "Interaction to Next Paint: delay between a click or tap and the page responding. Good \u2264 200 ms, poor > 500 ms. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "WebVitalsInteractionToNextPaint",
+          "statistic": "p75",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "WebVitalsInteractionToNextPaint"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "displayName": "INP (p75)",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          },
+          "noValue": "No visits yet",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 46,
+      "type": "stat",
+      "title": "JavaScript errors",
+      "description": "Uncaught errors thrown in visitors' browsers. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "JsErrorCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "JsErrorCount"
+        }
+      ],
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "JavaScript errors",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "noValue": "No visits yet",
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 47,
+      "type": "timeseries",
+      "title": "Page views and browser errors (hourly)",
+      "description": "Page views, JavaScript errors and failed requests made by the page, per hour. Measured \u00b7 CloudWatch AWS/RUM (us-east-1) \u00b7 app monitor ${rum_app}. Browsers of real visitors only; most bots do not run JavaScript.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "PageViewCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Page views"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "JsErrorCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "JS errors"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "C",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/RUM",
+          "metricName": "HttpErrorCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "application_name": "${rum_app}"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "HTTP errors"
+        }
+      ],
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "noValue": "No visits yet",
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "lineWidth": 1
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      }
+    },
+    {
       "id": 1,
       "type": "stat",
       "title": "Requests",
@@ -430,7 +1044,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 5
+        "y": 17
       },
       "fieldConfig": {
         "defaults": {
@@ -503,7 +1117,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 5
+        "y": 17
       },
       "fieldConfig": {
         "defaults": {
@@ -643,7 +1257,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 5
+        "y": 17
       },
       "fieldConfig": {
         "defaults": {
@@ -793,7 +1407,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 5
+        "y": 17
       },
       "fieldConfig": {
         "defaults": {
@@ -876,7 +1490,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 21
       },
       "fieldConfig": {
         "defaults": {
@@ -1070,7 +1684,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 21
       },
       "fieldConfig": {
         "defaults": {
@@ -1184,7 +1798,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 17
+        "y": 29
       },
       "fieldConfig": {
         "defaults": {
@@ -1220,11 +1834,11 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 17
+        "y": 29
       },
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Visitor experience needs CloudWatch RUM (planned).\n\n**Availability row:** Grafana Synthetic Monitoring check `${sm_job}` on `https://atla.in/`, every 5 minutes from 3 probes.\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the portfolio's GitHub Actions deploy (tags `atla.in`, `deploy`).\n\n**Not shown yet:** request logs (paths, status codes), audit events (CloudTrail)."
+        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Real-visitor experience is in the RUM row.\n\n**Availability row:** Grafana Synthetic Monitoring check `${sm_job}` on `https://atla.in/`, every 5 minutes from 3 probes.\n\n**Real visitors row:** CloudWatch RUM app monitor `${rum_app}`, reported by browsers on atla.in (no cookies, all sessions).\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the portfolio's GitHub Actions deploy (tags `atla.in`, `deploy`).\n\n**Not shown yet:** request logs (paths, status codes), audit events (CloudTrail)."
       }
     },
     {
@@ -1236,7 +1850,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 37
       },
       "panels": []
     },
@@ -1279,7 +1893,7 @@
         "h": 4,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 38
       },
       "fieldConfig": {
         "defaults": {
@@ -1346,7 +1960,7 @@
         "h": 4,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 38
       },
       "fieldConfig": {
         "defaults": {
@@ -1468,7 +2082,7 @@
         "h": 4,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 38
       },
       "fieldConfig": {
         "defaults": {
@@ -1560,7 +2174,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 42
       },
       "fieldConfig": {
         "defaults": {
@@ -1619,7 +2233,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 42
       },
       "transformations": [
         {
@@ -1716,7 +2330,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 50
       },
       "transformations": [
         {
@@ -1813,7 +2427,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 38
+        "y": 50
       },
       "transformations": [
         {
@@ -1910,7 +2524,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 38
+        "y": 50
       },
       "transformations": [
         {
