@@ -196,7 +196,7 @@
       "id": 3,
       "type": "stat",
       "title": "4xx error rate",
-      "description": "Average share of requests answered with a 4xx status (for example 403 or 404). Scanners probing for missing files raise this. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Share of requests answered with a 4xx status (for example 403 or 404). Scanners probing for missing files raise this. Weighted by requests: per minute, errors = rate \u00d7 requests; the panel shows total errors \u00f7 total requests, so quiet minutes with a single failed request don't dominate. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -208,6 +208,31 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": true,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/CloudFront",
+          "metricName": "Requests",
+          "statistic": "Sum",
+          "dimensions": {
+            "DistributionId": "${distribution}",
+            "Region": "Global"
+          },
+          "matchExact": true,
+          "period": "60",
+          "id": "",
+          "expression": "",
+          "label": "Requests"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": true,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -220,10 +245,52 @@
             "Region": "Global"
           },
           "matchExact": true,
-          "period": "",
+          "period": "60",
           "id": "",
           "expression": "",
           "label": "4xxErrorRate"
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "C",
+          "type": "math",
+          "expression": "$A * $B / 100",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "D",
+          "type": "reduce",
+          "expression": "C",
+          "reducer": "sum",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "E",
+          "type": "reduce",
+          "expression": "A",
+          "reducer": "sum",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "F",
+          "type": "math",
+          "expression": "$D / $E * 100",
+          "hide": false
         }
       ],
       "gridPos": {
@@ -262,7 +329,7 @@
       "options": {
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -278,7 +345,7 @@
       "id": 4,
       "type": "stat",
       "title": "5xx error rate",
-      "description": "Average share of requests answered with a 5xx status: CloudFront or the S3 origin failed. Should stay near 0. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "description": "Share of requests answered with a 5xx status: CloudFront or the S3 origin failed. Should stay near 0. Weighted by requests: per minute, errors = rate \u00d7 requests; the panel shows total errors \u00f7 total requests, so quiet minutes with a single failed request don't dominate. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -290,6 +357,31 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": true,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/CloudFront",
+          "metricName": "Requests",
+          "statistic": "Sum",
+          "dimensions": {
+            "DistributionId": "${distribution}",
+            "Region": "Global"
+          },
+          "matchExact": true,
+          "period": "60",
+          "id": "",
+          "expression": "",
+          "label": "Requests"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": true,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -302,10 +394,52 @@
             "Region": "Global"
           },
           "matchExact": true,
-          "period": "",
+          "period": "60",
           "id": "",
           "expression": "",
           "label": "5xxErrorRate"
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "C",
+          "type": "math",
+          "expression": "$A * $B / 100",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "D",
+          "type": "reduce",
+          "expression": "C",
+          "reducer": "sum",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "E",
+          "type": "reduce",
+          "expression": "A",
+          "reducer": "sum",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "F",
+          "type": "math",
+          "expression": "$D / $E * 100",
+          "hide": false
         }
       ],
       "gridPos": {
@@ -344,7 +478,7 @@
       "options": {
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -425,8 +559,8 @@
     {
       "id": 6,
       "type": "timeseries",
-      "title": "Error rates",
-      "description": "Share of requests returning 4xx, 5xx, and either. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
+      "title": "Error rates (hourly)",
+      "description": "Hourly share of requests returning 4xx and 5xx. Weighted by requests: per minute, errors = rate \u00d7 requests; the panel shows total errors \u00f7 total requests, so quiet minutes with a single failed request don't dominate. Measured \u00b7 CloudWatch AWS/CloudFront (us-east-1) \u00b7 distribution ${distribution}",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -438,6 +572,31 @@
             "uid": "${datasource}"
           },
           "refId": "A",
+          "hide": true,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "us-east-1",
+          "namespace": "AWS/CloudFront",
+          "metricName": "Requests",
+          "statistic": "Sum",
+          "dimensions": {
+            "DistributionId": "${distribution}",
+            "Region": "Global"
+          },
+          "matchExact": true,
+          "period": "60",
+          "id": "",
+          "expression": "",
+          "label": "Requests"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": true,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -450,17 +609,18 @@
             "Region": "Global"
           },
           "matchExact": true,
-          "period": "",
+          "period": "60",
           "id": "",
           "expression": "",
-          "label": "4xx"
+          "label": "4xxErrorRate"
         },
         {
           "datasource": {
             "type": "cloudwatch",
             "uid": "${datasource}"
           },
-          "refId": "B",
+          "refId": "G",
+          "hide": true,
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
@@ -473,33 +633,89 @@
             "Region": "Global"
           },
           "matchExact": true,
-          "period": "",
+          "period": "60",
           "id": "",
           "expression": "",
-          "label": "5xx"
+          "label": "5xxErrorRate"
         },
         {
           "datasource": {
-            "type": "cloudwatch",
-            "uid": "${datasource}"
+            "type": "__expr__",
+            "uid": "__expr__"
           },
           "refId": "C",
-          "queryMode": "Metrics",
-          "metricQueryType": 0,
-          "metricEditorMode": 0,
-          "region": "us-east-1",
-          "namespace": "AWS/CloudFront",
-          "metricName": "TotalErrorRate",
-          "statistic": "Average",
-          "dimensions": {
-            "DistributionId": "${distribution}",
-            "Region": "Global"
+          "type": "math",
+          "expression": "$A * $B / 100",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
           },
-          "matchExact": true,
-          "period": "",
-          "id": "",
-          "expression": "",
-          "label": "Total"
+          "refId": "H",
+          "type": "math",
+          "expression": "$A * $G / 100",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "D",
+          "type": "resample",
+          "expression": "C",
+          "window": "1h",
+          "downsampler": "sum",
+          "upsampler": "fillna",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "I",
+          "type": "resample",
+          "expression": "H",
+          "window": "1h",
+          "downsampler": "sum",
+          "upsampler": "fillna",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "E",
+          "type": "resample",
+          "expression": "A",
+          "window": "1h",
+          "downsampler": "sum",
+          "upsampler": "fillna",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "4xx",
+          "type": "math",
+          "expression": "$D / $E * 100",
+          "hide": false
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "5xx",
+          "type": "math",
+          "expression": "$I / $E * 100",
+          "hide": false
         }
       ],
       "gridPos": {
@@ -516,8 +732,8 @@
             "drawStyle": "line",
             "lineWidth": 2,
             "fillOpacity": 10,
-            "spanNulls": false,
-            "showPoints": "never"
+            "spanNulls": true,
+            "showPoints": "auto"
           }
         },
         "overrides": []
