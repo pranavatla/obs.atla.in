@@ -66,7 +66,27 @@
     ]
   },
   "annotations": {
-    "list": []
+    "list": [
+      {
+        "name": "Deploys",
+        "enable": true,
+        "hide": false,
+        "iconColor": "#8AB8FF",
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "target": {
+          "type": "tags",
+          "tags": [
+            "atla.in",
+            "deploy"
+          ],
+          "matchAny": false,
+          "limit": 100
+        }
+      }
+    ]
   },
   "panels": [
     {
@@ -1204,7 +1224,7 @@
       },
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Visitor experience needs CloudWatch RUM (planned).\n\n**Availability row:** Grafana Synthetic Monitoring check `${sm_job}` on `https://atla.in/`, every 5 minutes from 3 probes.\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Not shown yet:** request logs (paths, status codes), releases (GitHub Actions), audit events (CloudTrail)."
+        "content": "**Signal type:** Measured\n\n**Source:** CloudWatch namespace `AWS/CloudFront`, region `us-east-1`, dimensions `DistributionId=${distribution}`, `Region=Global`.\n\n**Freshness:** CloudFront publishes one-minute data points, usually a few minutes behind.\n\n**Read carefully:** requests count every file fetched (HTML, scripts, images, video) and include bots, so they are not visitors. Visitor experience needs CloudWatch RUM (planned).\n\n**Availability row:** Grafana Synthetic Monitoring check `${sm_job}` on `https://atla.in/`, every 5 minutes from 3 probes.\n\n**Security row:** AWS WAF metrics for web ACL `${waf_acl}`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the portfolio's GitHub Actions deploy (tags `atla.in`, `deploy`).\n\n**Not shown yet:** request logs (paths, status codes), audit events (CloudTrail)."
       }
     },
     {
