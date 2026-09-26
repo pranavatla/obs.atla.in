@@ -40,7 +40,10 @@ DOMAINS = [
         "sm_job": "gita.atla.in homepage", "sm_schedule": "every 5 minutes from 3 probes",
         "alb": "app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77", "region": "ap-south-1",
         "bedrock": {"region": "ap-south-1", "llm": "global.amazon.nova-2-lite-v1:0",
-                    "embed": "amazon.titan-embed-text-v2:0"},
+                    "embed": "amazon.titan-embed-text-v2:0",
+                    # USD per 1K tokens, on-demand, from the AWS Price List for ap-south-1
+                    # (published 2026-09-26): Nova 2.0 Lite cross-region global, Titan Embeddings V2.
+                    "prices": {"llm_in": "0.00035", "llm_out": "0.00295", "embed_in": "0.000024"}},
         "notes": "Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, "
                  "answering with Amazon Bedrock. No CloudFront or WAF.",
     },
@@ -462,8 +465,9 @@ def bedrock_section(lay, cfg):
                  bedrock("B", "OutputTokenCount", "Sum", llm, "Output")], "short", draw="bars",
                 stacked=True), 8),
         (stat("Estimated Bedrock cost", "Tokens × the per-1K-token prices entered in the dashboard's price "
-              "boxes (top of the page). Shows $0 until you enter prices from the AWS Bedrock pricing page for "
-              f"{cfg['bedrock']['region']}. An estimate: check AWS Billing for the actual charge." + BR_SRC,
+              "boxes (top of the page), prefilled from the AWS Price List for "
+              f"{cfg['bedrock']['region']} (on-demand, 2026-09-26). An estimate: check AWS Billing for the actual "
+              "charge." + BR_SRC,
               [cost], "currencyUSD", calc="sum", decimals=4), 8),
     ], 8)
 
@@ -486,8 +490,8 @@ def about(cfg):
     if "bedrock" in cfg:
         b = cfg["bedrock"]
         parts.append(f"**AI:** CloudWatch `AWS/Bedrock` in `{b['region']}`: answers from `{b['llm']}`, search "
-                     f"vectors from `{b['embed']}`. The cost panel multiplies tokens by the prices you enter in "
-                     "the boxes at the top of the page.")
+                     f"vectors from `{b['embed']}`. The cost panel multiplies tokens by the per-1K-token prices in "
+                     "the boxes at the top of the page (from the AWS Price List, 2026-09-26; update them if prices change).")
     if "waf_acl" in cfg:
         parts.append(f"**Security:** AWS WAF web ACL `{cfg['waf_acl']}`. Blocked requests return 403 and are "
                      "also counted in the 4xx rate.")
@@ -563,9 +567,10 @@ def domain_dashboard(cfg):
         sections.append("Traffic")
     if "bedrock" in cfg:
         variables.append(constant("bedrock_region", "Bedrock region", cfg["bedrock"]["region"]))
-        variables += [price_box("price_llm_in", "LLM $ per 1K input tokens"),
-                      price_box("price_llm_out", "LLM $ per 1K output tokens"),
-                      price_box("price_embed_in", "Embedding $ per 1K tokens")]
+        prices = cfg["bedrock"]["prices"]
+        variables += [price_box("price_llm_in", "LLM $ per 1K input tokens", prices["llm_in"]),
+                      price_box("price_llm_out", "LLM $ per 1K output tokens", prices["llm_out"]),
+                      price_box("price_embed_in", "Embedding $ per 1K tokens", prices["embed_in"])]
         sections.append("AI")
     if "waf_acl" in cfg:
         variables.append(constant("waf_acl", "WAF web ACL", cfg["waf_acl"]))
@@ -585,10 +590,10 @@ def domain_dashboard(cfg):
                 lay.panels, annotations)
 
 
-def price_box(name, label):
-    """A visible text box on the dashboard; Grafana keeps the value when the dashboard is saved."""
-    return {"name": name, "label": label, "type": "textbox", "query": "0",
-            "current": {"text": "0", "value": "0"}, "hide": 0}
+def price_box(name, label, value):
+    """A visible text box on the dashboard, prefilled from the AWS price list; editable in Grafana."""
+    return {"name": name, "label": label, "type": "textbox", "query": value,
+            "current": {"text": value, "value": value}, "hide": 0}
 
 
 def overview_dashboard():
