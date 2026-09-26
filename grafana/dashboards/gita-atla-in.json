@@ -125,7 +125,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -207,7 +207,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -279,7 +279,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -351,7 +351,7 @@
     {
       "type": "stat",
       "title": "Failed check runs",
-      "description": "Check runs that failed over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Check runs that failed over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"

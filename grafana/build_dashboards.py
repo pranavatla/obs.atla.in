@@ -15,29 +15,29 @@ OUT = Path(__file__).resolve().parent / "dashboards"
 DOMAINS = [
     {
         "slug": "atla-in", "uid": "atla-in-delivery", "domain": "atla.in",
-        "distribution": "E2OMRFTQ27WGMZ", "sm_job": "atla.in homepage",
+        "distribution": "E2OMRFTQ27WGMZ", "sm_job": "atla.in homepage", "sm_schedule": "every 5 minutes from 3 probes",
         "waf_acl": "CreatedByCloudFront-14eef7b4", "rum_app": "atla-in",
         "deploy_tags": ["atla.in", "deploy"],
         "notes": "Portfolio: Next.js static export in S3 behind CloudFront (Free plan, AWS WAF included).",
     },
     {
         "slug": "aif-atla-in", "uid": "aif-atla-in", "domain": "aif.atla.in",
-        "distribution": "E2A5DBVVXUZ6JO", "sm_job": "aif.atla.in homepage",
+        "distribution": "E2A5DBVVXUZ6JO", "sm_job": "aif.atla.in homepage", "sm_schedule": "every 10 minutes from 2 probes",
         "notes": "AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront. No WAF.",
     },
     {
         "slug": "games-atla-in", "uid": "games-atla-in", "domain": "games.atla.in",
-        "distribution": "E1HCLV5K7MXCST", "sm_job": "games.atla.in homepage",
+        "distribution": "E1HCLV5K7MXCST", "sm_job": "games.atla.in homepage", "sm_schedule": "every 10 minutes from 2 probes",
         "notes": "Games site: S3 website endpoint (ap-south-1) behind CloudFront. No WAF.",
     },
     {
         "slug": "obs-atla-in", "uid": "obs-atla-in", "domain": "obs.atla.in",
-        "distribution": "E2EXL4C10F3QBA", "sm_job": "obs.atla.in homepage",
+        "distribution": "E2EXL4C10F3QBA", "sm_job": "obs.atla.in homepage", "sm_schedule": "every 10 minutes from 2 probes",
         "notes": "Observability page: private S3 bucket behind CloudFront. No WAF.",
     },
     {
         "slug": "gita-atla-in", "uid": "gita-atla-in", "domain": "gita.atla.in",
-        "sm_job": "gita.atla.in homepage",
+        "sm_job": "gita.atla.in homepage", "sm_schedule": "every 5 minutes from 3 probes",
         "alb": "k8s-gita-gitaapp-62bac50d1f", "region": "ap-south-1",
         "bedrock": {"region": "ap-south-1", "llm": "global.amazon.nova-2-lite-v1:0",
                     "embed": "amazon.titan-embed-text-v2:0"},
@@ -51,7 +51,7 @@ PROM = {"type": "prometheus", "uid": "${prom}"}
 EXPR = {"type": "__expr__", "uid": "__expr__"}
 
 CF_SRC = " Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}."
-SM_SRC = " Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes)."
+SM_SRC = " Measured · Grafana Synthetic Monitoring check \"${sm_job}\"."
 WAF_SRC = " Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}."
 RUM_SRC = (" Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. "
            "Browsers of real visitors only; most bots do not run JavaScript.")
@@ -462,7 +462,7 @@ def about(cfg):
     parts = [
         "**Signal type:** Measured. Every panel's ⓘ names its source.",
         f"**Site:** `https://{cfg['domain']}/`. {cfg['notes']}",
-        f"**Availability:** Grafana Synthetic Monitoring check `{cfg['sm_job']}`, every 5 minutes from 3 probes.",
+        f"**Availability:** Grafana Synthetic Monitoring check `{cfg['sm_job']}`, {cfg['sm_schedule']}.",
     ]
     if "rum_app" in cfg:
         parts.append(f"**Real visitors:** CloudWatch RUM app monitor `{cfg['rum_app']}` (no cookies, all sessions).")

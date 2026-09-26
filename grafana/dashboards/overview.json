@@ -81,7 +81,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -169,7 +169,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -247,7 +247,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -577,7 +577,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"aif.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"aif.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -665,7 +665,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"aif.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"aif.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -743,7 +743,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"aif.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"aif.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1073,7 +1073,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"games.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"games.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1161,7 +1161,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"games.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"games.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1239,7 +1239,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"games.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"games.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1569,7 +1569,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"obs.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"obs.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1657,7 +1657,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"obs.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"obs.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1735,7 +1735,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"obs.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"obs.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -2065,7 +2065,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -2153,7 +2153,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -2231,7 +2231,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"gita.atla.in homepage\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"

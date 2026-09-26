@@ -78,7 +78,7 @@
     {
       "type": "stat",
       "title": "Status now",
-      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Whether the latest run of the uptime check succeeded from every probe. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -160,7 +160,7 @@
     {
       "type": "stat",
       "title": "Uptime",
-      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Share of check runs that succeeded over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -232,7 +232,7 @@
     {
       "type": "stat",
       "title": "Check duration",
-      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Average time for one check run (DNS, connect, TLS, response) over the selected range. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -304,7 +304,7 @@
     {
       "type": "stat",
       "title": "Failed check runs",
-      "description": "Check runs that failed over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\" (3 probes, every 5 minutes).",
+      "description": "Check runs that failed over the selected range, across all probes. Measured · Grafana Synthetic Monitoring check \"${sm_job}\".",
       "datasource": {
         "type": "prometheus",
         "uid": "${prom}"
@@ -1214,7 +1214,7 @@
       "title": "About this data",
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://obs.atla.in/`. Observability page: private S3 bucket behind CloudFront. No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `obs.atla.in homepage`, every 5 minutes from 3 probes.\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2EXL4C10F3QBA`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF in front of this site); deploy markers; request logs (not collected)."
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://obs.atla.in/`. Observability page: private S3 bucket behind CloudFront. No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `obs.atla.in homepage`, every 10 minutes from 2 probes.\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2EXL4C10F3QBA`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF in front of this site); deploy markers; request logs (not collected)."
       },
       "id": 14,
       "gridPos": {
