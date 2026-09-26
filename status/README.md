@@ -53,7 +53,7 @@ Units: `percent` (0–100), `ms`, `count`, `bytes`, `usd`, `score` (CLS).
 | `bytes_7d` | CloudFront sites | Data served |
 | `error_5xx_count_7d`, `response_p90_24h` | gita | Load balancer 5xx count, app response time |
 | `waf_blocked_7d`, `waf_blocked_share_7d` | atla.in | AWS WAF blocks |
-| `page_views_7d`, `lcp_p75_7d`, `cls_p75_7d`, `inp_p75_7d`, `js_errors_7d` | atla.in | Real visitors (RUM) |
+| `page_views_7d`, `lcp_p75_7d`, `cls_p75_7d`, `inp_p75_7d`, `js_errors_7d` | all | Real visitors (RUM), one app monitor per site |
 | `llm_calls_7d`, `llm_tokens_7d`, `llm_latency_p90_7d`, `bedrock_cost_7d` | gita | Amazon Bedrock |
 
 ## Bedrock models

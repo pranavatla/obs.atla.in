@@ -22,22 +22,22 @@ DOMAINS = [
     },
     {
         "slug": "aif-atla-in", "uid": "aif-atla-in", "domain": "aif.atla.in",
-        "distribution": "E2A5DBVVXUZ6JO", "sm_job": "aif.atla.in homepage", "sm_schedule": "every 10 minutes from 2 probes",
+        "distribution": "E2A5DBVVXUZ6JO", "sm_job": "aif.atla.in homepage", "rum_app": "aif-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
         "notes": "AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront. No WAF.",
     },
     {
         "slug": "games-atla-in", "uid": "games-atla-in", "domain": "games.atla.in",
-        "distribution": "E1HCLV5K7MXCST", "sm_job": "games.atla.in homepage", "sm_schedule": "every 10 minutes from 2 probes",
+        "distribution": "E1HCLV5K7MXCST", "sm_job": "games.atla.in homepage", "rum_app": "games-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
         "notes": "Games site: S3 website endpoint (ap-south-1) behind CloudFront. No WAF.",
     },
     {
         "slug": "obs-atla-in", "uid": "obs-atla-in", "domain": "obs.atla.in",
-        "distribution": "E2EXL4C10F3QBA", "sm_job": "obs.atla.in homepage", "sm_schedule": "every 10 minutes from 2 probes",
+        "distribution": "E2EXL4C10F3QBA", "sm_job": "obs.atla.in homepage", "rum_app": "obs-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
         "notes": "Observability page: private S3 bucket behind CloudFront. No WAF.",
     },
     {
         "slug": "gita-atla-in", "uid": "gita-atla-in", "domain": "gita.atla.in",
-        "sm_job": "gita.atla.in homepage", "sm_schedule": "every 5 minutes from 3 probes",
+        "sm_job": "gita.atla.in homepage", "rum_app": "gita-atla-in", "sm_schedule": "every 5 minutes from 3 probes",
         "alb": "app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77", "region": "ap-south-1",
         "bedrock": {"region": "ap-south-1", "llm": "global.amazon.nova-2-lite-v1:0",
                     "embed": "amazon.titan-embed-text-v2:0",
