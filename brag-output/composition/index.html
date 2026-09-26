@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>obs.atla.in brag</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/inter.woff2") format("woff2");
+        font-weight: 100 900;
+      }
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --line: rgba(15, 23, 42, 0.1);
+        --ink: #0f172a;
+        --ink-2: #475569;
+        --blue: #2563eb;
+        --teal: #0f766e;
+        --red: #b91c1c;
+        --amber: #b45309;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Inter", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      .bg {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.12), transparent 35%),
+          radial-gradient(circle at 88% 10%, rgba(15, 118, 110, 0.12), transparent 32%),
+          linear-gradient(180deg, #f8fafc 0%, #eef3f9 100%);
+      }
+      .scene { position: absolute; inset: 0; }
+      .center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+      .grad {
+        background: linear-gradient(135deg, var(--blue), var(--teal));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      /* Scene 1 */
+      .hook-a { font-size: 150px; font-weight: 800; letter-spacing: -5px; line-height: 1; }
+      .hook-b { font-size: 150px; font-weight: 800; letter-spacing: -5px; line-height: 1.1; padding-bottom: 12px; }
+
+      /* Scene 2 */
+      .dash { position: absolute; inset: 0; padding: 70px 120px; display: flex; flex-direction: column; gap: 28px; }
+      .dash-head { display: flex; align-items: center; justify-content: space-between; height: 120px; }
+      .labels { position: relative; width: 800px; height: 120px; }
+      .label { position: absolute; left: 0; top: 0; font-size: 104px; font-weight: 800; letter-spacing: -3px; line-height: 1.1; }
+      .label.red { color: var(--red); }
+      .brand-mini { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
+      .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+      .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08); }
+      .kpi { position: relative; padding: 34px 36px; height: 230px; overflow: hidden; }
+      .kpi-label { font-size: 22px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: 1.5px; }
+      .kpi-vals { position: relative; height: 100px; margin-top: 8px; }
+      .kpi-v { position: absolute; left: 0; top: 0; font-size: 84px; font-weight: 800; letter-spacing: -2px; font-variant-numeric: tabular-nums; }
+      .kpi-v.bad { color: var(--red); }
+      .kpi-flash { position: absolute; inset: 0; background: rgba(220, 38, 38, 0.1); border-radius: 20px; opacity: 0; }
+      .lower { display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px; }
+      .svc { padding: 22px 32px; }
+      .row { display: flex; justify-content: space-between; align-items: center; height: 84px; border-bottom: 1px solid var(--line); font-size: 28px; font-weight: 600; }
+      .row:last-child { border-bottom: none; }
+      .pills { position: relative; width: 190px; height: 42px; }
+      .pill { position: absolute; right: 0; top: 0; height: 42px; padding: 0 20px; border-radius: 999px; font-size: 22px; font-weight: 700; display: flex; align-items: center; }
+      .pill.ok { background: rgba(15, 118, 110, 0.12); color: var(--teal); }
+      .pill.bad { background: rgba(220, 38, 38, 0.12); color: var(--red); opacity: 0; }
+      .sim { padding: 26px 32px; display: flex; flex-direction: column; gap: 16px; }
+      .sim-title { font-size: 22px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: 1.5px; }
+      .btn { height: 78px; border-radius: 14px; border: 2px solid var(--line); font-size: 28px; font-weight: 700; display: flex; align-items: center; padding: 0 24px; background: #f8fafc; }
+      .btn.warn { color: var(--amber); }
+      .btn.danger { color: var(--red); border-color: rgba(220, 38, 38, 0.4); background: rgba(220, 38, 38, 0.06); }
+      .btn.good { color: var(--teal); }
+      .cursor { position: absolute; left: 0; top: 0; width: 44px; height: 44px; }
+
+      /* Scene 3 */
+      .rca-wrap { position: absolute; inset: 0; padding: 110px 160px; display: flex; flex-direction: column; justify-content: center; gap: 36px; }
+      .rca { padding: 52px 60px; display: flex; flex-direction: column; gap: 26px; }
+      .rca-top { display: flex; align-items: center; gap: 18px; font-size: 28px; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 2px; }
+      .badge { font-size: 22px; padding: 6px 16px; border-radius: 999px; background: rgba(220, 38, 38, 0.12); color: var(--red); letter-spacing: 1px; }
+      .rca-sum { width: max-content; font-size: 56px; font-weight: 800; letter-spacing: -1.5px; white-space: nowrap; }
+      .rca-fix { font-size: 32px; font-weight: 500; color: var(--ink-2); }
+      .rca-fix b { color: var(--teal); }
+      .guru { font-size: 26px; font-weight: 600; color: var(--ink-2); }
+
+      /* Scene 4 */
+      .word { font-size: 190px; font-weight: 800; letter-spacing: -7px; line-height: 1.1; padding: 0 10px 10px; }
+      .motto { font-size: 72px; font-weight: 700; letter-spacing: -1.5px; display: flex; gap: 28px; }
+      .motto .m3 { color: var(--blue); }
+      .goal { font-size: 40px; font-weight: 500; color: var(--ink-2); margin-top: 28px; }
+      .chip { font-size: 28px; font-weight: 600; color: var(--ink-2); padding: 12px 26px; border-radius: 999px; background: #fff; border: 1px solid var(--line); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="11">
+      <div class="bg"></div>
+
+      <!-- Scene 1: hook -->
+      <section id="s1" class="scene clip center" data-start="0" data-duration="2.2" data-track-index="1">
+        <div id="hook-a" class="hook-a">Break production.</div>
+        <div id="hook-b" class="hook-b grad">On purpose.</div>
+      </section>
+
+      <!-- Scene 2: see it / break it -->
+      <section id="s2" class="scene clip" data-start="2.2" data-duration="3" data-track-index="1">
+        <div id="dash" class="dash">
+          <div class="dash-head">
+            <div class="labels">
+              <div id="lab-see" class="label">See it.</div>
+              <div id="lab-break" class="label red">Break it.</div>
+            </div>
+            <div class="brand-mini grad">obs.atla.in</div>
+          </div>
+          <div class="kpis">
+            <div class="card kpi"><div id="f1" class="kpi-flash"></div>
+              <div class="kpi-label">SLO Compliance</div>
+              <div class="kpi-vals"><div class="kpi-v ok1">99.95%</div><div class="kpi-v bad bad1">99.10%</div></div>
+            </div>
+            <div class="card kpi"><div id="f2" class="kpi-flash"></div>
+              <div class="kpi-label">Active Alarms</div>
+              <div class="kpi-vals"><div class="kpi-v ok1">0</div><div class="kpi-v bad bad1">3</div></div>
+            </div>
+            <div class="card kpi"><div id="f3" class="kpi-flash"></div>
+              <div class="kpi-label">Latency p95</div>
+              <div class="kpi-vals"><div class="kpi-v ok1">142ms</div><div class="kpi-v bad bad1">870ms</div></div>
+            </div>
+          </div>
+          <div class="lower">
+            <div class="card svc">
+              <div class="row"><span>api-gateway</span><div class="pills"><div class="pill ok">healthy</div></div></div>
+              <div class="row"><span>orders-service</span><div class="pills"><div class="pill ok ok2">healthy</div><div class="pill bad bad2">degraded</div></div></div>
+              <div class="row"><span>payments-worker</span><div class="pills"><div class="pill ok ok2">healthy</div><div class="pill bad bad2">degraded</div></div></div>
+              <div class="row"><span>ops-guru-rag</span><div class="pills"><div class="pill ok">healthy</div></div></div>
+            </div>
+            <div class="card sim">
+              <div class="sim-title">Incident Simulator</div>
+              <div class="btn warn">Traffic Spike</div>
+              <div id="btn-db" class="btn danger">DB Error Burst</div>
+              <div class="btn good">Recovery</div>
+            </div>
+          </div>
+        </div>
+        <svg id="cursor" class="cursor" viewBox="0 0 24 24"><path d="M3 2l7.5 19 2.4-7.6L20.5 11z" fill="#0f172a" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </section>
+
+      <!-- Scene 3: explain it -->
+      <section id="s3" class="scene clip" data-start="5.2" data-duration="2.7" data-track-index="1">
+        <div class="rca-wrap">
+          <div id="lab-explain" class="label grad" style="position:static">Explain it.</div>
+          <div id="rca" class="card rca">
+            <div class="rca-top">Incident RCA <span class="badge">DB ERRORS</span></div>
+            <div id="rca-sum" class="rca-sum">Checkout path degradation driven by database timeouts.</div>
+            <div id="rca-fix" class="rca-fix"><b>Fix →</b> Enable circuit-breaker behavior for failing DB dependencies.</div>
+          </div>
+          <div id="guru" class="guru">Ops Guru · AI-powered root cause analysis</div>
+        </div>
+      </section>
+
+      <!-- Scene 4: motto outro -->
+      <section id="s4" class="scene clip center" data-start="7.9" data-duration="3.1" data-track-index="1">
+        <div id="word" class="word grad">obs.atla.in</div>
+        <div class="motto"><span id="m1">See it.</span><span id="m2">Break it.</span><span id="m3" class="m3">Explain it.</span></div>
+        <div id="goal" class="goal">The cloud-ops sandbox for practicing incident response.</div>
+      </section>
+
+      <!-- Audio -->
+      <audio id="music" src="assets/music/happy-beats-business-moves-vol-10-by-ende-dot-app.mp3" data-start="0" data-duration="11" data-media-start="15" data-track-index="10" data-volume="0.35"
+        data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":0},{"t":0.3,"v":0.35},{"t":10.2,"v":0.35},{"t":11,"v":0}]}]}'></audio>
+      <audio id="sfx-hook" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="0.1" data-duration="0.19" data-track-index="11" data-volume="0.7"></audio>
+      <audio id="sfx-click" src="assets/sfx/ui/mouseclick1.ogg" data-start="3.5" data-duration="0.06" data-track-index="12" data-volume="0.8"></audio>
+      <audio id="sfx-break" src="assets/sfx/impact/impactSoft_medium_001.ogg" data-start="3.55" data-duration="0.19" data-track-index="13" data-volume="0.8"></audio>
+      <audio id="sfx-err" src="assets/sfx/interface/error_005.ogg" data-start="3.6" data-duration="0.5" data-track-index="14" data-volume="0.45"></audio>
+      <audio id="sfx-rca" src="assets/sfx/interface/drop_001.ogg" data-start="5.2" data-duration="0.11" data-track-index="15" data-volume="0.7"></audio>
+      <audio id="sfx-bell" src="assets/sfx/impact/impactBell_heavy_000.ogg" data-start="7.9" data-duration="1.48" data-track-index="16" data-volume="0.6"></audio>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+
+      // Scene 1 — hook
+      tl.fromTo("#hook-a", { y: 80, opacity: 0, scale: 1.08 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: E }, 0.05);
+      tl.fromTo("#hook-b", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: E }, 0.6);
+
+      // Scene 2 — dashboard (global times)
+      tl.fromTo("#dash", { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: E }, 2.2);
+      tl.fromTo("#lab-see", { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: E }, 2.3);
+      tl.set("#lab-break", { opacity: 0 }, 0);
+      tl.set(".bad1, .bad2", { opacity: 0 }, 0);
+      tl.fromTo("#cursor", { x: 1500, y: 1060, opacity: 0 }, { x: 1490, y: 960, opacity: 1, duration: 0.2 }, 2.6);
+      tl.to("#cursor", { x: 1340, y: 630, duration: 0.7, ease: "power2.inOut" }, 2.75);
+      // beat-locked: 3.55s — click + break
+      tl.to("#cursor", { scale: 0.8, duration: 0.06, yoyo: true, repeat: 1 }, 3.49);
+      tl.to("#btn-db", { scale: 0.96, duration: 0.06, yoyo: true, repeat: 1 }, 3.49);
+      tl.to("#lab-see", { opacity: 0, y: -30, duration: 0.15 }, 3.55);
+      tl.fromTo("#lab-break", { y: 30 }, { opacity: 1, y: 0, duration: 0.2, ease: E }, 3.58);
+      tl.to(".ok1, .ok2", { opacity: 0, duration: 0.12 }, 3.55);
+      tl.to(".bad1, .bad2", { opacity: 1, duration: 0.12 }, 3.58);
+      tl.fromTo(".kpi-flash", { opacity: 0 }, { opacity: 1, duration: 0.1, yoyo: true, repeat: 3 }, 3.58);
+      tl.fromTo("#dash", { x: 0 }, { x: 10, duration: 0.04, yoyo: true, repeat: 5 }, 3.56);
+      tl.to("#cursor", { opacity: 0, duration: 0.2 }, 4.2);
+
+      // Scene 3 — RCA; beat-locked: 5.19s
+      tl.fromTo("#lab-explain", { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.3, ease: E }, 5.2);
+      tl.fromTo("#rca", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: E }, 5.25);
+      tl.fromTo("#rca-sum", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.75, ease: "none" }, 5.5);
+      tl.fromTo("#rca-fix", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.3, ease: E }, 6.3);
+      tl.fromTo("#guru", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 6.4);
+
+      // Scene 4 — motto; beat-locked: 7.92s
+      tl.fromTo("#word", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.6)" }, 7.92);
+      tl.fromTo("#m1", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, ease: E }, 8.2);
+      tl.fromTo("#m2", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, ease: E }, 8.35);
+      tl.fromTo("#m3", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.25, ease: E }, 8.5);
+      tl.fromTo("#goal", { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: E }, 8.75);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
