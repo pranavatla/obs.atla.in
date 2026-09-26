@@ -73,6 +73,16 @@ class CloudWatch:
                 out[r["Id"]].extend(zip(r["Timestamps"], r["Values"]))
         return out
 
+    def list_dimension_values(self, namespace, metric_name, dimension):
+        """Values of `dimension` for metrics with data in the last two weeks (needs cloudwatch:ListMetrics)."""
+        values = set()
+        for page in self.client.get_paginator("list_metrics").paginate(Namespace=namespace, MetricName=metric_name):
+            for m in page["Metrics"]:
+                dims = {d["Name"]: d["Value"] for d in m["Dimensions"]}
+                if list(dims) == [dimension]:
+                    values.add(dims[dimension])
+        return sorted(values)
+
 
 def stat_query(qid, namespace, metric, dims, stat, period):
     return {"Id": qid, "ReturnData": True, "MetricStat": {
@@ -203,16 +213,21 @@ def alb_metrics(cw, lb, region, end):
         stat_query("req", "AWS/ApplicationELB", "RequestCount", dims, "Sum", 300),
         stat_query("t5", "AWS/ApplicationELB", "HTTPCode_Target_5XX_Count", dims, "Sum", 300),
         stat_query("l5", "AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count", dims, "Sum", 300),
+        stat_query("t4", "AWS/ApplicationELB", "HTTPCode_Target_4XX_Count", dims, "Sum", 300),
+        stat_query("l4", "AWS/ApplicationELB", "HTTPCode_ELB_4XX_Count", dims, "Sum", 300),
         stat_query("rt", "AWS/ApplicationELB", "TargetResponseTime", dims, "p90", int(DAY.total_seconds())),
     ], end - WEEK, end)
     reqs = total(r["req"]) or 0
     err5 = (total(r["t5"]) or 0) + (total(r["l5"]) or 0)
+    err4 = (total(r["t4"]) or 0) + (total(r["l4"]) or 0)
     last_day = [(t, v) for t, v in r["req"] if t >= end - DAY]
     return [
         metric("requests_7d", "Requests", reqs, "count", "7d", src, "Bots included; not visitors."),
         metric("requests_24h", "Requests", total(last_day) or 0, "count", "24h", src),
         metric("error_5xx_count_7d", "5xx responses", err5, "count", "7d", src, "App and load balancer."),
         metric("error_5xx_rate_7d", "5xx rate", err5 / reqs * 100 if reqs else None, "percent", "7d", src),
+        metric("error_4xx_rate_7d", "4xx rate", err4 / reqs * 100 if reqs else None, "percent", "7d", src,
+               "App and load balancer; mostly bots requesting paths that do not exist."),
         metric("response_p90_24h", "Response time (p90)", r["rt"][-1][1] * 1000 if r["rt"] else None,
                "ms", "24h", src),
     ], {"requests_hourly_24h": hourly(r["req"], end)}
@@ -238,6 +253,65 @@ def bedrock_metrics(cw, cfg, end):
         metric("bedrock_cost_7d", "Bedrock cost (est.)", round(cost, 4), "usd", "7d", src,
                "Tokens × on-demand prices from the AWS Price List; check AWS Billing for the charge."),
     ]
+
+
+# Regions searched for Bedrock activity; models are discovered, not assumed.
+BEDROCK_REGIONS = ["ap-south-1", "us-east-1"]
+
+
+def configured_models():
+    """{(region, model_id): (used_by_domains, role, (price_in, price_out) or None)} from the site list."""
+    out = {}
+    for cfg in DOMAINS:
+        b = cfg.get("bedrock")
+        if not b:
+            continue
+        p = b.get("prices", {})
+        for model, role, price in ((b["llm"], "Text generation", (p.get("llm_in"), p.get("llm_out"))),
+                                   (b["embed"], "Embeddings", (p.get("embed_in"), "0"))):
+            used, _, _ = out.get((b["region"], model), ([], role, None))
+            price = tuple(float(x) for x in price) if all(x is not None for x in price) else None
+            out[(b["region"], model)] = (used + [cfg["domain"]], role, price)
+    return out
+
+
+def ai_models(cw_clients, end, errors, regions=BEDROCK_REGIONS):
+    """Every Bedrock model with activity in the last 7 days, with usage, latency and estimated cost."""
+    known = configured_models()
+    models = []
+    for region in regions:
+        cw = cw_clients(region)
+        try:
+            found = cw.list_dimension_values("AWS/Bedrock", "Invocations", "ModelId")
+        except Exception as exc:
+            errors.append(f"Bedrock model discovery ({region}): {exc}")
+            found = [m for (r, m) in known if r == region]
+        for i, model in enumerate(found):
+            dims = {"ModelId": model}
+            try:
+                r = cw.fetch([
+                    stat_query("calls", "AWS/Bedrock", "Invocations", dims, "Sum", 3600),
+                    stat_query("tin", "AWS/Bedrock", "InputTokenCount", dims, "Sum", 3600),
+                    stat_query("tout", "AWS/Bedrock", "OutputTokenCount", dims, "Sum", 3600),
+                    stat_query("lat", "AWS/Bedrock", "InvocationLatency", dims, "p90", int(WEEK.total_seconds())),
+                ], end - WEEK, end)
+            except Exception as exc:
+                errors.append(f"Bedrock {model} ({region}): {exc}")
+                continue
+            calls = total(r["calls"]) or 0
+            if not calls and (region, model) not in known:
+                continue  # listed for the last two weeks but idle in this window
+            used_by, role, price = known.get((region, model), ([], "Embeddings" if "embed" in model else "Text generation", None))
+            tin, tout = total(r["tin"]) or 0, total(r["tout"]) or 0
+            models.append({
+                "model_id": model, "region": region, "role": role, "used_by": used_by,
+                "calls_7d": calls, "input_tokens_7d": tin, "output_tokens_7d": tout,
+                "latency_p90_ms_7d": r["lat"][-1][1] if r["lat"] else None,
+                "cost_usd_7d": round(tin / 1000 * price[0] + tout / 1000 * price[1], 4) if price else None,
+                "cost_note": "On-demand prices from the AWS Price List." if price else "No price configured for this model.",
+                "source": f"CloudWatch AWS/Bedrock {region}, ModelId {model}",
+            })
+    return sorted(models, key=lambda m: -m["calls_7d"])
 
 
 # ── Snapshot ─────────────────────────────────────────────────────────────────
@@ -288,6 +362,7 @@ def snapshot(prom, cw_clients, now=None, sites=DOMAINS):
     errors = []
     avail = availability(prom, sites, errors)
     records = [site_record(cfg, avail, cw_clients, end, errors) for cfg in sites]
+    models = ai_models(cw_clients, end, errors)
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at": iso(end),
@@ -295,6 +370,7 @@ def snapshot(prom, cw_clients, now=None, sites=DOMAINS):
                     "7d": {"start": iso(end - WEEK), "end": iso(end)}},
         "signal_type": "measured",
         "sites": records,
+        "ai_models": models,
         "unavailable_sources": errors,
     }
 

@@ -30,6 +30,11 @@ Grafana and AWS stay private.
       "series": {"requests_hourly_24h": [0, 3, …]}   // 24 values, oldest first
     }
   ],
+  "ai_models": [                                // every Bedrock model with activity, discovered
+    {"model_id": "global.amazon.nova-2-lite-v1:0", "region": "ap-south-1", "role": "Text generation",
+     "used_by": ["gita.atla.in"], "calls_7d": 3483, "input_tokens_7d": 3240000, "output_tokens_7d": 518000,
+     "latency_p90_ms_7d": 1600, "cost_usd_7d": 2.66, "cost_note": "…", "source": "…"}
+  ],
   "unavailable_sources": ["gita.atla.in Bedrock: …"]  // what failed this run, and why
 }
 ```
@@ -44,11 +49,19 @@ Units: `percent` (0–100), `ms`, `count`, `bytes`, `usd`, `score` (CLS).
 | `uptime_24h`, `uptime_7d`, `check_duration_24h` | all | Uptime check results |
 | `requests_24h`, `requests_7d` | all | Requests, bots included |
 | `error_5xx_rate_7d` | all | Request-weighted 5xx rate |
-| `error_4xx_rate_7d`, `bytes_7d` | CloudFront sites | 4xx rate, data served |
+| `error_4xx_rate_7d` | all | Request-weighted 4xx rate (includes firewall blocks where a WAF exists) |
+| `bytes_7d` | CloudFront sites | Data served |
 | `error_5xx_count_7d`, `response_p90_24h` | gita | Load balancer 5xx count, app response time |
 | `waf_blocked_7d`, `waf_blocked_share_7d` | atla.in | AWS WAF blocks |
 | `page_views_7d`, `lcp_p75_7d`, `cls_p75_7d`, `inp_p75_7d`, `js_errors_7d` | atla.in | Real visitors (RUM) |
 | `llm_calls_7d`, `llm_tokens_7d`, `llm_latency_p90_7d`, `bedrock_cost_7d` | gita | Amazon Bedrock |
+
+## Bedrock models
+
+`ai_models` lists every model with Bedrock activity in the last 7 days in `BEDROCK_REGIONS`, found
+with `cloudwatch:ListMetrics` rather than assumed, so a newly used model (a Claude model, for
+example) appears without code changes. `used_by` and prices come from the site list; a model not in
+it shows `used_by: []` and `cost_usd_7d: null` rather than a guessed site or price.
 
 ## Run locally
 

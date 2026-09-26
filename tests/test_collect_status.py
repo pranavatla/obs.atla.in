@@ -37,9 +37,16 @@ class FakeCloudWatch:
         return {q["Id"]: series.get(q["Id"], [(t2, 2.0)]) for q in queries}
 
 
+    def list_dimension_values(self, namespace, metric_name, dimension):
+        return ["global.amazon.nova-2-lite-v1:0", "amazon.titan-embed-text-v2:0", "us.anthropic.claude-sonnet-4-6"]
+
+
 class BrokenCloudWatch:
     def fetch(self, queries, start, end):
         raise RuntimeError("AccessDenied: cloudwatch:GetMetricData")
+
+    def list_dimension_values(self, namespace, metric_name, dimension):
+        raise RuntimeError("AccessDenied: cloudwatch:ListMetrics")
 
 
 def site(data, domain):
@@ -87,6 +94,20 @@ class SnapshotTest(unittest.TestCase):
         prices = next(d for d in cs.DOMAINS if d["domain"] == "gita.atla.in")["bedrock"]["prices"]
         expected = 2 / 1000 * (float(prices["llm_in"]) + float(prices["llm_out"]) + float(prices["embed_in"]))
         self.assertAlmostEqual(value(rec, "bedrock_cost_7d"), round(expected, 4))
+
+    def test_every_active_bedrock_model_is_listed(self):
+        models = cs.snapshot(FakeProm(), lambda region: FakeCloudWatch(), now=NOW)["ai_models"]
+        by_id = {(m["region"], m["model_id"]): m for m in models}
+        nova = by_id[("ap-south-1", "global.amazon.nova-2-lite-v1:0")]
+        self.assertEqual((nova["role"], nova["used_by"]), ("Text generation", ["gita.atla.in"]))
+        self.assertIsNotNone(nova["cost_usd_7d"])
+        claude = by_id[("ap-south-1", "us.anthropic.claude-sonnet-4-6")]
+        self.assertEqual(claude["used_by"], [])
+        self.assertIsNone(claude["cost_usd_7d"])  # no price configured: never guessed
+
+    def test_model_discovery_falls_back_to_configured_models(self):
+        data = cs.snapshot(FakeProm(), lambda region: BrokenCloudWatch(), now=NOW)
+        self.assertTrue(any("model discovery" in e and "ListMetrics" in e for e in data["unavailable_sources"]))
 
     def test_promql_escapes_dots_in_job_names(self):
         prom = FakeProm()

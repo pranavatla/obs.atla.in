@@ -230,6 +230,24 @@
   .group .row .val { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-weight: 600; color: var(--ink); }
   .group .row .info { color: var(--muted); cursor: help; display: inline-flex; }
   .group .row .info svg { width: 13px; height: 13px; }
+  .site-row-btn { width: 100%; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  .site-row-btn:hover { outline: 1px solid var(--border); }
+  .site-tag { display: inline-flex; align-items: center; gap: 8px; min-width: 0; font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .site-tag .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .mini-head, .mini-row { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, .8fr) minmax(0, .8fr) minmax(0, .8fr); align-items: center; gap: 8px; }
+  .mini-head { padding: 0 12px 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .mini-row { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); margin-bottom: 8px; }
+  .mini-head .r, .mini-row .r { text-align: right; }
+  .ai-totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+  .ai-totals div { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+  .ai-totals small { display: block; color: var(--muted); font-size: 11px; }
+  .ai-totals b { font-size: 16px; }
+  .model { padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); margin-bottom: 8px; }
+  .model-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .model code { display: block; margin-top: 2px; color: var(--muted); font: 11px var(--mono); overflow-wrap: anywhere; }
+  .model-stats { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .model-cost { margin-left: auto; font-weight: 700; color: var(--ink); }
+  .model-sites { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 12px; }
   .used-by { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: -4px 0 14px; }
   .used-by a { text-decoration: none; }
 
@@ -343,13 +361,13 @@
         <div class="grid pair">
           <section class="card" id="visitors">
           <div class="card-head">
-            <div><h2 class="card-title">Real visitors</h2><p class="card-sub">atla.in · real browsers (CloudWatch RUM) · 7 days</p></div>
+            <div><h2 class="card-title">Real visitors</h2><p class="card-sub" id="rum-sub">CloudWatch RUM · 7 days</p></div>
           </div>
           <div class="stat-list" id="rum-stats"></div>
         </section>
           <section class="card" id="security">
           <div class="card-head">
-            <div><h2 class="card-title">Security</h2><p class="card-sub">atla.in · AWS WAF · 7 days</p></div>
+            <div><h2 class="card-title">Security</h2><p class="card-sub" id="waf-sub">7 days</p></div>
           </div>
           <div class="stat-list" id="waf-stats"></div>
         </section>
@@ -550,6 +568,23 @@
     });
   }
 
+
+  // Readable names for Bedrock model IDs; unknown IDs are shown as-is.
+  function modelName(id) {
+    const base = id.replace(/^(global|us|eu|apac|ap|jp|au|ca)\./, "");
+    const known = {
+      "amazon.nova-2-lite-v1:0": "Amazon Nova 2 Lite", "amazon.nova-lite-v1:0": "Amazon Nova Lite", "amazon.nova-pro-v1:0": "Amazon Nova Pro",
+      "amazon.nova-micro-v1:0": "Amazon Nova Micro", "amazon.titan-embed-text-v2:0": "Amazon Titan Text Embeddings v2",
+    };
+    if (known[base]) return known[base];
+    const claude = base.match(/^anthropic\.claude-(?:(\d+)-(\d+)-)?([a-z]+)(?:-(\d+)(?:-(\d+))?)?/);
+    if (claude) {
+      const fam = claude[3][0].toUpperCase() + claude[3].slice(1);
+      const ver = claude[1] ? `${claude[1]}.${claude[2]}` : claude[4] ? claude[4] + (claude[5] && claude[5].length <= 2 ? "." + claude[5] : "") : "";
+      return `Claude ${fam}${ver ? " " + ver : ""}`;
+    }
+    return id;
+  }
 
   // Small area sparkline for a site card.
   function sparkline(series, color) {
@@ -789,16 +824,59 @@
     const zeroGood = (v) => v === 0 ? chip("good", ICON.up, "None") : chip("critical", ICON.warn, "Check");
     const find = (key) => sites.find((s) => metricOf(s, key));
     const ai = find("llm_calls_7d"), rum = find("page_views_7d"), waf = find("waf_blocked_7d");
-    const model = ai && metricOf(ai, "llm_calls_7d").note;
-    $("#ai-used-by").innerHTML = ai ? `<a href="#sites" data-open="${esc(ai.domain)}">${chip("", "", "Used by " + ai.domain)}</a>${model ? chip("", "", "Model " + model) : ""}` : "";
-    const aiLink = document.querySelector("#ai-used-by a");
-    if (aiLink) aiLink.addEventListener("click", (e) => { e.preventDefault(); selectSite(aiLink.dataset.open, true); });
-    $("#ai-stats").innerHTML = ai ? statRows(ai, [["llm_calls_7d", "LLM calls"], ["llm_tokens_7d", "Tokens"], ["llm_latency_p90_7d", "Latency (p90)"], ["bedrock_cost_7d", "Estimated cost"]])
-      : '<div class="stat-row"><span>No Bedrock data in this snapshot</span></div>';
-    $("#rum-stats").innerHTML = rum ? statRows(rum, [["page_views_7d", "Page views"], ["lcp_p75_7d", "LCP (p75)", vitals(2500, 4000)], ["cls_p75_7d", "CLS (p75)", vitals(0.1, 0.25)], ["inp_p75_7d", "INP (p75)", vitals(200, 500)], ["js_errors_7d", "JavaScript errors", zeroGood]])
-      : '<div class="stat-row"><span>No RUM data in this snapshot</span></div>';
-    $("#waf-stats").innerHTML = waf ? statRows(waf, [["waf_blocked_7d", "Blocked requests"], ["waf_blocked_share_7d", "Share blocked"], ["error_4xx_rate_7d", "4xx rate (incl. blocks)"]])
-      : '<div class="stat-row"><span>No WAF data in this snapshot</span></div>';
+    // Bedrock: every model with activity, discovered by the collector, and the sites that use it.
+    const models = data.ai_models || [];
+    const siteColor = (d) => (sites.find((x) => x.domain === d) || {}).color || "--muted";
+    const usedBy = [...new Set(models.flatMap((m) => m.used_by))];
+    $("#ai-used-by").innerHTML = usedBy.map((d) => `<a href="#sites" data-open="${esc(d)}">${chip("", `<i class="dot" style="width:7px;height:7px;border-radius:50%;background:var(${siteColor(d)})"></i>`, "Used by " + d)}</a>`).join("")
+      + (models.length ? chip("", "", `${models.length} model${models.length > 1 ? "s" : ""}`) : "");
+    document.querySelectorAll("#ai-used-by a").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); selectSite(a.dataset.open, true); }));
+    const priced = models.filter((m) => m.cost_usd_7d !== null);
+    const aiTotals = [
+      ["Calls", { value: models.reduce((a, m) => a + m.calls_7d, 0), unit: "count" }],
+      ["Tokens", { value: models.reduce((a, m) => a + m.input_tokens_7d + m.output_tokens_7d, 0), unit: "count" }],
+      ["Estimated cost", { value: priced.length ? priced.reduce((a, m) => a + m.cost_usd_7d, 0) : null, unit: "usd" }],
+    ];
+    $("#ai-stats").innerHTML = !models.length ? '<div class="stat-row"><span>No Bedrock activity in this snapshot</span></div>' :
+      `<div class="ai-totals">${aiTotals.map(([l, m]) => `<div><small>${l}</small><b class="num">${fmt(m)}</b></div>`).join("")}</div>` +
+      models.map((m) => `<div class="model" title="${esc(m.source + " · " + m.cost_note)}">
+        <div class="model-top"><b>${esc(modelName(m.model_id))}</b>${chip("", "", m.role)}</div>
+        <code>${esc(m.model_id)} · ${esc(m.region)}</code>
+        <div class="model-stats num">
+          <span>${fmt({ value: m.calls_7d, unit: "count" })} calls</span>
+          <span>${fmt({ value: m.input_tokens_7d + m.output_tokens_7d, unit: "count" })} tokens</span>
+          ${m.latency_p90_ms_7d !== null ? `<span>p90 ${fmt({ value: m.latency_p90_ms_7d, unit: "ms" })}</span>` : ""}
+          <span class="model-cost">${m.cost_usd_7d !== null ? fmt({ value: m.cost_usd_7d, unit: "usd" }) : "price not set"}</span>
+        </div>
+        <div class="model-sites">${m.used_by.length ? m.used_by.map((d) => `<span class="site-tag"><i class="dot" style="background:var(${siteColor(d)})"></i>${esc(d)}</span>`).join("") : '<span class="nodata">Not attributed to a site</span>'}</div>
+      </div>`).join("") +
+      (priced.length < models.length ? '<p class="card-sub" style="margin:8px 2px 0">Cost total covers models with a configured price only.</p>' : "");
+    // Real visitors and Security list every site with equal weight; gaps are shown, not hidden.
+    const siteLabel = (x) => `<span class="site-tag"><i class="dot" style="background:var(${x.color})"></i>${esc(x.domain)}</span>`;
+    const VITALS = [["lcp_p75_7d", "LCP", 2500, 4000], ["cls_p75_7d", "CLS", 0.1, 0.25], ["inp_p75_7d", "INP", 200, 500]];
+    const rumSites = sites.filter((x) => metricOf(x, "page_views_7d"));
+    $("#rum-sub").textContent = `CloudWatch RUM · 7 days · ${rumSites.length} of ${sites.length} sites measured`;
+    $("#rum-stats").innerHTML = sites.map((x) => {
+      const views = metricOf(x, "page_views_7d");
+      if (!views) return `<button type="button" class="stat-row site-row-btn" data-site="${esc(x.domain)}" title="No RUM script on this site yet">${siteLabel(x)}<b>${chip("unknown", "", "Not measured")}</b></button>`;
+      const judged = VITALS.map(([k, name, good, poor]) => { const m = metricOf(x, k); return m && m.value !== null ? [name, m, m.value <= good ? 0 : m.value <= poor ? 1 : 2] : null; }).filter(Boolean);
+      const worst = judged.reduce((w, j) => (j[2] > w[2] ? j : w), ["", null, -1]);
+      const verdict = worst[2] < 0 ? "" : worst[2] === 0 ? chip("good", ICON.up, "Vitals good") : chip(worst[2] === 1 ? "warning" : "critical", ICON.warn, `${worst[0]} ${worst[2] === 1 ? "needs work" : "poor"}`);
+      const tip = judged.map(([name, m]) => `${name} ${fmt(m).replace(/<[^>]+>/g, "")}`).join(" · ");
+      return `<button type="button" class="stat-row site-row-btn" data-site="${esc(x.domain)}" title="${esc(tip)}">${siteLabel(x)}<b class="num">${fmt(views)} views${verdict}</b></button>`;
+    }).join("");
+
+    const wafSites = sites.filter((x) => metricOf(x, "waf_blocked_7d"));
+    $("#waf-sub").textContent = `7 days · AWS WAF on ${wafSites.length} of ${sites.length} sites`;
+    $("#waf-stats").innerHTML = `<div class="mini-head"><span>Site</span><span>WAF</span><span class="r">Blocked</span><span class="r">4xx</span></div>` +
+      sites.map((x) => {
+        const share = metricOf(x, "waf_blocked_share_7d"), e4 = metricOf(x, "error_4xx_rate_7d");
+        return `<button type="button" class="mini-row site-row-btn" data-site="${esc(x.domain)}" title="${esc(e4 ? e4.note || "" : "")}">${siteLabel(x)}
+          <span>${share ? chip("good", ICON.up, "WAF") : chip("unknown", "", "None")}</span>
+          <span class="r num">${share ? fmt(share) : '<span class="nodata">—</span>'}</span>
+          <span class="r num">${fmt(e4)}</span></button>`;
+      }).join("");
+    document.querySelectorAll(".site-row-btn").forEach((b) => b.addEventListener("click", () => selectSite(b.dataset.site, true)));
 
     // Method
     const sources = [...new Set(sites.flatMap((s) => s.metrics.map((m) => m.source)))];
