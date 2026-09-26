@@ -1,7 +1,7 @@
 # Status snapshot
 
 `collect_status.py` gathers real metrics for every atla.in site and writes `status.json`, which
-obs.atla.in renders. `.github/workflows/publish-status.yml` runs it every 15 minutes and uploads
+obs.atla.in renders. `.github/workflows/publish-status.yml` runs it every 15 minutes (and on any change to the collector or site list) and uploads
 the file to the obs.atla.in bucket. The site list is `DOMAINS` in `grafana/build_dashboards.py`,
 shared with the Grafana dashboards.
 

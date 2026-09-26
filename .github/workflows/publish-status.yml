@@ -2,9 +2,17 @@ name: Publish status snapshot
 
 # Collects real metrics for every atla.in site and publishes status.json, which obs.atla.in
 # renders. A fixed schedule keeps CloudWatch cost flat however many people view the page.
+# GitHub drops many runs scheduled on the busy :00/:15/:30/:45 marks, so the schedule is offset,
+# and a change to the collector or site list publishes straight away instead of waiting for it.
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "7,22,37,52 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - status/**
+      - grafana/build_dashboards.py
+      - .github/workflows/publish-status.yml
   workflow_dispatch:
 
 permissions:
