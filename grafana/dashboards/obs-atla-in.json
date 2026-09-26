@@ -1,6 +1,6 @@
 {
   "uid": "obs-atla-in",
-  "title": "obs.atla.in · Availability, Visitors & Delivery",
+  "title": "obs.atla.in · Availability, Visitors, Delivery & Security",
   "description": "Monitoring for https://obs.atla.in/.",
   "tags": [
     "obs.atla.in",
@@ -61,6 +61,20 @@
         "label": "Distribution",
         "type": "constant",
         "query": "E2EXL4C10F3QBA",
+        "hide": 2
+      },
+      {
+        "name": "waf_acl",
+        "label": "WAF web ACL",
+        "type": "constant",
+        "query": "CreatedByCloudFront-44b6e91d",
+        "hide": 2
+      },
+      {
+        "name": "waf_region",
+        "label": "WAF region",
+        "type": "constant",
+        "query": "us-east-1",
         "hide": 2
       }
     ]
@@ -1159,8 +1173,8 @@
     },
     {
       "type": "stat",
-      "title": "4xx error rate",
-      "description": "Share of requests answered with a 4xx status (for example 403 or 404). Bots probing for missing files raise this. Use 5xx and availability to judge site health. Weighted by requests: per minute, errors = rate × requests; the panel shows total errors ÷ total requests, so quiet minutes with a single failed request don't dominate. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
+      "title": "4xx rate (incl. firewall blocks)",
+      "description": "Share of requests answered with a 4xx status (for example 403 or 404). This includes requests AWS WAF blocked (see Security) and bot requests for paths that do not exist. Use 5xx and availability to judge site health. Weighted by requests: per minute, errors = rate × requests; the panel shows total errors ÷ total requests, so quiet minutes with a single failed request don't dominate. Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1260,7 +1274,7 @@
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "displayName": "4xx error rate",
+          "displayName": "4xx rate (incl. firewall blocks)",
           "color": {
             "mode": "thresholds"
           },
@@ -1839,7 +1853,7 @@
       "title": "About this data",
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://obs.atla.in/`. Observability page: private S3 bucket behind CloudFront. No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `obs.atla.in homepage`, every 10 minutes from 2 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `obs-atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2EXL4C10F3QBA`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** firewall data (no AWS WAF in front of this site); deploy markers; request logs (not collected)."
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://obs.atla.in/`. Observability page: private S3 bucket behind CloudFront (Free plan, AWS WAF included).\n\n**Availability:** Grafana Synthetic Monitoring check `obs.atla.in homepage`, every 10 minutes from 2 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `obs-atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2EXL4C10F3QBA`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Security:** AWS WAF web ACL `CreatedByCloudFront-44b6e91d` (us-east-1). Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Not shown:** deploy markers; request logs (not collected)."
       },
       "id": 22,
       "gridPos": {
@@ -1847,6 +1861,783 @@
         "w": 12,
         "x": 12,
         "y": 30
+      }
+    },
+    {
+      "type": "row",
+      "title": "Security · AWS WAF",
+      "collapsed": false,
+      "panels": [],
+      "id": 23,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Blocked by firewall",
+      "description": "Requests AWS WAF stopped before they reached the site, answered with 403. This is the firewall working, not the site failing. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${waf_region}",
+          "namespace": "AWS/WAFV2",
+          "metricName": "BlockedRequests",
+          "statistic": "Sum",
+          "dimensions": {
+            "WebACL": "${waf_acl}",
+            "Rule": "ALL"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Blocked"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Blocked by firewall",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 24,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 39
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Allowed by firewall",
+      "description": "Requests WAF let through to the site. Includes bots the managed rules do not recognise. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${waf_region}",
+          "namespace": "AWS/WAFV2",
+          "metricName": "AllowedRequests",
+          "statistic": "Sum",
+          "dimensions": {
+            "WebACL": "${waf_acl}",
+            "Rule": "ALL"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Allowed"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "displayName": "Allowed by firewall",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 25,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 39
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Share blocked",
+      "description": "Blocked ÷ (blocked + allowed) over the selected range. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": true,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${waf_region}",
+          "namespace": "AWS/WAFV2",
+          "metricName": "BlockedRequests",
+          "statistic": "Sum",
+          "dimensions": {
+            "WebACL": "${waf_acl}",
+            "Rule": "ALL"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Blocked"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": true,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${waf_region}",
+          "namespace": "AWS/WAFV2",
+          "metricName": "AllowedRequests",
+          "statistic": "Sum",
+          "dimensions": {
+            "WebACL": "${waf_acl}",
+            "Rule": "ALL"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Allowed"
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "C",
+          "type": "reduce",
+          "expression": "A",
+          "reducer": "sum",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "D",
+          "type": "reduce",
+          "expression": "B",
+          "reducer": "sum",
+          "hide": true
+        },
+        {
+          "datasource": {
+            "type": "__expr__",
+            "uid": "__expr__"
+          },
+          "refId": "E",
+          "type": "math",
+          "expression": "$C / ($C + $D) * 100",
+          "hide": false
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "displayName": "Share blocked",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "id": 26,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 39
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Allowed vs blocked (hourly)",
+      "description": "Requests per hour by WAF decision. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${waf_region}",
+          "namespace": "AWS/WAFV2",
+          "metricName": "AllowedRequests",
+          "statistic": "Sum",
+          "dimensions": {
+            "WebACL": "${waf_acl}",
+            "Rule": "ALL"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Allowed"
+        },
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "B",
+          "hide": false,
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 0,
+          "region": "${waf_region}",
+          "namespace": "AWS/WAFV2",
+          "metricName": "BlockedRequests",
+          "statistic": "Sum",
+          "dimensions": {
+            "WebACL": "${waf_acl}",
+            "Rule": "ALL"
+          },
+          "matchExact": true,
+          "period": "3600",
+          "id": "",
+          "expression": "",
+          "label": "Blocked"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 60,
+            "spanNulls": false,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "id": 27,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 43
+      }
+    },
+    {
+      "type": "table",
+      "title": "Blocks by managed rule",
+      "description": "Which AWS managed rule matched blocked requests (for example path traversal, missing user agent, exploitable paths, bad IP reputation). Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${waf_region}",
+          "expression": "SEARCH('{AWS/WAFV2,WebACL,ManagedRuleGroup,ManagedRuleGroupRule} MetricName=\"BlockedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
+          "id": "",
+          "period": "3600",
+          "label": "${PROP('Dim.ManagedRuleGroupRule')}"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "sum"
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Total",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 10
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "Rule",
+              "Total": "Requests"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "id": 28,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 43
+      }
+    },
+    {
+      "type": "table",
+      "title": "Blocked by country",
+      "description": "Countries the blocked requests came from, based on source IP. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${waf_region}",
+          "expression": "SEARCH('{AWS/WAFV2,WebACL,Country} MetricName=\"BlockedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
+          "id": "",
+          "period": "3600",
+          "label": "${PROP('Dim.Country')}"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "sum"
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Total",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 10
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "Country",
+              "Total": "Requests"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "id": 29,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 51
+      }
+    },
+    {
+      "type": "table",
+      "title": "Allowed by country",
+      "description": "Countries of requests WAF allowed. Includes unrecognised bots, so it approximates, not measures, visitor location. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${waf_region}",
+          "expression": "SEARCH('{AWS/WAFV2,WebACL,Country} MetricName=\"AllowedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
+          "id": "",
+          "period": "3600",
+          "label": "${PROP('Dim.Country')}"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "sum"
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Total",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 10
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "Country",
+              "Total": "Requests"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "id": 30,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 51
+      }
+    },
+    {
+      "type": "table",
+      "title": "Blocked by attack type",
+      "description": "WAF's classification of blocked requests. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
+      "datasource": {
+        "type": "cloudwatch",
+        "uid": "${datasource}"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "cloudwatch",
+            "uid": "${datasource}"
+          },
+          "refId": "A",
+          "queryMode": "Metrics",
+          "metricQueryType": 0,
+          "metricEditorMode": 1,
+          "region": "${waf_region}",
+          "expression": "SEARCH('{AWS/WAFV2,WebACL,Attack} MetricName=\"BlockedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
+          "id": "",
+          "period": "3600",
+          "label": "${PROP('Dim.Attack')}"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "mode": "seriesToRows",
+            "reducers": [
+              "sum"
+            ]
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "sort": [
+              {
+                "field": "Total",
+                "desc": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 10
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "Field": "Attack type",
+              "Total": "Requests"
+            }
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge",
+                  "mode": "basic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "id": 31,
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 51
       }
     }
   ]

@@ -12,9 +12,9 @@ python3 grafana/build_dashboards.py
 | `dashboards/overview.json` | One line per site: status, uptime, check duration, requests, 5xx rate |
 | `dashboards/atla-in.json` | atla.in: availability, real visitors (RUM), delivery, security (WAF), deploy markers |
 | `dashboards/aif-atla-in.json` | aif.atla.in: availability, real visitors (RUM), delivery |
-| `dashboards/games-atla-in.json` | games.atla.in: availability, real visitors (RUM), delivery |
-| `dashboards/obs-atla-in.json` | obs.atla.in: availability, real visitors (RUM), delivery |
-| `dashboards/gita-atla-in.json` | gita.atla.in: availability, real visitors (RUM), traffic (load balancer), AI (Bedrock calls, tokens, latency, errors, estimated cost) |
+| `dashboards/games-atla-in.json` | games.atla.in: availability, real visitors (RUM), delivery, security (WAF) |
+| `dashboards/obs-atla-in.json` | obs.atla.in: availability, real visitors (RUM), delivery, security (WAF) |
+| `dashboards/gita-atla-in.json` | gita.atla.in: availability, real visitors (RUM), traffic (load balancer), AI (Bedrock calls, tokens, latency, errors, estimated cost), security (regional WAF) |
 
 A site gets a section only when its data exists: Security needs an AWS WAF web ACL, Real visitors
 needs a CloudWatch RUM app monitor, deploy markers need the site's deploy to post annotations.
@@ -31,7 +31,7 @@ CloudWatch and `grafanacloud-…-prom` data sources.
 | Availability | Grafana Synthetic Monitoring checks named `<domain> homepage` (Prometheus) |
 | Real visitors | CloudWatch `AWS/RUM`, `us-east-1` |
 | Delivery | CloudWatch `AWS/CloudFront`, `us-east-1`, dimensions `DistributionId`, `Region=Global` |
-| Security | CloudWatch `AWS/WAFV2`, `us-east-1` |
+| Security | CloudWatch `AWS/WAFV2`: `us-east-1` for CloudFront web ACLs, the web ACL's region (with a `Region` dimension) for gita's regional one |
 | Traffic (gita) | CloudWatch `AWS/ApplicationELB`, `ap-south-1`, found by load balancer name |
 | AI (gita) | CloudWatch `AWS/Bedrock`, `ap-south-1`, by `ModelId`; cost = tokens × prices entered on the dashboard |
 | Deploy markers | Grafana annotations tagged with the domain and `deploy` |

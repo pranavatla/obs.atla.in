@@ -1839,7 +1839,7 @@
       "title": "About this data",
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://aif.atla.in/`. AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront. No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `aif.atla.in homepage`, every 10 minutes from 2 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `aif-atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2A5DBVVXUZ6JO`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** firewall data (no AWS WAF in front of this site); deploy markers; request logs (not collected)."
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://aif.atla.in/`. AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront (pay-as-you-go). No WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `aif.atla.in homepage`, every 10 minutes from 2 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `aif-atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2A5DBVVXUZ6JO`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Not shown:** firewall data (no AWS WAF in front of this site); deploy markers; request logs (not collected)."
       },
       "id": 22,
       "gridPos": {

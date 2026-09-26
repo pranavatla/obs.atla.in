@@ -23,17 +23,17 @@ DOMAINS = [
     {
         "slug": "aif-atla-in", "uid": "aif-atla-in", "domain": "aif.atla.in",
         "distribution": "E2A5DBVVXUZ6JO", "sm_job": "aif.atla.in homepage", "rum_app": "aif-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
-        "notes": "AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront. No WAF.",
+        "notes": "AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront (pay-as-you-go). No WAF.",
     },
     {
         "slug": "games-atla-in", "uid": "games-atla-in", "domain": "games.atla.in",
-        "distribution": "E1HCLV5K7MXCST", "sm_job": "games.atla.in homepage", "rum_app": "games-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
-        "notes": "Games site: S3 website endpoint (ap-south-1) behind CloudFront. No WAF.",
+        "distribution": "E1HCLV5K7MXCST", "sm_job": "games.atla.in homepage", "waf_acl": "CreatedByCloudFront-af869b7f", "rum_app": "games-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
+        "notes": "Games site: S3 website endpoint (ap-south-1) behind CloudFront (Free plan, AWS WAF included).",
     },
     {
         "slug": "obs-atla-in", "uid": "obs-atla-in", "domain": "obs.atla.in",
-        "distribution": "E2EXL4C10F3QBA", "sm_job": "obs.atla.in homepage", "rum_app": "obs-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
-        "notes": "Observability page: private S3 bucket behind CloudFront. No WAF.",
+        "distribution": "E2EXL4C10F3QBA", "sm_job": "obs.atla.in homepage", "waf_acl": "CreatedByCloudFront-44b6e91d", "rum_app": "obs-atla-in", "sm_schedule": "every 10 minutes from 2 probes",
+        "notes": "Observability page: private S3 bucket behind CloudFront (Free plan, AWS WAF included).",
     },
     {
         "slug": "gita-atla-in", "uid": "gita-atla-in", "domain": "gita.atla.in",
