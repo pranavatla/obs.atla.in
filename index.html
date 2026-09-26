@@ -37,6 +37,7 @@
     --unknown-soft: #efefec;
     --radius: 16px;
     --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:where(:not([data-theme="light"])) {
@@ -159,26 +160,78 @@
   .gauge-center b { display: block; font-size: 32px; letter-spacing: -0.02em; }
   .gauge-center small { color: var(--muted); font-size: 12px; }
 
-  /* Sites table */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  td { padding: 12px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  td.r, th.r { text-align: right; }
-  tr.site-row { cursor: pointer; }
-  tr.site-row:hover td { background: var(--surface-2); }
-  .site-cell { display: flex; align-items: center; gap: 10px; }
+  /* Tracked sites */
+  .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sites-section { margin-top: 24px; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .section-head h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 18px; letter-spacing: -0.01em; }
+  .section-head h2 svg { width: 20px; height: 20px; color: var(--accent); }
+  .section-head span { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .section-sub { margin: 4px 0 14px; color: var(--muted); font-size: 12px; }
+  .site-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .site-card { position: relative; display: flex; flex-direction: column; justify-content: flex-start; text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%;
+               background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+               padding: 18px 18px 14px; transition: transform .15s, box-shadow .15s, border-color .15s; }
+  .site-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(16, 24, 40, 0.10); }
+  .site-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .site-card[aria-expanded="true"] { border-color: var(--site); box-shadow: 0 0 0 1px var(--site), 0 10px 28px rgba(16, 24, 40, 0.10); }
+  .site-card .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .site-card .domain { font-family: var(--mono); font-weight: 700; font-size: 15px; }
+  .site-card .name { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .site-card .domain { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .state { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .state i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent); }
+  .state.up { color: var(--good-ink); } .state.down { color: var(--critical-ink); } .state.unknown { color: var(--muted); }
+  .spark { display: block; width: 100%; height: 52px; margin: 14px 0 10px; }
+  .spark-empty { height: 52px; margin: 14px 0 10px; display: grid; place-items: center; color: var(--muted); font-size: 11px; border-radius: 8px; background: var(--surface-2); }
+  .rows { display: grid; gap: 9px; margin-bottom: 14px; }
+  .rows .row { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-2); }
+  .rows .row svg { width: 15px; height: 15px; flex: none; color: var(--muted); }
+  .rows .row b { margin-left: auto; font-family: var(--mono); font-weight: 600; color: var(--ink); }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; box-shadow: 0 -14px 0 -13px var(--border); font-size: 12px; color: var(--muted); }
+  .card-foot .open-hint { color: var(--accent); font-weight: 600; }
+
+  /* Site detail panel */
+  .site-detail { margin-top: 16px; padding: 22px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface);
+                 box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .site-detail::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 180px; pointer-events: none;
+                         background: linear-gradient(180deg, color-mix(in srgb, var(--site) 12%, transparent), transparent); }
+  .detail-head { position: relative; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+  .detail-head .site-icon { width: 44px; height: 44px; border-radius: 12px; font-size: 18px; }
+  .detail-head h3 { margin: 0; font-family: var(--mono); font-size: 20px; }
+  .detail-head p { margin: 2px 0 0; color: var(--ink-2); font-size: 13px; }
+  .detail-head .actions { margin-left: auto; display: flex; gap: 8px; }
+  .ghost { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border);
+           background: var(--surface); color: var(--ink-2); font: 600 12px var(--font); text-decoration: none; cursor: pointer; }
+  .ghost:hover { color: var(--ink); }
   .site-icon { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px; flex: none; }
-  .site-cell b { display: block; }
-  .site-cell small { color: var(--muted); }
-  tr.detail td { background: var(--surface-2); white-space: normal; padding: 14px 16px; }
-  .metric-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px 16px; margin: 0; }
-  .metric-list div { padding: 8px 10px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
-  .metric-list dt { font-size: 11px; color: var(--muted); }
-  .metric-list dd { margin: 2px 0 0; font-weight: 600; }
-  .metric-list dd small { font-weight: 400; color: var(--muted); }
-  .chev { transition: transform .15s; color: var(--muted); }
-  tr.open .chev { transform: rotate(90deg); }
+  .rings { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 16px; }
+  .ring-card { padding: 16px 12px 14px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); text-align: center; }
+  .ring-box { position: relative; width: 140px; height: 140px; margin: 0 auto 8px; }
+  .ring-box svg { width: 100%; height: 100%; transform: rotate(135deg); }
+  .ring-val { position: absolute; inset: 0; display: grid; place-content: center; font-family: var(--mono); }
+  .ring-val b { font-size: 19px; letter-spacing: -0.03em; }
+  .ring-val b small { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .ring-val span { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .ring-card .ring-label { font-weight: 600; font-size: 13px; }
+  .ring-card .ring-cap { display: inline-flex; align-items: center; gap: 5px; margin-top: 3px; color: var(--muted); font-size: 12px; }
+  .detail-chart { position: relative; padding: 16px 18px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); margin-bottom: 16px; }
+  .detail-chart .card-head { margin-bottom: 4px; }
+  .groups { display: grid; grid-template-columns: repeat(var(--gcols, 3), minmax(0, 1fr)); gap: 14px; }
+  .group { padding: 16px 16px 12px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); }
+  .group-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .group-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--site) 16%, transparent); color: var(--site); flex: none; }
+  .group-icon svg { width: 17px; height: 17px; }
+  .group-head b { display: block; font-size: 14px; }
+  .group-head small { display: block; color: var(--muted); font-size: 11px; }
+  .group-src { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); color: var(--muted); font: 10px/1.5 var(--mono); overflow-wrap: anywhere; }
+  .group .row { display: flex; align-items: center; gap: 8px; white-space: nowrap; padding: 9px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--ink-2); }
+  .group .row .win { font-family: var(--mono); font-size: 10px; color: var(--muted); padding: 1px 6px; border-radius: 6px; background: var(--surface); }
+  .group .row .val { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-weight: 600; color: var(--ink); }
+  .group .row .info { color: var(--muted); cursor: help; display: inline-flex; }
+  .group .row .info svg { width: 13px; height: 13px; }
+  .used-by { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: -4px 0 14px; }
+  .used-by a { text-decoration: none; }
 
   /* AI + small stat lists */
   .orb { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 14px;
@@ -196,8 +249,15 @@
   .banner { display: none; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; background: var(--critical-soft); color: var(--critical-ink); }
   .skeleton { color: transparent !important; background: var(--surface-2); border-radius: 8px; }
 
+  @media (max-width: 1000px) { .groups { grid-template-columns: minmax(0, 1fr) !important; } }
   @media (max-width: 1180px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .main-grid { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 860px) {
+    .rings { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .ring-box { width: 112px; height: 112px; }
+    .ring-val b { font-size: 16px; }
+    .site-detail { padding: 16px; }
+    .pair { grid-template-columns: minmax(0, 1fr); }
+    .detail-head .actions { margin-left: 0; }
     .shell { grid-template-columns: minmax(0, 1fr); }
     .sidebar { position: static; height: auto; flex-direction: row; align-items: center; overflow-x: auto; padding: 10px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
     .brand { padding: 0 8px 0 0; }
@@ -280,17 +340,20 @@
           <div class="shares" id="shares" aria-label="Share of requests over 7 days"></div>
         </section>
 
-        <section class="card" id="sites">
+        <div class="grid pair">
+          <section class="card" id="visitors">
           <div class="card-head">
-            <div><h2 class="card-title">Sites</h2><p class="card-sub">Select a site to see every metric with its source.</p></div>
+            <div><h2 class="card-title">Real visitors</h2><p class="card-sub">atla.in · real browsers (CloudWatch RUM) · 7 days</p></div>
           </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Site</th><th>Status</th><th class="r">Uptime 7d</th><th class="r">Check time</th><th class="r">Requests 7d</th><th class="r">5xx 7d</th><th></th></tr></thead>
-              <tbody id="site-rows"></tbody>
-            </table>
-          </div>
+          <div class="stat-list" id="rum-stats"></div>
         </section>
+          <section class="card" id="security">
+          <div class="card-head">
+            <div><h2 class="card-title">Security</h2><p class="card-sub">atla.in · AWS WAF · 7 days</p></div>
+          </div>
+          <div class="stat-list" id="waf-stats"></div>
+        </section>
+        </div>
       </div>
 
       <div class="col">
@@ -313,27 +376,26 @@
 
         <section class="card" id="ai">
           <div class="card-head">
-            <div><h2 class="card-title">AI · Amazon Bedrock</h2><p class="card-sub" id="ai-sub">gita.atla.in · 7 days</p></div>
+            <div><h2 class="card-title">AI · Amazon Bedrock</h2><p class="card-sub">7 days</p></div>
           </div>
           <div class="orb" aria-hidden="true"></div>
+          <div class="used-by" id="ai-used-by"></div>
           <div class="stat-list" id="ai-stats"></div>
         </section>
 
-        <section class="card" id="visitors">
-          <div class="card-head">
-            <div><h2 class="card-title">Real visitors</h2><p class="card-sub">atla.in · real browsers (CloudWatch RUM) · 7 days</p></div>
-          </div>
-          <div class="stat-list" id="rum-stats"></div>
-        </section>
 
-        <section class="card" id="security">
-          <div class="card-head">
-            <div><h2 class="card-title">Security</h2><p class="card-sub">atla.in · AWS WAF · 7 days</p></div>
-          </div>
-          <div class="stat-list" id="waf-stats"></div>
-        </section>
       </div>
     </div>
+
+    <section id="sites" class="sites-section">
+      <div class="section-head">
+        <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Tracked sites</h2>
+        <span id="sites-count"></span>
+      </div>
+      <p class="section-sub">Select a site for its gauges, 24-hour traffic and every metric with its source.</p>
+      <div class="site-grid" id="site-grid"></div>
+      <div class="site-detail" id="site-detail" hidden></div>
+    </section>
 
     <section class="card method" id="method">
       <h2 class="card-title">How this is measured</h2>
@@ -488,6 +550,88 @@
     });
   }
 
+
+  // Small area sparkline for a site card.
+  function sparkline(series, color) {
+    if (!series.length || series.every((v) => !v)) return '<div class="spark-empty">No hourly data</div>';
+    const W = 240, H = 52, max = Math.max(...series, 1), step = W / (series.length - 1);
+    const pts = series.map((v, i) => [i * step, H - 4 - (v / max) * (H - 10)]);
+    const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join("");
+    const id = "g" + Math.random().toString(36).slice(2, 8);
+    return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <defs><linearGradient id="${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(${color})" stop-opacity=".35"/><stop offset="1" stop-color="var(${color})" stop-opacity="0"/></linearGradient></defs>
+      <path d="${line}L${W},${H}L0,${H}Z" fill="url(#${id})"/>
+      <path d="${line}" fill="none" stroke="var(${color})" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+  }
+
+  // 270° ring gauge; frac 0..1, null = no data.
+  function ring(frac, color, valueHtml, sub) {
+    const r = 52, C = 2 * Math.PI * r, arc = 0.75 * C, f = frac === null ? 0 : Math.max(0, Math.min(1, frac));
+    return `<div class="ring-box"><svg viewBox="0 0 132 132" aria-hidden="true">
+        <circle cx="66" cy="66" r="${r}" fill="none" stroke="var(--idle-bar)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${arc} ${C}"/>
+        ${f > 0 ? `<circle cx="66" cy="66" r="${r}" fill="none" stroke="var(${color})" stroke-width="10" stroke-linecap="round" stroke-dasharray="${Math.max(arc * f, 0.1)} ${C}" style="filter:drop-shadow(0 0 6px color-mix(in srgb, var(${color}) 45%, transparent))"/>` : ""}
+      </svg><div class="ring-val"><b>${valueHtml}</b><span>${sub || ""}</span></div></div>`;
+  }
+
+  // Requests per hour with gridlines, axis labels and a crosshair tooltip.
+  function areaChart(svg, hours, series, color, domain) {
+    svg.innerHTML = "";
+    const W = svg.clientWidth || 700, H = 200, L = 40, B = 24, T = 12, ph = H - B - T;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const max = niceMax(Math.max(...series, 1)), step = (W - L) / (series.length - 1);
+    const X = (i) => L + i * step, Y = (v) => T + ph - (v / max) * ph;
+    for (let g = 0; g <= 2; g++) {
+      const y = T + ph - (ph * g) / 2;
+      svg.append(el("line", { x1: L, x2: W, y1: y, y2: y, stroke: cssVar(g ? "--grid" : "--axis"), "stroke-width": 1 }));
+      const t = el("text", { x: L - 6, y: y + 4, "text-anchor": "end" }); t.textContent = compact((max * g) / 2); svg.append(t);
+    }
+    const id = "a" + Math.random().toString(36).slice(2, 8);
+    const defs = el("defs", {}); const grad = el("linearGradient", { id, x1: 0, x2: 0, y1: 0, y2: 1 });
+    grad.append(el("stop", { offset: 0, "stop-color": cssVar(color), "stop-opacity": 0.3 }), el("stop", { offset: 1, "stop-color": cssVar(color), "stop-opacity": 0 }));
+    defs.append(grad); svg.append(defs);
+    const line = series.map((v, i) => (i ? "L" : "M") + X(i).toFixed(1) + "," + Y(v).toFixed(1)).join("");
+    svg.append(el("path", { d: `${line}L${X(series.length - 1)},${T + ph}L${L},${T + ph}Z`, fill: `url(#${id})` }));
+    svg.append(el("path", { d: line, fill: "none", stroke: cssVar(color), "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    const every = W < 520 ? 8 : 4;  // fewer hour labels on narrow screens so they never collide
+    hours.forEach((d, i) => { if (i % every === 0 || (i === hours.length - 1 && (hours.length - 1) % every > every / 2)) { const t = el("text", { x: X(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === hours.length - 1 ? "end" : "middle" }); t.textContent = hourLabel(d); svg.append(t); } });
+    const guide = el("line", { y1: T, y2: T + ph, stroke: cssVar("--axis"), "stroke-width": 1, visibility: "hidden" });
+    const dot = el("circle", { r: 4.5, fill: cssVar(color), stroke: cssVar("--surface-2"), "stroke-width": 2, visibility: "hidden" });
+    svg.append(guide, dot);
+    const hit = el("rect", { class: "hit", x: L, y: T, width: W - L, height: ph });
+    hit.addEventListener("mousemove", (e) => {
+      const box = svg.getBoundingClientRect(), x = ((e.clientX - box.left) / box.width) * W;
+      const i = Math.max(0, Math.min(series.length - 1, Math.round((x - L) / step)));
+      guide.setAttribute("x1", X(i)); guide.setAttribute("x2", X(i)); guide.setAttribute("visibility", "visible");
+      dot.setAttribute("cx", X(i)); dot.setAttribute("cy", Y(series[i])); dot.setAttribute("visibility", "visible");
+      showTip(e, `<b>${esc(hourRange(hours[i]))}</b><div><span class="swatch" style="background:var(${color})"></span><span>${esc(domain)}</span><span>${Math.round(series[i]).toLocaleString("en")} requests</span></div>`);
+    });
+    hit.addEventListener("mouseleave", () => { hideTip(); guide.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); });
+    svg.append(hit);
+  }
+
+  const SVG = {
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    server: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>',
+    bars: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>',
+    alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.2 5.2L19 10l-4.8 1.8L12 17l-2.2-5.2L5 10l4.8-1.8z"/></svg>',
+    pulse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+    user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
+    ext: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>',
+  };
+  const GROUPS = [
+    ["Availability", SVG.pulse, ["uptime_24h", "uptime_7d", "check_duration_24h"]],
+    ["Traffic", SVG.bars, ["requests_24h", "requests_7d", "bytes_7d", "response_p90_24h", "error_5xx_rate_7d", "error_5xx_count_7d", "error_4xx_rate_7d"]],
+    ["Real visitors", SVG.user, ["page_views_7d", "lcp_p75_7d", "cls_p75_7d", "inp_p75_7d", "js_errors_7d"]],
+    ["Security", SVG.shield, ["waf_blocked_7d", "waf_blocked_share_7d"]],
+    ["AI · Bedrock", SVG.spark, ["llm_calls_7d", "llm_tokens_7d", "llm_latency_p90_7d", "bedrock_cost_7d"]],
+  ];
+  const STATE_LABEL = { up: "Operational", down: "Down", unknown: "No data" };
+  let openDomain = null;
+
   // ── Render ──────────────────────────────────────────────
   function render(data) {
     const sites = data.sites.map((s, i) => ({ ...s, color: SLOTS[i % SLOTS.length], series: (s.series && s.series.requests_hourly_24h) || [] }));
@@ -503,7 +647,7 @@
     $("#window-pill span").textContent = `${new Date(data.windows["7d"].start).toLocaleDateString([], { month: "short", day: "numeric" })} – ${end.toLocaleDateString([], { month: "short", day: "numeric" })}`;
 
     // Sidebar site list
-    $("#nav-sites").innerHTML = sites.map((s) => `<a class="site-link" href="#site-${esc(s.domain)}" data-site="${esc(s.domain)}"><span class="dot" style="background:var(${s.color})"></span>${esc(s.domain)}<span class="site-status" style="color:var(--${STATUS[s.status] ? STATUS[s.status][0] : "unknown"}-ink, var(--ink-2))">${esc((STATUS[s.status] || STATUS.unknown)[1])}</span></a>`).join("");
+    $("#nav-sites").innerHTML = sites.map((s) => `<a class="site-link" href="#sites" data-site="${esc(s.domain)}"><span class="dot" style="background:var(${s.color})"></span>${esc(s.domain)}<span class="site-status" style="color:var(--${STATUS[s.status] ? STATUS[s.status][0] : "unknown"}-ink, var(--ink-2))">${esc((STATUS[s.status] || STATUS.unknown)[1])}</span></a>`).join("");
 
     // KPIs
     const up = sites.filter((s) => s.status === "up").length, known = sites.filter((s) => s.status !== "unknown").length;
@@ -558,26 +702,82 @@
     $("#gauge-value").innerHTML = fmt({ value: avgUptime, unit: "percent" });
     $("#gauge-note").textContent = avgUptime === null ? "No check data" : avgUptime >= 99.9 ? "Meeting the 99.9% target" : "Below the 99.9% target";
 
-    // Sites table
-    $("#site-rows").innerHTML = sites.map((s, i) => {
-      const e5 = metricOf(s, "error_5xx_rate_7d");
-      const details = s.metrics.map((m) => `<div><dt>${esc(m.label)} · ${esc(m.window)}</dt><dd class="num">${fmt(m)}${m.note ? ` <small>${esc(m.note)}</small>` : ""}</dd><dt style="margin-top:4px">${esc(m.source)}</dt></div>`).join("");
-      return `<tr class="site-row" id="site-${esc(s.domain)}" data-i="${i}" tabindex="0" aria-expanded="false">
-        <td><div class="site-cell"><span class="site-icon" style="background:var(${s.color})">${esc(s.domain[0].toUpperCase())}</span><div><b>${esc(s.domain)}</b><small>${esc(s.name)}</small></div></div></td>
-        <td>${statusChip(s.status)}</td>
-        <td class="r num">${fmt(metricOf(s, "uptime_7d"))}</td>
-        <td class="r num">${fmt(metricOf(s, "check_duration_24h"))}</td>
-        <td class="r num">${fmt(metricOf(s, "requests_7d"))}</td>
-        <td class="r num">${fmt(e5)}</td>
-        <td class="r"><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></td>
-      </tr>
-      <tr class="detail" hidden><td colspan="7"><p style="margin:0 0 10px;color:var(--ink-2)">${esc(s.description)}</p><dl class="metric-list">${details}</dl></td></tr>`;
+    // Tracked sites: cards, then a detail panel for the selected one.
+    const verdictFor = (key, v) => ({
+      lcp_p75_7d: [2500, 4000], cls_p75_7d: [0.1, 0.25], inp_p75_7d: [200, 500],
+    }[key]);
+    $("#sites-count").textContent = `${sites.length} sites`;
+    $("#site-grid").innerHTML = sites.map((s) => {
+      const extra = metricOf(s, "page_views_7d") ? ["Page views 7d", SVG.eye, metricOf(s, "page_views_7d")]
+                  : metricOf(s, "llm_calls_7d") ? ["LLM calls 7d", SVG.spark, metricOf(s, "llm_calls_7d")] : null;
+      const rows = [["Check time", SVG.clock, metricOf(s, "check_duration_24h")], ["Uptime 24h", SVG.server, metricOf(s, "uptime_24h")],
+                    ["Requests 7d", SVG.bars, metricOf(s, "requests_7d")], ["5xx rate 7d", SVG.alert, metricOf(s, "error_5xx_rate_7d")]];
+      if (extra) rows.push(extra);
+      return `<button type="button" class="site-card" id="site-${esc(s.domain)}" data-domain="${esc(s.domain)}" style="--site:var(${s.color})" aria-expanded="${openDomain === s.domain}" aria-controls="site-detail">
+        <div class="domain">${esc(s.domain)}</div>
+        <div class="name">${esc(s.name)}</div>
+        <span class="state ${esc(s.status)}" style="margin-top:8px"><i></i>${esc(STATE_LABEL[s.status] || STATE_LABEL.unknown)}</span>
+        ${sparkline(s.series, s.color)}
+        <div class="rows">${rows.map(([label, icon, m]) => `<div class="row">${icon}<span>${label}</span><b>${fmt(m)}</b></div>`).join("")}</div>
+        <div class="card-foot"><span>Sparkline: last 24h</span><span class="open-hint">${openDomain === s.domain ? "Hide ↑" : "Details →"}</span></div>
+      </button>`;
     }).join("");
-    document.querySelectorAll("tr.site-row").forEach((row) => {
-      const toggle = () => { const open = row.nextElementSibling.hidden; row.nextElementSibling.hidden = !open; row.classList.toggle("open", open); row.setAttribute("aria-expanded", String(open)); };
-      row.addEventListener("click", toggle);
-      row.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
-    });
+
+    const detail = $("#site-detail");
+    const site = sites.find((x) => x.domain === openDomain);
+    if (!site) { detail.hidden = true; detail.innerHTML = ""; }
+    else {
+      const m = (k) => metricOf(site, k);
+      const pctStatus = (v, good, warn) => v >= good ? "--good" : v >= warn ? "--warning" : "--critical";
+      const rings = [];
+      const up = m("uptime_7d");
+      if (up) rings.push(["Uptime", `7 days · target 99.9%`, ring(up.value === null ? null : (up.value - 99) / 1, up.value === null ? "--idle-bar" : pctStatus(up.value, 99.9, 99), fmt(up), "scale 99–100%")]);
+      const ct = m("check_duration_24h");
+      if (ct) rings.push(["Check time", "24h · vs 2 s budget", ring(ct.value === null ? null : ct.value / 2000, ct.value === null ? "--idle-bar" : ct.value <= 1000 ? "--good" : ct.value <= 2000 ? "--warning" : "--critical", fmt(ct), "from outside")]);
+      const e5 = m("error_5xx_rate_7d");
+      if (e5) rings.push(["Server errors", "5xx · 7 days", ring(e5.value === null ? null : e5.value / 1, e5.value === null ? "--idle-bar" : e5.value < 0.5 ? "--good" : "--critical", fmt(e5), "scale 0–1%")]);
+      const e4 = m("error_4xx_rate_7d");
+      if (e4) rings.push(["Client errors", "4xx · incl. bots", ring(e4.value === null ? null : e4.value / 100, site.color, fmt(e4), "of requests")]);
+      const wb = m("waf_blocked_share_7d");
+      if (wb) rings.push(["Blocked by WAF", "share · 7 days", ring(wb.value === null ? null : wb.value / 100, site.color, fmt(wb), "of requests")]);
+      const lcp = m("lcp_p75_7d");
+      if (lcp && rings.length < 5) rings.push(["LCP (p75)", "real visitors · 7 days", ring(lcp.value === null ? null : lcp.value / 4000, lcp.value === null ? "--idle-bar" : lcp.value <= 2500 ? "--good" : lcp.value <= 4000 ? "--warning" : "--critical", fmt(lcp), "vs 4 s")]);
+
+      const groupCount = GROUPS.filter(([, , keys]) => keys.some(m)).length;
+      const groups = GROUPS.map(([title, icon, keys]) => {
+        const ms = keys.map(m).filter(Boolean);
+        if (!ms.length) return "";
+        const sources = [...new Set(ms.map((x) => x.source))].join(" · ");
+        return `<div class="group"><div class="group-head"><span class="group-icon">${icon}</span><div><b>${title}</b><small>${ms.length} metric${ms.length > 1 ? "s" : ""}</small></div></div>
+          ${ms.map((x) => {
+            const th = verdictFor(x.key);
+            const verdict = th && x.value !== null ? (x.value <= th[0] ? chip("good", ICON.up, "Good") : x.value <= th[1] ? chip("warning", ICON.warn, "Needs work") : chip("critical", ICON.down, "Poor")) : "";
+            return `<div class="row"><span>${esc(x.label)}</span><span class="win">${esc(x.window)}</span>${x.note ? `<span class="info" title="${esc(x.note)}">${SVG.info}</span>` : ""}<span class="val">${fmt(x)}${verdict}</span></div>`;
+          }).join("")}<div class="group-src">Source: ${esc(sources)}</div></div>`;
+      }).join("");
+
+      detail.hidden = false;
+      detail.style.setProperty("--site", `var(${site.color})`);
+      detail.innerHTML = `
+        <div class="detail-head">
+          <span class="site-icon" style="background:var(${site.color})">${esc(site.domain[0].toUpperCase())}</span>
+          <div><h3>${esc(site.domain)}</h3><p>${esc(site.description)}</p></div>
+          <span class="state ${esc(site.status)}"><i></i>${esc(STATE_LABEL[site.status] || STATE_LABEL.unknown)}</span>
+          <div class="actions"><a class="ghost" href="https://${esc(site.domain)}/" target="_blank" rel="noopener">Visit ${SVG.ext}</a><button class="ghost" type="button" id="close-detail">Close</button></div>
+        </div>
+        <div class="rings">${rings.map(([label, cap, html]) => `<div class="ring-card">${html}<div class="ring-label">${label}</div><div class="ring-cap">${cap}</div></div>`).join("")}</div>
+        <div class="detail-chart">
+          <div class="card-head"><div><h4 class="card-title">Requests · last 24 hours</h4><p class="card-sub">Per hour, your local time · bots included</p></div>
+          <span class="chip">${fmt(m("requests_24h"))} total</span></div>
+          ${site.series.length ? `<svg class="chart" id="detail-chart" height="200" role="img" aria-label="Requests per hour for ${esc(site.domain)}"></svg>` : '<div class="spark-empty">No hourly data in this snapshot</div>'}
+        </div>
+        <div class="groups" style="--gcols:${groupCount === 4 ? 2 : groupCount}">${groups}</div>`;
+      if (site.series.length) areaChart($("#detail-chart"), hours, site.series, site.color, site.domain);
+      $("#close-detail").addEventListener("click", () => selectSite(null));
+    }
+    document.querySelectorAll(".site-card").forEach((card) => card.addEventListener("click", () => selectSite(card.dataset.domain === openDomain ? null : card.dataset.domain, true)));
+
+    document.querySelectorAll("#nav-sites a").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); selectSite(a.dataset.site, true); }));
 
     // Stat lists
     const statRows = (site, rows) => rows.map(([key, label, judge]) => {
@@ -589,7 +789,10 @@
     const zeroGood = (v) => v === 0 ? chip("good", ICON.up, "None") : chip("critical", ICON.warn, "Check");
     const find = (key) => sites.find((s) => metricOf(s, key));
     const ai = find("llm_calls_7d"), rum = find("page_views_7d"), waf = find("waf_blocked_7d");
-    if (ai) $("#ai-sub").textContent = `${ai.domain} · 7 days`;
+    const model = ai && metricOf(ai, "llm_calls_7d").note;
+    $("#ai-used-by").innerHTML = ai ? `<a href="#sites" data-open="${esc(ai.domain)}">${chip("", "", "Used by " + ai.domain)}</a>${model ? chip("", "", "Model " + model) : ""}` : "";
+    const aiLink = document.querySelector("#ai-used-by a");
+    if (aiLink) aiLink.addEventListener("click", (e) => { e.preventDefault(); selectSite(aiLink.dataset.open, true); });
     $("#ai-stats").innerHTML = ai ? statRows(ai, [["llm_calls_7d", "LLM calls"], ["llm_tokens_7d", "Tokens"], ["llm_latency_p90_7d", "Latency (p90)"], ["bedrock_cost_7d", "Estimated cost"]])
       : '<div class="stat-row"><span>No Bedrock data in this snapshot</span></div>';
     $("#rum-stats").innerHTML = rum ? statRows(rum, [["page_views_7d", "Page views"], ["lcp_p75_7d", "LCP (p75)", vitals(2500, 4000)], ["cls_p75_7d", "CLS (p75)", vitals(0.1, 0.25)], ["inp_p75_7d", "INP (p75)", vitals(200, 500)], ["js_errors_7d", "JavaScript errors", zeroGood]])
@@ -612,6 +815,12 @@
     const banner = $("#banner");
     if (data.unavailable_sources.length) { banner.style.display = "block"; banner.style.background = "var(--warning-soft)"; banner.style.color = "var(--warning-ink)";
       banner.textContent = `${data.unavailable_sources.length} source(s) did not answer this run, so some values show "No data". See How this is measured.`; }
+  }
+
+  function selectSite(domain, scroll) {
+    openDomain = domain;
+    if (window.__render) window.__render();
+    if (scroll && domain) $("#site-detail").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   // Active section highlight
