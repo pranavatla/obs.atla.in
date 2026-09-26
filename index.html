@@ -83,6 +83,8 @@
   .nav svg { width: 18px; height: 18px; flex: none; }
   .nav .dot { width: 8px; height: 8px; border-radius: 50%; margin: 0 5px; flex: none; }
   .nav .site-status { margin-left: auto; font-size: 11px; font-weight: 600; }
+  .nav a.site-link { padding-top: 7px; padding-bottom: 7px; font-size: 12px; }
+  .nav a.site-link.active { background: var(--surface-2); color: var(--ink); }
   .promo { margin-top: auto; padding: 16px; border-radius: 14px; color: #fff;
            background: radial-gradient(120% 120% at 0% 0%, #3987e5 0%, #1c5cab 55%, #0d366b 100%); }
   .promo b { display: block; margin: 10px 0 4px; font-size: 14px; }
@@ -169,7 +171,7 @@
   .section-head h2 svg { width: 20px; height: 20px; color: var(--accent); }
   .section-head span { color: var(--muted); font-family: var(--mono); font-size: 12px; }
   .section-sub { margin: 4px 0 14px; color: var(--muted); font-size: 12px; }
-  .site-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .site-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr)); gap: 14px; }
   .site-card { position: relative; display: flex; flex-direction: column; justify-content: flex-start; text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%;
                background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
                padding: 18px 18px 14px; transition: transform 160ms var(--ease-out), box-shadow 150ms ease, border-color 150ms ease; }
@@ -180,6 +182,9 @@
   .site-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .site-card[aria-expanded="true"] { border-color: var(--site); box-shadow: 0 0 0 1px var(--site), 0 10px 28px rgba(16, 24, 40, 0.10); }
   .site-card .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .site-card-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .site-card-head > div { min-width: 0; }
+  .site-card .site-icon { width: 36px; height: 36px; border-radius: 11px; box-shadow: inset 0 1px 0 rgba(255,255,255,.2); }
   .site-card .domain { font-family: var(--mono); font-weight: 700; font-size: 15px; }
   .site-card .name { color: var(--muted); font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .site-card .domain { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -303,7 +308,31 @@
     .hero { grid-template-columns: minmax(0, 1fr); }
     .shares { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
-  @media (max-width: 520px) { .kpis { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 600px) {
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .kpi { padding: 15px; }
+    .kpi .value { font-size: 23px; gap: 7px; margin-top: 10px; }
+    .kpi .foot { font-size: 11px; }
+    .site-grid { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .site-card { padding: 15px; }
+    .card { padding: 16px; }
+    .shares { gap: 12px 8px; padding: 12px; }
+    .share { padding-left: 8px; }
+    .share b { font-size: 15px; }
+    .hero-num { font-size: 30px; }
+    .mini-head, .mini-row { grid-template-columns: minmax(0, 1.3fr) minmax(0, .65fr) minmax(0, .8fr) minmax(0, .8fr); gap: 5px; }
+    .mini-head { padding-left: 8px; padding-right: 8px; font-size: 9px; letter-spacing: .03em; }
+    .mini-row { padding: 9px 8px; font-size: 11px; }
+    .mini-row .chip { padding: 2px 5px; font-size: 10px; }
+    .detail-head { align-items: flex-start; }
+    .detail-head .actions { width: 100%; }
+    .groups { gap: 10px; }
+    .group { padding: 13px 12px 10px; }
+    .group .row { gap: 5px; font-size: 11px; }
+    .group .row .win { font-size: 9px; }
+    .group .row .val { gap: 4px; }
+    .group .row .chip { font-size: 9px; padding: 2px 5px; }
+  }
   @media (forced-colors: active) { .swatch, .share i, .site-icon { forced-color-adjust: none; } }
 </style>
   <!-- CloudWatch RUM: page-load timing, web vitals and browser errors from real visitors, shown on
@@ -386,17 +415,17 @@
 
         <div class="grid pair">
           <section class="card" id="visitors">
-          <div class="card-head">
-            <div><h2 class="card-title">Real visitors</h2><p class="card-sub" id="rum-sub">CloudWatch RUM · 7 days</p></div>
-          </div>
-          <div class="stat-list" id="rum-stats"></div>
-        </section>
+            <div class="card-head">
+              <div><h2 class="card-title">Real visitors</h2><p class="card-sub" id="rum-sub">CloudWatch RUM · 7 days</p></div>
+            </div>
+            <div class="stat-list" id="rum-stats"></div>
+          </section>
           <section class="card" id="security">
-          <div class="card-head">
-            <div><h2 class="card-title">Security</h2><p class="card-sub" id="waf-sub">7 days</p></div>
-          </div>
-          <div class="stat-list" id="waf-stats"></div>
-        </section>
+            <div class="card-head">
+              <div><h2 class="card-title">Security</h2><p class="card-sub" id="waf-sub">7 days</p></div>
+            </div>
+            <div class="stat-list" id="waf-stats"></div>
+          </section>
         </div>
       </div>
 
@@ -708,7 +737,7 @@
     $("#window-pill span").textContent = `${new Date(data.windows["7d"].start).toLocaleDateString([], { month: "short", day: "numeric" })} – ${end.toLocaleDateString([], { month: "short", day: "numeric" })}`;
 
     // Sidebar site list
-    $("#nav-sites").innerHTML = sites.map((s) => `<a class="site-link" href="#sites" data-site="${esc(s.domain)}"><span class="dot" style="background:var(${s.color})"></span>${esc(s.domain)}<span class="site-status" style="color:var(--${STATUS[s.status] ? STATUS[s.status][0] : "unknown"}-ink, var(--ink-2))">${esc((STATUS[s.status] || STATUS.unknown)[1])}</span></a>`).join("");
+    $("#nav-sites").innerHTML = sites.map((s) => `<a class="site-link" href="#sites" data-site="${esc(s.domain)}"><span class="site-icon" aria-hidden="true" style="width:20px;height:20px;border-radius:6px;font-size:9px;background:var(${s.color})">${esc(s.domain[0].toUpperCase())}</span>${esc(s.domain)}<span class="site-status" style="color:var(--${STATUS[s.status] ? STATUS[s.status][0] : "unknown"}-ink, var(--ink-2))">${esc((STATUS[s.status] || STATUS.unknown)[1])}</span></a>`).join("");
 
     // KPIs
     const up = sites.filter((s) => s.status === "up").length, known = sites.filter((s) => s.status !== "unknown").length;
@@ -775,8 +804,7 @@
                     ["Requests 7d", SVG.bars, metricOf(s, "requests_7d")], ["5xx rate 7d", SVG.alert, metricOf(s, "error_5xx_rate_7d")]];
       if (extra) rows.push(extra);
       return `<button type="button" class="site-card" id="site-${esc(s.domain)}" data-domain="${esc(s.domain)}" style="--site:var(${s.color})" aria-expanded="${openDomain === s.domain}" aria-controls="site-detail">
-        <div class="domain">${esc(s.domain)}</div>
-        <div class="name">${esc(s.name)}</div>
+        <div class="site-card-head"><span class="site-icon" aria-hidden="true" style="background:var(${s.color})">${esc(s.domain[0].toUpperCase())}</span><div><div class="domain">${esc(s.domain)}</div><div class="name">${esc(s.name)}</div></div></div>
         <span class="state ${esc(s.status)}" style="margin-top:8px"><i></i>${esc(STATE_LABEL[s.status] || STATE_LABEL.unknown)}</span>
         ${sparkline(s.series, s.color)}
         <div class="rows">${rows.map(([label, icon, m]) => `<div class="row">${icon}<span>${label}</span><b>${fmt(m)}</b></div>`).join("")}</div>
@@ -821,7 +849,7 @@
       detail.style.setProperty("--site", `var(${site.color})`);
       detail.innerHTML = `
         <div class="detail-head">
-          <span class="site-icon" style="background:var(${site.color})">${esc(site.domain[0].toUpperCase())}</span>
+          <span class="site-icon" aria-hidden="true" style="background:var(${site.color})">${esc(site.domain[0].toUpperCase())}</span>
           <div><h3>${esc(site.domain)}</h3><p>${esc(site.description)}</p></div>
           <span class="state ${esc(site.status)}"><i></i>${esc(STATE_LABEL[site.status] || STATE_LABEL.unknown)}</span>
           <div class="actions"><a class="ghost" href="https://${esc(site.domain)}/" target="_blank" rel="noopener">Visit ${SVG.ext}</a><button class="ghost" type="button" id="close-detail">Close</button></div>
@@ -898,7 +926,7 @@
       sites.map((x) => {
         const share = metricOf(x, "waf_blocked_share_7d"), e4 = metricOf(x, "error_4xx_rate_7d");
         return `<button type="button" class="mini-row site-row-btn" data-site="${esc(x.domain)}" title="${esc(e4 ? e4.note || "" : "")}">${siteLabel(x)}
-          <span>${share ? chip("good", ICON.up, "WAF") : chip("unknown", "", "None")}</span>
+          <span>${share ? chip("good", ICON.up, "Active") : chip("unknown", "", "N/A")}</span>
           <span class="r num">${share ? fmt(share) : '<span class="nodata">—</span>'}</span>
           <span class="r num">${fmt(e4)}</span></button>`;
       }).join("");
@@ -928,7 +956,7 @@
   }
 
   // Active section highlight
-  const links = [...document.querySelectorAll(".nav > a")];
+  const links = [...document.querySelectorAll(".nav > a:not(.site-link)")];
   const obs = new IntersectionObserver((entries) => entries.forEach((e) => {
     if (e.isIntersecting) links.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
   }), { rootMargin: "-40% 0px -55% 0px" });
