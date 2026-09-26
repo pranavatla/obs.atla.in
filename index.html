@@ -1,1798 +1,642 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>obs.atla.in | Advanced Cloud Operations Platform</title>
-  <meta name="description" content="Advanced cloud operations and incident management platform with real-time monitoring, AI-powered RCA, and sophisticated incident simulation." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg-primary: #f4f7fb;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #eef3f9;
-      --bg-hover: #e3ebf5;
-
-      --border-color: rgba(15, 23, 42, 0.08);
-      --border-hover: rgba(15, 23, 42, 0.14);
-
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-tertiary: #64748b;
-
-      --accent-primary: #2563eb;
-      --accent-secondary: #0f766e;
-      --accent-danger: #dc2626;
-      --accent-warning: #d97706;
-
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-
-      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
-      --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.12);
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30%),
-        radial-gradient(circle at top right, rgba(15, 118, 110, 0.08), transparent 28%),
-        linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-      color: var(--text-primary);
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: var(--bg-primary);
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.28);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 116, 139, 0.42);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 260px 1fr 380px;
-      gap: 20px;
-      min-height: 100vh;
-      padding: 20px;
-      background: linear-gradient(to bottom, rgba(37, 99, 235, 0.05) 0%, transparent 40%);
-    }
-
-    .sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-      padding: 24px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      backdrop-filter: blur(20px);
-      height: fit-content;
-      position: sticky;
-      top: 20px;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .brand h1 {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.8px;
-      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .brand p {
-      font-size: 11px;
-      color: var(--text-tertiary);
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .nav-link {
-      color: var(--text-secondary);
-      text-decoration: none;
-      padding: 10px 14px;
-      border-radius: var(--radius-md);
-      background: transparent;
-      border: 1px solid transparent;
-      font-weight: 500;
-      transition: var(--transition);
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .nav-link:hover {
-      color: var(--text-primary);
-      background: var(--bg-hover);
-      border-color: var(--border-hover);
-    }
-
-    .status-pill {
-      margin-top: auto;
-      padding: 10px 12px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-primary);
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      transition: var(--transition);
-    }
-
-    .status-pill:hover {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: rgba(16, 185, 129, 0.4);
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-secondary);
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .main {
-      display: grid;
-      grid-template-rows: auto auto auto 1fr;
-      gap: 20px;
-      min-width: 0;
-    }
-
-    .hero {
-      padding: 28px;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(15, 118, 110, 0.05) 100%);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 24px;
-    }
-
-    .hero h2 {
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1.3;
-      margin-bottom: 12px;
-      letter-spacing: -0.5px;
-    }
-
-    .hero p {
-      color: var(--text-secondary);
-      font-size: 13px;
-      max-width: 600px;
-      line-height: 1.7;
-    }
-
-    .chip-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-    }
-
-    .chip {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 11px;
-      padding: 6px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 999px;
-      color: var(--text-tertiary);
-      background: rgba(255, 255, 255, 0.75);
-      font-weight: 500;
-      transition: var(--transition);
-      cursor: default;
-    }
-
-    .chip:hover {
-      background: rgba(255, 255, 255, 0.95);
-      border-color: var(--border-hover);
-      color: var(--text-secondary);
-    }
-
-    .hero-meta {
-      margin-top: 16px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .hero-meta-item {
-      font-size: 11px;
-      font-family: "JetBrains Mono", monospace;
-      padding: 6px 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-tertiary);
-      background: rgba(255, 255, 255, 0.8);
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .insight-strip {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .insight-card {
-      padding: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      transition: var(--transition);
-    }
-
-    .insight-card:hover {
-      background: var(--bg-tertiary);
-      border-color: var(--border-hover);
-    }
-
-    .insight-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-tertiary);
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-
-    .insight-value {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 8px;
-      letter-spacing: -1px;
-    }
-
-    .insight-meta {
-      color: var(--text-tertiary);
-      font-size: 12px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .card {
-      padding: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      transition: var(--transition);
-      cursor: default;
-    }
-
-    .card:hover {
-      background: var(--bg-tertiary);
-      border-color: var(--border-hover);
-      transform: translateY(-2px);
-    }
-
-    .metric-title {
-      color: var(--text-tertiary);
-      font-size: 11px;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .metric-value {
-      font-size: 36px;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 8px;
-      letter-spacing: -1px;
-    }
-
-    .metric-meta {
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--text-tertiary);
-    }
-
-    .analytics {
-      display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 16px;
-      min-width: 0;
-    }
-
-    .chart-wrap {
-      padding: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-    }
-
-    .section-title {
-      font-size: 13px;
-      margin-bottom: 16px;
-      color: var(--text-primary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-
-    canvas {
-      width: 100%;
-      height: 220px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(180deg, #f8fbff 0%, #edf3fb 100%);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    th {
-      color: var(--text-tertiary);
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .status {
-      font-size: 11px;
-      border-radius: 6px;
-      padding: 6px 10px;
-      display: inline-block;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 700;
-    }
-
-    .healthy {
-      background: rgba(16, 185, 129, 0.14);
-      color: #047857;
-    }
-
-    .degraded {
-      background: rgba(245, 158, 11, 0.14);
-      color: #b45309;
-    }
-
-    .ops-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      min-height: 0;
-    }
-
-    .ops-grid-3 {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      min-height: 0;
-    }
-
-    .logs, .timeline, .architecture {
-      padding: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      min-height: 300px;
-    }
-
-    .arch-layout {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 16px;
-    }
-
-    #arch-canvas {
-      width: 100%;
-      height: 320px;
-      border-radius: var(--radius-md);
-      background: var(--bg-tertiary);
-      cursor: pointer;
-    }
-
-    .arch-details {
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      background: var(--bg-tertiary);
-      padding: 16px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      line-height: 1.7;
-      white-space: pre-wrap;
-      font-family: "JetBrains Mono", monospace;
-      overflow-y: auto;
-      max-height: 320px;
-    }
-
-    .rca-panel {
-      padding: 20px;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      min-height: 300px;
-    }
-
-    .mono {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 12px;
-      color: var(--text-secondary);
-      background: #f8fbff;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 12px;
-      max-height: 280px;
-      overflow: auto;
-      white-space: pre-wrap;
-      line-height: 1.6;
-    }
-
-    .timeline-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 280px;
-      overflow: auto;
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .timeline-list li {
-      border-left: 2px solid var(--accent-primary);
-      padding-left: 14px;
-      transition: var(--transition);
-    }
-
-    .timeline-list li:hover {
-      color: var(--text-primary);
-      border-left-color: var(--accent-secondary);
-    }
-
-    .rca-block {
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--text-secondary);
-      white-space: pre-wrap;
-      font-family: "JetBrains Mono", monospace;
-    }
-
-    .time {
-      color: var(--text-tertiary);
-      font-size: 11px;
-      margin-bottom: 4px;
-      font-family: "JetBrains Mono", monospace;
-      font-weight: 700;
-    }
-
-    .incident-controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
-
-    button {
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 10px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-primary);
-      cursor: pointer;
-      background: transparent;
-      transition: var(--transition);
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
-
-    button:hover {
-      background: var(--bg-hover);
-      border-color: var(--border-hover);
-      transform: translateY(-1px);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    .btn-warn {
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #b45309;
-    }
-
-    .btn-warn:hover {
-      background: rgba(245, 158, 11, 0.08);
-      border-color: rgba(245, 158, 11, 0.6);
-    }
-
-    .btn-bad {
-      border-color: rgba(239, 68, 68, 0.4);
-      color: #b91c1c;
-    }
-
-    .btn-bad:hover {
-      background: rgba(239, 68, 68, 0.08);
-      border-color: rgba(239, 68, 68, 0.6);
-    }
-
-    .btn-good {
-      border-color: rgba(16, 185, 129, 0.4);
-      color: #047857;
-    }
-
-    .btn-good:hover {
-      background: rgba(16, 185, 129, 0.08);
-      border-color: rgba(16, 185, 129, 0.6);
-    }
-
-    .assistant {
-      padding: 20px;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 16px;
-      min-height: 0;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      backdrop-filter: blur(20px);
-      height: fit-content;
-      position: sticky;
-      top: 20px;
-      max-height: calc(100vh - 40px);
-    }
-
-    .assistant-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .assistant-title h3 {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .assistant-title p {
-      font-size: 12px;
-      color: var(--text-tertiary);
-      margin-top: 4px;
-      font-weight: 500;
-    }
-
-    #chat-box {
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      background: var(--bg-tertiary);
-      padding: 12px;
-      overflow: auto;
-      min-height: 300px;
-      max-height: 380px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .msg {
-      font-size: 13px;
-      line-height: 1.6;
-      padding: 10px 12px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-      max-width: 95%;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .msg.user {
-      margin-left: auto;
-      background: rgba(37, 99, 235, 0.12);
-      border-color: rgba(37, 99, 235, 0.24);
-      color: var(--text-primary);
-    }
-
-    .msg.ai {
-      background: #ffffff;
-      color: var(--text-secondary);
-    }
-
-    .sources {
-      margin-top: 8px;
-      font-size: 11px;
-      color: var(--text-tertiary);
-      font-family: "JetBrains Mono", monospace;
-      line-height: 1.6;
-    }
-
-    .chat-input {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    #prompt {
-      width: 100%;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-      background: #f8fbff;
-      color: var(--text-primary);
-      padding: 10px 12px;
-      font-size: 13px;
-      font-family: inherit;
-      resize: none;
-      min-height: 40px;
-      max-height: 100px;
-      transition: var(--transition);
-    }
-
-    #prompt:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-      background: rgba(37, 99, 235, 0.05);
-    }
-
-    #prompt::placeholder {
-      color: var(--text-tertiary);
-    }
-
-    .cta {
-      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-      border: none;
-      color: white;
-      padding: 0 14px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-    }
-
-    .cta:hover {
-      background: linear-gradient(135deg, #0284c7 0%, #059669 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.2);
-    }
-
-    @media (max-width: 1400px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: static;
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        gap: 24px;
-        padding: 20px;
-        align-items: center;
-        height: auto;
-      }
-
-      .sidebar .nav-links {
-        grid-column: 2;
-        flex-direction: row;
-        gap: 12px;
-      }
-
-      .sidebar .status-pill {
-        grid-column: 3;
-        margin-top: 0;
-      }
-
-      .assistant {
-        position: static;
-        max-height: none;
-      }
-    }
-
-    @media (max-width: 1000px) {
-      .layout {
-        padding: 16px;
-        gap: 16px;
-      }
-
-      .grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .analytics, .ops-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .arch-layout {
-        grid-template-columns: 1fr;
-      }
-
-      .insight-strip {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .hero {
-        flex-direction: column;
-        gap: 16px;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .layout {
-        padding: 12px;
-        gap: 12px;
-      }
-
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      .insight-strip {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-
-      .sidebar .nav-links {
-        flex-direction: column;
-        gap: 6px;
-      }
-
-      .sidebar .status-pill {
-        grid-column: auto;
-      }
-
-      .metric-value {
-        font-size: 28px;
-      }
-
-      .hero h2 {
-        font-size: 24px;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>atla.in · Observability</title>
+<meta name="description" content="Live status, traffic, real-visitor experience, security and AI usage for every atla.in site, from real CloudWatch and uptime-check data.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 20l5-6 4 4 7-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>
+  // Apply the saved theme before first paint to avoid a flash.
+  try { const t = localStorage.getItem("obs-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f4f5f7;
+    --surface: #ffffff;
+    --surface-2: #f7f8fa;
+    --chart-surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.08);
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.04);
+    --accent: #2a78d6;
+    --accent-soft: #e8f1fc;
+    --accent-ink: #1c5cab;
+    --idle-bar: #e9ebef;
+    /* Categorical slots 1-5, validated (light): fixed site order, never by rank. */
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+    /* Status: reserved, always paired with an icon and a label. */
+    --good: #0ca30c; --good-ink: #006300; --good-soft: #e7f6e7;
+    --warning: #fab219; --warning-ink: #8a5a00; --warning-soft: #fff4dc;
+    --critical: #d03b3b; --critical-ink: #b42323; --critical-soft: #fdeaea;
+    --unknown-soft: #efefec;
+    --radius: 16px;
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #161616; --surface-2: #1d1d1c; --chart-surface: #1a1a19;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --axis: #383835;
+      --border: rgba(255, 255, 255, 0.08); --shadow: none;
+      --accent: #3987e5; --accent-soft: #16263b; --accent-ink: #86b6ef; --idle-bar: #2a2a28;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+      --good-ink: #0ca30c; --good-soft: #13261a; --warning-ink: #fab219; --warning-soft: #2d2410;
+      --critical-ink: #e66767; --critical-soft: #2e1616; --unknown-soft: #262624;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #161616; --surface-2: #1d1d1c; --chart-surface: #1a1a19;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --axis: #383835;
+    --border: rgba(255, 255, 255, 0.08); --shadow: none;
+    --accent: #3987e5; --accent-soft: #16263b; --accent-ink: #86b6ef; --idle-bar: #2a2a28;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --good-ink: #0ca30c; --good-soft: #13261a; --warning-ink: #fab219; --warning-soft: #2d2410;
+    --critical-ink: #e66767; --critical-soft: #2e1616; --unknown-soft: #262624;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--page); color: var(--ink); font: 14px/1.45 var(--font); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ── Shell ─────────────────────────────────────────────── */
+  .shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+  .sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 4px;
+             padding: 20px 16px; background: var(--surface); border-right: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; font-weight: 700; font-size: 18px; letter-spacing: -0.01em; text-decoration: none; }
+  .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; }
+  .brand small { display: block; font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .nav-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding: 14px 10px 6px; }
+  .nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; color: var(--ink-2); text-decoration: none; font-weight: 500; }
+  .nav a:hover { background: var(--surface-2); color: var(--ink); }
+  .nav a.active { background: var(--accent-soft); color: var(--accent-ink); }
+  .nav svg { width: 18px; height: 18px; flex: none; }
+  .nav .dot { width: 8px; height: 8px; border-radius: 50%; margin: 0 5px; flex: none; }
+  .nav .site-status { margin-left: auto; font-size: 11px; font-weight: 600; }
+  .promo { margin-top: auto; padding: 16px; border-radius: 14px; color: #fff;
+           background: radial-gradient(120% 120% at 0% 0%, #3987e5 0%, #1c5cab 55%, #0d366b 100%); }
+  .promo b { display: block; margin: 10px 0 4px; font-size: 14px; }
+  .promo p { margin: 0 0 12px; font-size: 12px; opacity: .85; }
+  .promo a { display: block; text-align: center; padding: 8px; border-radius: 10px; background: rgba(255,255,255,.16); text-decoration: none; font-weight: 600; font-size: 12px; }
+  .promo a:hover { background: rgba(255,255,255,.26); }
+
+  main { padding: 20px 28px 40px; min-width: 0; }
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 10px;
+          background: var(--surface); border: 1px solid var(--border); color: var(--ink-2); font-size: 13px; white-space: nowrap; }
+  .pill.stale { background: var(--warning-soft); color: var(--warning-ink); border-color: transparent; }
+  .pill.error { background: var(--critical-soft); color: var(--critical-ink); border-color: transparent; }
+  .icon-btn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--surface);
+              border: 1px solid var(--border); color: var(--ink-2); cursor: pointer; }
+  .icon-btn:hover { color: var(--ink); }
+  .spacer { flex: 1; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: 10px;
+                 background: var(--accent); color: #fff; font-weight: 600; font-size: 13px; text-decoration: none; }
+  .btn-primary:hover { filter: brightness(1.08); }
+
+  .page-head { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .page-head h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+  .page-head p { margin: 4px 0 0; color: var(--ink-2); }
+
+  /* ── Cards ─────────────────────────────────────────────── */
+  .grid { display: grid; gap: 16px; }
+  .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 16px; }
+  .main-grid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
+  .col { display: grid; gap: 16px; min-width: 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; min-width: 0; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .card-title { margin: 0; font-size: 15px; font-weight: 600; }
+  .card-sub { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+  .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+          background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+  .chip.good { background: var(--good-soft); color: var(--good-ink); }
+  .chip.warning { background: var(--warning-soft); color: var(--warning-ink); }
+  .chip.critical { background: var(--critical-soft); color: var(--critical-ink); }
+  .chip.unknown { background: var(--unknown-soft); color: var(--ink-2); }
+  .chip svg { width: 11px; height: 11px; }
+
+  .kpi .label { display: flex; align-items: center; justify-content: space-between; color: var(--ink); font-weight: 600; }
+  .kpi .label svg { width: 18px; height: 18px; color: var(--accent); }
+  .kpi .value { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .kpi .foot { color: var(--muted); font-size: 12px; }
+  .nodata { color: var(--muted); font-weight: 600; }
+  .kpi .value .nodata { font-size: 20px; }
+
+  .hero { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 20px; align-items: center; }
+  .hero-num { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 8px 0 6px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+  .shares { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 18px; padding: 14px 16px;
+            border: 1px solid var(--border); border-radius: 12px; }
+  .share { min-width: 0; padding-left: 10px; border-left: 2px solid var(--grid); }
+  .share b { display: block; font-size: 17px; }
+  .share small { display: block; color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .share i { display: block; height: 4px; margin-top: 10px; border-radius: 4px; }
+
+  svg.chart { display: block; width: 100%; overflow: visible; }
+  svg.chart text { fill: var(--muted); font: 11px var(--font); font-variant-numeric: tabular-nums; }
+  .hit { fill: transparent; cursor: crosshair; }
+
+  .tip { position: fixed; z-index: 10; pointer-events: none; min-width: 150px; padding: 10px 12px; border-radius: 10px;
+         background: var(--surface); border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,.14); font-size: 12px; display: none; }
+  .tip b { display: block; margin-bottom: 6px; }
+  .tip div { display: flex; align-items: center; gap: 8px; }
+  .tip div span:last-child { margin-left: auto; padding-left: 12px; font-weight: 600; }
+
+  /* Uptime gauge */
+  .gauge-wrap { position: relative; max-width: 260px; margin: 0 auto; }
+  .gauge-center { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; }
+  .gauge-center b { display: block; font-size: 32px; letter-spacing: -0.02em; }
+  .gauge-center small { color: var(--muted); font-size: 12px; }
+
+  /* Sites table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 12px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td.r, th.r { text-align: right; }
+  tr.site-row { cursor: pointer; }
+  tr.site-row:hover td { background: var(--surface-2); }
+  .site-cell { display: flex; align-items: center; gap: 10px; }
+  .site-icon { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px; flex: none; }
+  .site-cell b { display: block; }
+  .site-cell small { color: var(--muted); }
+  tr.detail td { background: var(--surface-2); white-space: normal; padding: 14px 16px; }
+  .metric-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px 16px; margin: 0; }
+  .metric-list div { padding: 8px 10px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+  .metric-list dt { font-size: 11px; color: var(--muted); }
+  .metric-list dd { margin: 2px 0 0; font-weight: 600; }
+  .metric-list dd small { font-weight: 400; color: var(--muted); }
+  .chev { transition: transform .15s; color: var(--muted); }
+  tr.open .chev { transform: rotate(90deg); }
+
+  /* AI + small stat lists */
+  .orb { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 14px;
+         background: radial-gradient(circle at 35% 30%, #cde2fb 0%, #3987e5 38%, #1c5cab 70%, #0d366b 100%);
+         box-shadow: 0 10px 30px rgba(42,120,214,.35); }
+  .stat-list { display: grid; gap: 8px; }
+  .stat-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+  .stat-row span:first-child { color: var(--ink-2); }
+  .stat-row b { display: inline-flex; align-items: center; gap: 8px; }
+
+  .method { margin-top: 16px; }
+  .method ul { margin: 8px 0 0; padding-left: 18px; color: var(--ink-2); }
+  .method li { margin: 4px 0; }
+  .method code { font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+  .banner { display: none; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; background: var(--critical-soft); color: var(--critical-ink); }
+  .skeleton { color: transparent !important; background: var(--surface-2); border-radius: 8px; }
+
+  @media (max-width: 1180px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .main-grid { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: minmax(0, 1fr); }
+    .sidebar { position: static; height: auto; flex-direction: row; align-items: center; overflow-x: auto; padding: 10px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
+    .brand { padding: 0 8px 0 0; }
+    .nav-label, .promo, .nav .site-link { display: none; }
+    .nav { display: flex; gap: 2px; }
+    .nav a { padding: 8px 10px; white-space: nowrap; }
+    main { padding: 16px 16px 32px; }
+    .topbar .hide-sm { display: none; }
+    .hero { grid-template-columns: minmax(0, 1fr); }
+    .shares { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 520px) { .kpis { grid-template-columns: minmax(0, 1fr); } }
+  @media (forced-colors: active) { .swatch, .share i, .site-icon { forced-color-adjust: none; } }
+</style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>obs.atla.in</h1>
-        <p>Advanced Cloud Operations Platform</p>
-      </div>
-      <nav class="nav-links">
-        <a class="nav-link" href="#overview">Overview</a>
-        <a class="nav-link" href="#metrics">Metrics</a>
-        <a class="nav-link" href="#services">Services</a>
-        <a class="nav-link" href="#incidents">Incidents</a>
-        <a class="nav-link" href="#architecture">Architecture</a>
-        <a class="nav-link" href="#assistant">Guru</a>
-      </nav>
-      <div class="status-pill"><span class="dot"></span><span id="health-pill">Checking backend...</span></div>
-    </aside>
+<div class="shell">
+  <aside class="sidebar" aria-label="Sections">
+    <a class="brand" href="#overview">
+      <span class="brand-mark" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16l5-6 4 4 7-8"/></svg></span>
+      <span>atla<span style="color:var(--accent)">.</span>obs<small>Observability</small></span>
+    </a>
+    <nav class="nav" aria-label="Page sections">
+      <a href="#overview" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Overview</a>
+      <a href="#traffic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>Traffic</a>
+      <a href="#sites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>Sites</a>
+      <a href="#visitors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Real visitors</a>
+      <a href="#ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.2 5.2L19 10l-4.8 1.8L12 17l-2.2-5.2L5 10l4.8-1.8z"/></svg>AI · Bedrock</a>
+      <a href="#security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Security</a>
+      <a href="#method"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>How it's measured</a>
+      <div class="nav-label">Sites</div>
+      <div id="nav-sites"></div>
+    </nav>
+    <div class="promo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5a3 3 0 00-.9-2.3c3-.3 6.1-1.5 6.1-6.6a5.2 5.2 0 00-1.4-3.6 4.8 4.8 0 00-.1-3.6s-1.1-.3-3.7 1.4a12.6 12.6 0 00-6.6 0C5.8 1.1 4.7 1.4 4.7 1.4a4.8 4.8 0 00-.1 3.6A5.2 5.2 0 003.2 8.6c0 5.1 3.1 6.3 6.1 6.6a3 3 0 00-.9 2.3V21"/></svg>
+      <b>Real data, open pipeline</b>
+      <p>Collected from CloudWatch and uptime checks every 15 minutes by a GitHub Action.</p>
+      <a href="https://github.com/pranavatla/obs.atla.in/tree/main/status" rel="noopener">See how it works</a>
+    </div>
+  </aside>
 
-    <main class="main">
-      <section id="overview" class="hero">
+  <main>
+    <div class="topbar">
+      <span class="pill" id="updated"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Loading snapshot…</span></span>
+      <span class="spacer"></span>
+      <span class="pill hide-sm" id="window-pill"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Last 7 days</span></span>
+      <button class="icon-btn" id="theme" type="button" aria-label="Toggle dark mode"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <a class="btn-primary hide-sm" href="status.json" target="_blank" rel="noopener"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>Raw data</a>
+    </div>
+
+    <div class="banner" id="banner" role="alert"></div>
+
+    <section id="overview">
+      <div class="page-head">
         <div>
-          <h2>Cloud Operations & Incident Management</h2>
-          <p>Advanced observability platform with real-time metrics, sophisticated incident simulation, AI-powered root cause analysis, and production-grade incident response. Explore architecture patterns, trigger incidents, and analyze system behavior.</p>
-          <div class="hero-meta">
-            <span class="hero-meta-item" id="meta-incident">INCIDENT: NORMAL</span>
-            <span class="hero-meta-item" id="meta-time">UTC: --:--:--</span>
-            <span class="hero-meta-item" id="meta-kb">KB CHUNKS: --</span>
-          </div>
+          <h1>Overview</h1>
+          <p>Status, traffic, visitor experience, security and AI usage for every atla.in site. Measured, never simulated.</p>
         </div>
-        <div class="chip-row">
-          <span class="chip">Real-time Metrics</span>
-          <span class="chip">Incident Simulation</span>
-          <span class="chip">AI-Powered RCA</span>
-          <span class="chip">AWS-Scale Telemetry</span>
-          <span class="chip">Production Ready</span>
-        </div>
-      </section>
+      </div>
+      <div class="grid kpis" id="kpis"></div>
+    </section>
 
-      <section class="insight-strip">
-        <article class="insight-card">
-          <div class="insight-label">SLO Compliance</div>
-          <div class="insight-value" id="slo-value">--</div>
-          <div class="insight-meta" id="slo-meta">Waiting for telemetry...</div>
-        </article>
-        <article class="insight-card">
-          <div class="insight-label">Active Alarms</div>
-          <div class="insight-value" id="alarm-value">--</div>
-          <div class="insight-meta" id="alarm-meta">Waiting for telemetry...</div>
-        </article>
-        <article class="insight-card">
-          <div class="insight-label">Last Deploy</div>
-          <div class="insight-value" id="deploy-value">--</div>
-          <div class="insight-meta">GitOps preview environment</div>
-        </article>
-      </section>
-
-      <section id="metrics" class="grid">
-        <article class="card">
-          <div class="metric-title">CPU Usage</div>
-          <div class="metric-value" id="cpu">--</div>
-          <div class="metric-meta">Cluster utilization</div>
-        </article>
-        <article class="card">
-          <div class="metric-title">Memory Usage</div>
-          <div class="metric-value" id="memory">--</div>
-          <div class="metric-meta">Container memory pressure</div>
-        </article>
-        <article class="card">
-          <div class="metric-title">P95 Latency</div>
-          <div class="metric-value" id="latency">--</div>
-          <div class="metric-meta">API gateway edge latency</div>
-        </article>
-        <article class="card">
-          <div class="metric-title">Error Rate</div>
-          <div class="metric-value" id="errors">--</div>
-          <div class="metric-meta">Application-level failures</div>
-        </article>
-        <article class="card">
-          <div class="metric-title">Pod Count</div>
-          <div class="metric-value" id="pods">--</div>
-          <div class="metric-meta">Autoscaling snapshot</div>
-        </article>
-        <article class="card">
-          <div class="metric-title">Requests / min</div>
-          <div class="metric-value" id="rpm">--</div>
-          <div class="metric-meta">Traffic intensity</div>
-        </article>
-      </section>
-
-      <section id="services" class="analytics">
-        <article class="chart-wrap">
-          <div class="section-title">
-            <span>Latency Trend (p95)</span>
-            <span id="incident-badge" class="chip">Incident: normal</span>
+    <div class="grid main-grid">
+      <div class="col">
+        <section class="card" id="traffic">
+          <div class="card-head">
+            <div><h2 class="card-title">Traffic · last 24 hours</h2><p class="card-sub">Requests per hour, stacked by site. Includes bots, so requests are not visitors.</p></div>
           </div>
-          <canvas id="latency-chart" width="700" height="220"></canvas>
-        </article>
-
-        <article class="chart-wrap">
-          <div class="section-title"><span>Service Health</span></div>
-          <table>
-            <thead>
-              <tr><th>Service</th><th>Status</th><th>Latency</th></tr>
-            </thead>
-            <tbody id="service-body"></tbody>
-          </table>
-        </article>
-      </section>
-
-      <section class="ops-grid">
-        <article id="incidents" class="timeline">
-          <div class="section-title"><span>Incident Simulator</span></div>
-          <div class="incident-controls">
-            <button class="btn-warn" onclick="triggerIncident('traffic_spike')">Traffic Spike</button>
-            <button class="btn-bad" onclick="triggerIncident('db_errors')">DB Error Burst</button>
-            <button class="btn-good" onclick="triggerIncident('recovery')">Recovery</button>
-            <button onclick="triggerIncident('normal')">Reset</button>
+          <div class="hero">
+            <div>
+              <div class="card-sub">All sites</div>
+              <div class="hero-num num" id="req24">—</div>
+              <span class="chip" id="req24-foot">24h</span>
+            </div>
+            <div>
+              <svg class="chart" id="traffic-chart" height="190" role="img" aria-label="Requests per hour for the last 24 hours, stacked by site"></svg>
+              <div class="legend" id="traffic-legend"></div>
+            </div>
           </div>
-          <ul class="timeline-list" id="timeline-list"></ul>
-        </article>
+          <div class="shares" id="shares" aria-label="Share of requests over 7 days"></div>
+        </section>
 
-        <article class="logs">
-          <div class="section-title"><span>Live Logs</span></div>
-          <div id="log-output" class="mono">Loading logs...</div>
-        </article>
-      </section>
-
-      <section id="architecture" class="architecture">
-        <div class="section-title"><span>Architecture Map</span></div>
-        <div class="arch-layout">
-          <canvas id="arch-canvas" width="900" height="360"></canvas>
-          <div id="arch-details" class="arch-details">Hover or click a node to inspect architecture components.</div>
-        </div>
-      </section>
-
-      <section class="ops-grid-3">
-        <article class="rca-panel">
-          <div class="section-title">
-            <span>Incident RCA</span>
-            <button onclick="generateRca()">Generate RCA</button>
+        <section class="card" id="sites">
+          <div class="card-head">
+            <div><h2 class="card-title">Sites</h2><p class="card-sub">Select a site to see every metric with its source.</p></div>
           </div>
-          <div id="rca-output" class="rca-block">Click "Generate RCA" to produce a root-cause summary and mitigation plan.</div>
-        </article>
-      </section>
-    </main>
-
-    <aside id="assistant" class="assistant">
-      <div class="assistant-head">
-        <div class="assistant-title">
-          <h3>Ops Guru</h3>
-          <p>AI-powered assistant</p>
-        </div>
-        <button onclick="clearChat()">Clear</button>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Site</th><th>Status</th><th class="r">Uptime 7d</th><th class="r">Check time</th><th class="r">Requests 7d</th><th class="r">5xx 7d</th><th></th></tr></thead>
+              <tbody id="site-rows"></tbody>
+            </table>
+          </div>
+        </section>
       </div>
 
-      <div id="chat-box">
-        <div class="msg ai">Ask about incident response, system architecture, scaling patterns, or observability best practices.</div>
+      <div class="col">
+        <section class="card">
+          <div class="card-head">
+            <div><h2 class="card-title">Busiest hour</h2><p class="card-sub">All sites, last 24 hours (your local time)</p></div>
+          </div>
+          <svg class="chart" id="hours-chart" height="150" role="img" aria-label="Requests per hour, busiest hour highlighted"></svg>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div><h2 class="card-title">Uptime</h2><p class="card-sub">Average across sites, 7 days · target 99.9%</p></div>
+          </div>
+          <div class="gauge-wrap">
+            <svg class="chart" id="gauge" viewBox="0 0 240 132" role="img" aria-label="Average uptime gauge"></svg>
+            <div class="gauge-center"><b class="num" id="gauge-value">—</b><small id="gauge-note">&nbsp;</small></div>
+          </div>
+        </section>
+
+        <section class="card" id="ai">
+          <div class="card-head">
+            <div><h2 class="card-title">AI · Amazon Bedrock</h2><p class="card-sub" id="ai-sub">gita.atla.in · 7 days</p></div>
+          </div>
+          <div class="orb" aria-hidden="true"></div>
+          <div class="stat-list" id="ai-stats"></div>
+        </section>
+
+        <section class="card" id="visitors">
+          <div class="card-head">
+            <div><h2 class="card-title">Real visitors</h2><p class="card-sub">atla.in · real browsers (CloudWatch RUM) · 7 days</p></div>
+          </div>
+          <div class="stat-list" id="rum-stats"></div>
+        </section>
+
+        <section class="card" id="security">
+          <div class="card-head">
+            <div><h2 class="card-title">Security</h2><p class="card-sub">atla.in · AWS WAF · 7 days</p></div>
+          </div>
+          <div class="stat-list" id="waf-stats"></div>
+        </section>
       </div>
+    </div>
 
-      <div class="chat-input">
-        <textarea id="prompt" placeholder="Ask about system behavior, incidents, or operations..."></textarea>
-        <button class="cta" id="send-btn" onclick="sendMessage()">Ask</button>
-      </div>
-    </aside>
-  </div>
+    <section class="card method" id="method">
+      <h2 class="card-title">How this is measured</h2>
+      <ul id="method-list"></ul>
+    </section>
+  </main>
+</div>
+<div class="tip" id="tip" role="status"></div>
 
-  <script>
-    const API_BASE =
-      window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-        ? "http://127.0.0.1:8000"
-        : "https://px9kdljn51.execute-api.ap-south-1.amazonaws.com";
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const SLOTS = ["--s1", "--s2", "--s3", "--s4", "--s5"];   // fixed order by site, never by rank
+  const STALE_MINUTES = 60;
+  const ICON = {
+    up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-10"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    unknown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 17h.01M9.5 9a2.5 2.5 0 115 .5c0 1.5-2.5 2-2.5 4"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 8v5M12 17h.01"/></svg>',
+  };
+  const STATUS = { up: ["good", "Up"], down: ["critical", "Down"], unknown: ["unknown", "No data"] };
 
-    const latencyHistory = [];
-    const maxPoints = 28;
-    let archData = { nodes: [], edges: [] };
-    let archNodePositions = [];
-    let selectedArchNode = null;
-    let hoveredArchNode = null;
+  // ── Theme toggle ────────────────────────────────────────
+  $("#theme").addEventListener("click", () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("obs-theme", root.dataset.theme); } catch (e) {}
+    if (window.__render) window.__render();
+  });
 
-    // Sample scenario system
-    let currentScenario = "normal";
-    let scenarioStartTime = Date.now();
-    let timelineEvents = [];
-
-    const scenarios = {
-      normal: {
-        name: "Normal Operation",
-        description: "Healthy system with stable metrics",
-        cpuRange: [20, 45],
-        memoryRange: [30, 55],
-        latencyRange: [45, 95],
-        errorRange: [0.1, 0.8],
-        podRange: [8, 12],
-        rpmRange: [800, 1200],
-        duration: Infinity
-      },
-      traffic_spike: {
-        name: "Traffic Spike",
-        description: "Sudden traffic increase causing resource pressure",
-        cpuRange: [70, 95],
-        memoryRange: [75, 95],
-        latencyRange: [200, 500],
-        errorRange: [2, 8],
-        podRange: [15, 20],
-        rpmRange: [3000, 5000],
-        duration: 45000,
-        events: [
-          { time: 0, msg: "⚠️ Traffic spike detected - 3x normal load" },
-          { time: 3000, msg: "📈 Auto-scaling activated - spawning new pods" },
-          { time: 8000, msg: "⚡ CPU utilization critical - 92%" },
-          { time: 15000, msg: "🔴 Error rate elevated - 5.2%" },
-          { time: 25000, msg: "✓ Load balancing across new instances" },
-          { time: 35000, msg: "📉 Traffic normalizing - gradual recovery" }
-        ]
-      },
-      db_errors: {
-        name: "Database Error Burst",
-        description: "Connection pool exhaustion and database errors",
-        cpuRange: [45, 70],
-        memoryRange: [60, 85],
-        latencyRange: [300, 800],
-        errorRange: [8, 25],
-        podRange: [8, 12],
-        rpmRange: [1500, 2500],
-        duration: 40000,
-        events: [
-          { time: 0, msg: "🔴 Database connection pool exhausted" },
-          { time: 2000, msg: "💥 Error rate spike - 15% failures" },
-          { time: 5000, msg: "⏱️ Query timeout threshold breached" },
-          { time: 8000, msg: "🔍 Identified: Max connections = 100, current = 120" },
-          { time: 12000, msg: "🔧 Implementing connection retry logic" },
-          { time: 20000, msg: "♻️ Connection pool rebalancing" },
-          { time: 30000, msg: "✓ Error rate declining - 3.2%" }
-        ]
-      },
-      recovery: {
-        name: "Recovery Mode",
-        description: "System recovering from incident",
-        cpuRange: [30, 55],
-        memoryRange: [40, 65],
-        latencyRange: [80, 150],
-        errorRange: [0.5, 2],
-        podRange: [10, 14],
-        rpmRange: [1200, 1800],
-        duration: 30000,
-        events: [
-          { time: 0, msg: "🔄 Initiating recovery protocol" },
-          { time: 3000, msg: "✓ Health checks passing" },
-          { time: 6000, msg: "📊 Metrics stabilizing" },
-          { time: 12000, msg: "🟢 Error rate < 1%" },
-          { time: 18000, msg: "✓ All services healthy" },
-          { time: 24000, msg: "✅ Full recovery complete" }
-        ]
-      }
-    };
-
-    function generateMetricValue(min, max, smooth = true) {
-      if (smooth) {
-        return min + Math.random() * (max - min);
-      }
-      return Math.round(min + Math.random() * (max - min));
+  // ── Formatting ──────────────────────────────────────────
+  const compact = (v) => new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: v >= 1000 ? 1 : 0 }).format(v);
+  function fmt(m) {
+    if (!m || m.value === null || m.value === undefined) return '<span class="nodata">No data</span>';
+    const v = m.value;
+    switch (m.unit) {
+      case "percent": return (v >= 99.995 || v === 0 ? v.toFixed(0) : v < 1 ? v.toFixed(2) : v.toFixed(2)) + "%";
+      case "ms": return v >= 1000 ? (v / 1000).toFixed(v >= 10000 ? 0 : 1) + " s" : Math.round(v) + " ms";
+      case "bytes": { const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0, x = v; while (x >= 1000 && i < u.length - 1) { x /= 1000; i++; } return x.toFixed(x >= 100 || i === 0 ? 0 : 1) + " " + u[i]; }
+      case "usd": return "$" + (v < 10 ? v.toFixed(2) : Math.round(v).toLocaleString("en"));
+      case "score": return v.toFixed(3);
+      default: return v >= 10000 ? compact(v) : Math.round(v).toLocaleString("en");
     }
+  }
+  function ago(iso) {
+    const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + " min ago";
+    const h = Math.round(mins / 60);
+    return h < 48 ? h + " h ago" : Math.round(h / 24) + " days ago";
+  }
+  const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const metricOf = (site, key) => site.metrics.find((m) => m.key === key);
+  const chip = (cls, icon, text) => `<span class="chip ${cls}">${icon || ""}${esc(text)}</span>`;
+  const statusChip = (s) => { const [cls, label] = STATUS[s] || STATUS.unknown; return chip(cls, ICON[s] || ICON.unknown, label); };
 
-    function getScenarioMetrics(scenario) {
-      const elapsed = Date.now() - scenarioStartTime;
-      if (elapsed > scenario.duration) {
-        currentScenario = "normal";
-        scenarioStartTime = Date.now();
-        return getScenarioMetrics(scenarios.normal);
-      }
+  // ── Tooltip ─────────────────────────────────────────────
+  const tip = $("#tip");
+  function showTip(evt, html) {
+    tip.innerHTML = html; tip.style.display = "block";
+    const r = tip.getBoundingClientRect();
+    let x = evt.clientX + 14, y = evt.clientY + 14;
+    if (x + r.width > innerWidth - 8) x = evt.clientX - r.width - 14;
+    if (y + r.height > innerHeight - 8) y = evt.clientY - r.height - 14;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  const hideTip = () => { tip.style.display = "none"; };
 
-      return {
-        cpu_percent: generateMetricValue(scenario.cpuRange[0], scenario.cpuRange[1]),
-        memory_percent: generateMetricValue(scenario.memoryRange[0], scenario.memoryRange[1]),
-        latency_p95_ms: generateMetricValue(scenario.latencyRange[0], scenario.latencyRange[1]),
-        error_rate_percent: generateMetricValue(scenario.errorRange[0], scenario.errorRange[1], true),
-        pod_count: generateMetricValue(scenario.podRange[0], scenario.podRange[1], false),
-        requests_per_min: generateMetricValue(scenario.rpmRange[0], scenario.rpmRange[1], false)
-      };
+  // ── Charts (plain SVG) ──────────────────────────────────
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+  function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p; return 10 * p; }
+  const hourLabel = (d) => d.toLocaleTimeString([], { hour: "numeric" });
+  const hourRange = (d) => `${d.toLocaleDateString([], { month: "short", day: "numeric" })}, ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
+  // Rounded top corners only, so each bar's data-end is the rounded one and it sits flat on the baseline.
+  function topRounded(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h);
+    if (h <= 0) return "";
+    return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+  }
+
+  function stackedBars(svg, sites, hours) {
+    svg.innerHTML = "";
+    const W = svg.clientWidth || 600, H = 190, L = 34, B = 22, T = 8;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const n = hours.length, totals = hours.map((_, i) => sites.reduce((s, x) => s + (x.series[i] || 0), 0));
+    const max = niceMax(Math.max(...totals, 1)), ph = H - B - T, bw = (W - L) / n;
+    for (let g = 0; g <= 2; g++) {
+      const y = T + ph - (ph * g) / 2;
+      svg.append(el("line", { x1: L, x2: W, y1: y, y2: y, stroke: cssVar(g ? "--grid" : "--axis"), "stroke-width": 1 }));
+      const t = el("text", { x: L - 6, y: y + 4, "text-anchor": "end" }); t.textContent = compact((max * g) / 2); svg.append(t);
     }
-
-    function updateScenarioTimeline() {
-      const scenario = scenarios[currentScenario];
-      const elapsed = Date.now() - scenarioStartTime;
-
-      if (scenario.events) {
-        const newEvents = scenario.events.filter(e => e.time <= elapsed);
-        if (newEvents.length > timelineEvents.length) {
-          timelineEvents = newEvents;
-          renderTimeline(newEvents.map((e, i) => ({
-            time: new Date(scenarioStartTime + e.time).toISOString(),
-            event: e.msg
-          })));
-        }
-      }
-    }
-
-    const metricEls = {
-      cpu: document.getElementById("cpu"),
-      memory: document.getElementById("memory"),
-      latency: document.getElementById("latency"),
-      errors: document.getElementById("errors"),
-      pods: document.getElementById("pods"),
-      rpm: document.getElementById("rpm"),
-    };
-
-    function updateMetaClock() {
-      const now = new Date();
-      document.getElementById("meta-time").textContent = `UTC: ${now.toUTCString().split(" ")[4]}`;
-    }
-
-    function updateInsights(metrics, incident) {
-      const sloOk = metrics.latency_p95_ms < 180 && metrics.error_rate_percent < 1.2;
-      document.getElementById("slo-value").textContent = sloOk ? "99.95%" : "99.10%";
-      document.getElementById("slo-meta").textContent = sloOk
-        ? "Latency and errors are within target"
-        : "SLO burn observed. Investigate incident signals.";
-
-      const alarmCount = incident === "normal" ? 0 : incident === "recovery" ? 1 : 3;
-      document.getElementById("alarm-value").textContent = String(alarmCount);
-      document.getElementById("alarm-meta").textContent = alarmCount === 0
-        ? "No active CloudWatch alarms"
-        : `${alarmCount} alert pipeline(s) currently active`;
-
-      document.getElementById("deploy-value").textContent = `${Math.max(3, Math.floor(metrics.requests_per_min / 20))}m ago`;
-      document.getElementById("meta-incident").textContent = `INCIDENT: ${incident.toUpperCase().replace("_", " ")}`;
-    }
-
-    function formatTime(iso) {
-      try {
-        return new Date(iso).toLocaleTimeString();
-      } catch {
-        return iso;
-      }
-    }
-
-    function getNodeDescription(name) {
-      const map = {
-        "Route53": "Public DNS routing layer. Directs user traffic to CloudFront.",
-        "CloudFront": "Global edge CDN + TLS termination. Low-latency delivery and caching.",
-        "S3 Frontend": "Hosts static dashboard assets for obs.atla.in UI.",
-        "API Gateway": "Public API ingress for chat and ops endpoints.",
-        "Lambda AtlaOps API": "Stateless orchestration for telemetry, RCA simulation, and AI requests.",
-        "OpenAI LLM": "Managed inference endpoint for Ops Guru reasoning and response generation.",
-        "Vector Store": "Retrieval context store for architecture docs, playbooks, and project notes.",
-        "CloudWatch": "Metrics, alarms, and incident signal pipeline.",
-      };
-      return map[name] || "Infrastructure component in the obs.atla.in reference topology.";
-    }
-
-    function getArchitectureNodePositions(nodes, width, height) {
-      const presets = {
-        "Route53": [0.08, 0.5],
-        "CloudFront": [0.24, 0.5],
-        "S3 Frontend": [0.42, 0.28],
-        "API Gateway": [0.42, 0.72],
-        "Lambda AtlaOps API": [0.61, 0.5],
-        "OpenAI LLM": [0.82, 0.26],
-        "Vector Store": [0.82, 0.5],
-        "CloudWatch": [0.82, 0.74],
-      };
-
-      return nodes.map((name, idx) => {
-        const p = presets[name];
-        if (p) {
-          return { name, x: p[0] * width, y: p[1] * height, r: 18, idx };
-        }
-        const angle = (Math.PI * 2 * idx) / Math.max(nodes.length, 1);
-        return {
-          name,
-          x: width * 0.5 + Math.cos(angle) * width * 0.25,
-          y: height * 0.5 + Math.sin(angle) * height * 0.25,
-          r: 18,
-          idx,
-        };
+    hours.forEach((d, i) => {
+      let y = T + ph; const x = L + i * bw + 1.5, w = Math.max(bw - 3, 1);
+      const present = sites.filter((s) => (s.series[i] || 0) > 0);
+      present.forEach((s, j) => {
+        const h = (s.series[i] / max) * ph; y -= h;
+        const top = j === present.length - 1;
+        const seg = top ? el("path", { d: topRounded(x, y, w, Math.max(h, 0), 3), fill: cssVar(s.color) })
+                        : el("rect", { x, y: y + 1, width: w, height: Math.max(h - 2, 0), fill: cssVar(s.color) });  // 2px surface gap between segments
+        svg.append(seg);
       });
-    }
+      if (i % 6 === 0 || i === n - 1) { const t = el("text", { x: x + w / 2, y: H - 6, "text-anchor": "middle" }); t.textContent = hourLabel(d); svg.append(t); }
+      const hit = el("rect", { class: "hit", x: L + i * bw, y: T, width: bw, height: ph });
+      hit.addEventListener("mousemove", (e) => showTip(e, `<b>${esc(hourRange(d))}</b>` + sites.map((s) =>
+        `<div><span class="swatch" style="background:var(${s.color})"></span><span>${esc(s.domain)}</span><span>${Math.round(s.series[i] || 0).toLocaleString("en")}</span></div>`).join("") +
+        `<div><span></span><span>Total</span><span>${Math.round(totals[i]).toLocaleString("en")}</span></div>`));
+      hit.addEventListener("mouseleave", hideTip);
+      svg.append(hit);
+    });
+  }
 
-    function edgeTouchesNode(edge, nodeName) {
-      return edge[0] === nodeName || edge[1] === nodeName;
-    }
-
-    function renderArchitectureDetails(nodeName) {
-      const el = document.getElementById("arch-details");
-      if (!nodeName) {
-        el.textContent = "Hover or click a node to inspect architecture components.";
-        return;
+  function hourBars(svg, hours, totals) {
+    svg.innerHTML = "";
+    const W = svg.clientWidth || 300, H = 150, B = 22, T = 20;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const max = Math.max(...totals, 1), peak = totals.indexOf(Math.max(...totals)), ph = H - B - T, bw = W / totals.length;
+    svg.append(el("line", { x1: 0, x2: W, y1: T + ph, y2: T + ph, stroke: cssVar("--axis"), "stroke-width": 1 }));
+    totals.forEach((v, i) => {
+      const w = Math.max(bw - 4, 2), x = i * bw + (bw - w) / 2, h = Math.max((v / max) * ph, v > 0 ? 3 : 0);
+      if (h) svg.append(el("path", { d: topRounded(x, T + ph - h, w, h, Math.min(4, w / 2)), fill: cssVar(i === peak && v > 0 ? "--s1" : "--idle-bar") }));
+      if (i === peak && v > 0) {
+        const t = el("text", { x: Math.min(Math.max(x + w / 2, 18), W - 18), y: T + ph - h - 6, "text-anchor": "middle", style: "fill:var(--ink);font-weight:600" });
+        t.textContent = compact(v); svg.append(t);
       }
+      if (i % 6 === 0) { const t = el("text", { x: x + w / 2, y: H - 6, "text-anchor": "middle" }); t.textContent = hourLabel(hours[i]); svg.append(t); }
+      const hit = el("rect", { class: "hit", x: i * bw, y: T, width: bw, height: ph });
+      hit.addEventListener("mousemove", (e) => showTip(e, `<b>${esc(hourRange(hours[i]))}</b><div><span>Requests</span><span>${Math.round(v).toLocaleString("en")}</span></div>`));
+      hit.addEventListener("mouseleave", hideTip);
+      svg.append(hit);
+    });
+  }
 
-      const connected = archData.edges
-        .filter((e) => edgeTouchesNode(e, nodeName))
-        .map((e) => `${e[0]} → ${e[1]}`);
-
-      const lines = [];
-      lines.push(`Component: ${nodeName}`);
-      lines.push("");
-      lines.push(getNodeDescription(nodeName));
-      if (connected.length) {
-        lines.push("");
-        lines.push("Connected flows:");
-        connected.forEach((c) => lines.push(`- ${c}`));
-      }
-      el.textContent = lines.join("\n");
+  function gauge(svg, pct) {
+    svg.innerHTML = "";
+    const cx = 120, cy = 124, r1 = 84, r2 = 108, ticks = 48;
+    // The arc spans 99%..100% so the difference between 99.9% and 100% is visible; below 99% it reads empty.
+    const lo = 99, frac = pct === null ? 0 : Math.max(0, Math.min(1, (pct - lo) / (100 - lo)));
+    const color = pct === null ? "--idle-bar" : pct >= 99.9 ? "--good" : pct >= 99 ? "--warning" : "--critical";
+    for (let i = 0; i < ticks; i++) {
+      const a = Math.PI - (Math.PI * (i + 0.5)) / ticks;
+      const on = (i + 0.5) / ticks <= frac;
+      svg.append(el("line", { x1: cx + r1 * Math.cos(a), y1: cy - r1 * Math.sin(a), x2: cx + r2 * Math.cos(a), y2: cy - r2 * Math.sin(a),
+        stroke: cssVar(on ? color : "--idle-bar"), "stroke-width": 3.2, "stroke-linecap": "round" }));
     }
+    [["99%", 0], ["100%", 1]].forEach(([label, f]) => {
+      const a = Math.PI - Math.PI * f;
+      const t = el("text", { x: cx + (r2 + 2) * Math.cos(a) + (f ? -12 : 12), y: cy + 6, "text-anchor": "middle" }); t.textContent = label; svg.append(t);
+    });
+  }
 
-    function drawArchitectureGraph() {
-      const canvas = document.getElementById("arch-canvas");
-      if (!canvas || !archData.nodes.length) return;
-      const ctx = canvas.getContext("2d");
-      const dpr = window.devicePixelRatio || 1;
-      const cssW = canvas.clientWidth || 900;
-      const cssH = canvas.clientHeight || 360;
-      canvas.width = Math.floor(cssW * dpr);
-      canvas.height = Math.floor(cssH * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, cssW, cssH);
+  // ── Render ──────────────────────────────────────────────
+  function render(data) {
+    const sites = data.sites.map((s, i) => ({ ...s, color: SLOTS[i % SLOTS.length], series: (s.series && s.series.requests_hourly_24h) || [] }));
+    const end = new Date(data.generated_at);
+    const hours = Array.from({ length: 24 }, (_, i) => new Date(end.getTime() - (24 - i) * 3600000));
 
-      archNodePositions = getArchitectureNodePositions(archData.nodes, cssW, cssH);
-      const nodeMap = new Map(archNodePositions.map((n) => [n.name, n]));
+    // Freshness
+    const stale = (Date.now() - end.getTime()) / 60000 > STALE_MINUTES;
+    const upd = $("#updated");
+    upd.className = "pill" + (stale ? " stale" : "");
+    upd.title = "Snapshot taken " + end.toLocaleString();
+    upd.querySelector("span").textContent = (stale ? "Stale · " : "Updated ") + ago(data.generated_at);
+    $("#window-pill span").textContent = `${new Date(data.windows["7d"].start).toLocaleDateString([], { month: "short", day: "numeric" })} – ${end.toLocaleDateString([], { month: "short", day: "numeric" })}`;
 
-      archData.edges.forEach((edge) => {
-        const from = nodeMap.get(edge[0]);
-        const to = nodeMap.get(edge[1]);
-        if (!from || !to) return;
+    // Sidebar site list
+    $("#nav-sites").innerHTML = sites.map((s) => `<a class="site-link" href="#site-${esc(s.domain)}" data-site="${esc(s.domain)}"><span class="dot" style="background:var(${s.color})"></span>${esc(s.domain)}<span class="site-status" style="color:var(--${STATUS[s.status] ? STATUS[s.status][0] : "unknown"}-ink, var(--ink-2))">${esc((STATUS[s.status] || STATUS.unknown)[1])}</span></a>`).join("");
 
-        let emphasis = false;
-        if (selectedArchNode) emphasis = edgeTouchesNode(edge, selectedArchNode);
-        if (hoveredArchNode) emphasis = emphasis || edgeTouchesNode(edge, hoveredArchNode);
+    // KPIs
+    const up = sites.filter((s) => s.status === "up").length, known = sites.filter((s) => s.status !== "unknown").length;
+    const uptimes = sites.map((s) => metricOf(s, "uptime_7d")).filter((m) => m && m.value !== null).map((m) => m.value);
+    const avgUptime = uptimes.length ? uptimes.reduce((a, b) => a + b, 0) / uptimes.length : null;
+    const req7 = sites.map((s) => metricOf(s, "requests_7d")).filter((m) => m && m.value !== null);
+    const totalReq7 = req7.length ? req7.reduce((a, m) => a + m.value, 0) : null;
+    let err5 = 0, errBase = 0, errKnown = false;
+    sites.forEach((s) => {
+      const r = metricOf(s, "requests_7d"), rate = metricOf(s, "error_5xx_rate_7d"), count = metricOf(s, "error_5xx_count_7d");
+      if (!r || r.value === null) return;
+      if (count && count.value !== null) { err5 += count.value; errBase += r.value; errKnown = true; }
+      else if (rate && rate.value !== null) { err5 += (rate.value / 100) * r.value; errBase += r.value; errKnown = true; }
+    });
+    const errRate = errKnown && errBase ? (err5 / errBase) * 100 : null;
+    const kpi = (label, icon, value, badge, foot) => `<div class="card kpi"><div class="label">${label}${icon}</div><div class="value num">${value}${badge || ""}</div><div class="foot">${foot}</div></div>`;
+    $("#kpis").innerHTML = [
+      kpi("Sites up", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+          known ? `${up}<span style="color:var(--muted);font-size:20px"> / ${sites.length}</span>` : '<span class="nodata">No data</span>',
+          known ? (up === sites.length ? chip("good", ICON.up, "All up") : chip("critical", ICON.down, `${known - up} down`)) : "",
+          "Latest uptime check per site"),
+      kpi("Average uptime", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+          fmt({ value: avgUptime, unit: "percent" }), avgUptime === null ? "" : avgUptime >= 99.9 ? chip("good", ICON.up, "On target") : chip("warning", ICON.warn, "Below 99.9%"),
+          "7 days · mean of all sites' checks"),
+      kpi("Requests", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>',
+          fmt({ value: totalReq7, unit: "count" }), chip("", "", "7d"), "All sites · bots included"),
+      kpi("Server error rate", '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>',
+          fmt({ value: errRate, unit: "percent" }), errRate === null ? "" : errRate < 0.5 ? chip("good", ICON.up, "Healthy") : chip("critical", ICON.warn, "High"),
+          `5xx · ${Math.round(err5).toLocaleString("en")} of ${compact(errBase)} requests, 7d`),
+    ].join("");
 
-        ctx.beginPath();
-        ctx.moveTo(from.x, from.y);
-        ctx.lineTo(to.x, to.y);
-        ctx.strokeStyle = emphasis ? "rgba(37, 99, 235, 0.95)" : "rgba(148, 163, 184, 0.28)";
-        ctx.lineWidth = emphasis ? 2.8 : 1.2;
-        ctx.stroke();
-      });
+    // Traffic
+    const withSeries = sites.filter((s) => s.series.length === 24);
+    const req24 = sites.map((s) => metricOf(s, "requests_24h")).filter((m) => m && m.value !== null);
+    $("#req24").innerHTML = req24.length ? Math.round(req24.reduce((a, m) => a + m.value, 0)).toLocaleString("en") : '<span class="nodata">No data</span>';
+    $("#req24-foot").textContent = `requests · ${req24.length} of ${sites.length} sites`;
+    stackedBars($("#traffic-chart"), withSeries, hours);
+    $("#traffic-legend").innerHTML = withSeries.map((s) => `<span><i class="swatch" style="background:var(${s.color})"></i>${esc(s.domain)}</span>`).join("");
+    const totalShare = req7.reduce((a, m) => a + m.value, 0) || 1;
+    $("#shares").innerHTML = sites.map((s) => {
+      const m = metricOf(s, "requests_7d");
+      const pct = m && m.value !== null ? (m.value / totalShare) * 100 : null;
+      return `<div class="share"><b class="num">${fmt(m)}</b><small>${esc(s.domain)}${pct === null ? "" : " · " + pct.toFixed(pct < 10 ? 1 : 0) + "%"}</small><i style="background:var(${s.color});width:${pct === null ? 0 : Math.max(pct, 3)}%"></i></div>`;
+    }).join("");
 
-      archNodePositions.forEach((node) => {
-        const isSelected = selectedArchNode === node.name;
-        const isHover = hoveredArchNode === node.name;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
-        ctx.fillStyle = isSelected
-          ? "rgba(15, 118, 110, 0.95)"
-          : isHover
-          ? "rgba(37, 99, 235, 0.95)"
-          : "rgba(255, 255, 255, 0.95)";
-        ctx.fill();
-        ctx.lineWidth = isSelected || isHover ? 3 : 1.6;
-        ctx.strokeStyle = isSelected || isHover ? "rgba(15, 23, 42, 0.16)" : "rgba(148, 163, 184, 0.28)";
-        ctx.stroke();
+    // Busiest hour
+    const totals = hours.map((_, i) => withSeries.reduce((a, s) => a + (s.series[i] || 0), 0));
+    hourBars($("#hours-chart"), hours, totals);
 
-        ctx.fillStyle = "#0f172a";
-        ctx.font = "600 13px Inter";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(node.name, node.x, node.y - 26);
-      });
-    }
+    // Uptime gauge
+    gauge($("#gauge"), avgUptime);
+    $("#gauge-value").innerHTML = fmt({ value: avgUptime, unit: "percent" });
+    $("#gauge-note").textContent = avgUptime === null ? "No check data" : avgUptime >= 99.9 ? "Meeting the 99.9% target" : "Below the 99.9% target";
 
-    function setupArchitectureInteractions() {
-      const canvas = document.getElementById("arch-canvas");
-      if (!canvas || canvas.dataset.bound === "1") return;
-      canvas.dataset.bound = "1";
-
-      canvas.addEventListener("mousemove", (event) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        hoveredArchNode = null;
-        for (const node of archNodePositions) {
-          const dx = x - node.x;
-          const dy = y - node.y;
-          if (Math.sqrt(dx * dx + dy * dy) <= node.r + 6) {
-            hoveredArchNode = node.name;
-            break;
-          }
-        }
-        const focus = hoveredArchNode || selectedArchNode;
-        renderArchitectureDetails(focus);
-        drawArchitectureGraph();
-      });
-
-      canvas.addEventListener("mouseleave", () => {
-        hoveredArchNode = null;
-        renderArchitectureDetails(selectedArchNode);
-        drawArchitectureGraph();
-      });
-
-      canvas.addEventListener("click", () => {
-        if (!hoveredArchNode) return;
-        selectedArchNode = hoveredArchNode;
-        renderArchitectureDetails(selectedArchNode);
-        drawArchitectureGraph();
-      });
-
-      window.addEventListener("resize", () => drawArchitectureGraph());
-    }
-
-    function drawLatencyChart() {
-      const canvas = document.getElementById("latency-chart");
-      const ctx = canvas.getContext("2d");
-      const w = canvas.width;
-      const h = canvas.height;
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "#f8fbff";
-      ctx.fillRect(0, 0, w, h);
-
-      if (latencyHistory.length < 2) return;
-
-      const max = Math.max(...latencyHistory) + 10;
-      const min = Math.max(0, Math.min(...latencyHistory) - 10);
-
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
-      ctx.lineWidth = 1;
-      for (let i = 1; i <= 4; i++) {
-        const y = (h / 5) * i;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
-
-      ctx.strokeStyle = "#2563eb";
-      ctx.lineWidth = 2.8;
-      ctx.beginPath();
-
-      latencyHistory.forEach((v, i) => {
-        const x = (i / (maxPoints - 1)) * (w - 20) + 10;
-        const y = h - ((v - min) / (max - min)) * (h - 24) - 12;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-
-      const last = latencyHistory[latencyHistory.length - 1];
-      ctx.fillStyle = "#38bdf8";
-      ctx.font = "600 12px JetBrains Mono";
-      ctx.fillText(`Latest: ${last.toFixed(1)}ms`, 10, 20);
-    }
-
-    function renderServices(services) {
-      const body = document.getElementById("service-body");
-      body.innerHTML = "";
-      services.forEach((s) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${s.name}</td>
-          <td><span class="status ${s.status}">${s.status}</span></td>
-          <td>${s.latency_ms} ms</td>
-        `;
-        body.appendChild(row);
-      });
-    }
-
-    function renderTimeline(items) {
-      const list = document.getElementById("timeline-list");
-      list.innerHTML = "";
-      items.slice(0, 12).forEach((item) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<div class="time">${formatTime(item.time)}</div><div>${item.event}</div>`;
-        list.appendChild(li);
-      });
-    }
-
-    async function refreshMetrics() {
-      try {
-        let m, incident;
-
-        // Try to fetch from backend, fall back to sample data
-        try {
-          const res = await fetch(`${API_BASE}/ops/metrics`, { timeout: 2000 });
-          if (res.ok) {
-            const data = await res.json();
-            m = data.metrics;
-            incident = data.incident;
-          } else {
-            throw new Error("Backend unavailable");
-          }
-        } catch (e) {
-          // Use sample scenario data
-          m = getScenarioMetrics(scenarios[currentScenario]);
-          incident = currentScenario;
-          updateScenarioTimeline();
-        }
-
-        metricEls.cpu.textContent = `${m.cpu_percent.toFixed(1)}%`;
-        metricEls.memory.textContent = `${m.memory_percent.toFixed(1)}%`;
-        metricEls.latency.textContent = `${m.latency_p95_ms.toFixed(0)}ms`;
-        metricEls.errors.textContent = `${m.error_rate_percent.toFixed(2)}%`;
-        metricEls.pods.textContent = m.pod_count;
-        metricEls.rpm.textContent = m.requests_per_min;
-
-        document.getElementById("incident-badge").textContent = `Incident: ${incident}`;
-        updateInsights(m, incident);
-
-        latencyHistory.push(m.latency_p95_ms);
-        while (latencyHistory.length > maxPoints) latencyHistory.shift();
-        drawLatencyChart();
-
-        // Generate sample services data
-        const services = [
-          { name: "API Gateway", status: incident === "normal" ? "healthy" : incident === "recovery" ? "degraded" : "degraded", latency_ms: Math.round(m.latency_p95_ms * 0.8) },
-          { name: "Auth Service", status: incident === "db_errors" ? "degraded" : "healthy", latency_ms: Math.round(m.latency_p95_ms * 0.6) },
-          { name: "Database", status: incident === "db_errors" ? "degraded" : "healthy", latency_ms: Math.round(m.latency_p95_ms * 1.2) },
-          { name: "Cache Layer", status: "healthy", latency_ms: Math.round(m.latency_p95_ms * 0.3) },
-          { name: "LLM Service", status: incident === "traffic_spike" ? "degraded" : "healthy", latency_ms: Math.round(m.latency_p95_ms * 2) }
-        ];
-        renderServices(services);
-      } catch {
-        document.getElementById("health-pill").textContent = "using sample data";
-      }
-    }
-
-    const sampleLogs = {
-      normal: [
-        "✓ [API] Request processed in 45ms",
-        "✓ [DB] Query executed in 12ms",
-        "✓ [Cache] Hit rate: 87%",
-        "✓ [Auth] User authenticated successfully",
-        "✓ [API] Endpoint /metrics responded 200 OK",
-        "ℹ [Monitor] SLO compliance: 99.95%"
-      ],
-      traffic_spike: [
-        "⚠️ [LB] High traffic detected: 3500 req/min",
-        "⚠️ [Autoscale] Spawning 8 new instances",
-        "🔴 [API] Request queue depth: 450",
-        "⚠️ [Memory] 89% utilization on node-05",
-        "🔴 [DB] Connection pool at 98%",
-        "⚠️ [LLM] Response latency: 850ms"
-      ],
-      db_errors: [
-        "🔴 [DB] Connection refused on primary",
-        "🔴 [DB] Pool exhausted: 100/100 connections",
-        "⚠️ [API] Retry attempt #3 for query",
-        "🔴 [Error] QueryTimeoutError after 5s",
-        "🔴 [Service] DB service degraded",
-        "ℹ [Fallback] Using read-only replica"
-      ],
-      recovery: [
-        "🔄 [Recovery] Initiating recovery protocol",
-        "✓ [Health] Primary database responding",
-        "✓ [Connection] Pool rebalancing complete",
-        "✓ [Autoscale] Scaling down excess instances",
-        "✓ [Metrics] CPU returning to baseline",
-        "✅ [Recovery] System fully recovered"
-      ]
-    };
-
-    async function refreshLogs() {
-      try {
-        const res = await fetch(`${API_BASE}/ops/logs?limit=18`);
-        const data = await res.json();
-        const lines = (data.logs || []).map((l) => `[${formatTime(l.time)}] ${l.line}`);
-        document.getElementById("log-output").textContent = lines.join("\n");
-      } catch {
-        // Generate sample logs based on scenario
-        const logs = sampleLogs[currentScenario] || sampleLogs.normal;
-        const lines = logs.map((l, i) => {
-          const time = new Date(Date.now() - (logs.length - i) * 5000);
-          return `[${formatTime(time.toISOString())}] ${l}`;
-        });
-        document.getElementById("log-output").textContent = lines.join("\n");
-      }
-    }
-
-    async function refreshIncidents() {
-      try {
-        const res = await fetch(`${API_BASE}/ops/incidents`);
-        const data = await res.json();
-        renderTimeline(data.timeline || []);
-      } catch {
-        // Generate timeline from scenario events
-        updateScenarioTimeline();
-      }
-    }
-
-    async function refreshArchitecture() {
-      try {
-        const res = await fetch(`${API_BASE}/ops/architecture`);
-        const data = await res.json();
-        archData = {
-          nodes: data.nodes || [],
-          edges: data.edges || [],
-        };
-        if (!selectedArchNode && archData.nodes.length) {
-          selectedArchNode = archData.nodes[0];
-        }
-        setupArchitectureInteractions();
-        renderArchitectureDetails(selectedArchNode);
-        drawArchitectureGraph();
-      } catch {
-        document.getElementById("arch-details").textContent = "Unable to load architecture map.";
-      }
-    }
-
-    const rcaTemplates = {
-      normal: {
-        summary: "System operating within normal parameters. All metrics green.",
-        likely_root_cause: "No incident detected.",
-        mitigation_plan: [
-          "Continue monitoring system health",
-          "Maintain current resource allocation",
-          "Review logs for anomalies"
-        ]
-      },
-      traffic_spike: {
-        summary: "Unexpected spike in incoming traffic caused resource exhaustion.",
-        likely_root_cause: "Traffic surge from external source or viral content distribution. Load balancer scaling lag.",
-        mitigation_plan: [
-          "Enable rate limiting on API endpoints",
-          "Increase auto-scaling thresholds",
-          "Implement circuit breaker for downstream services",
-          "Cache frequently accessed data",
-          "Consider DDoS protection if malicious"
-        ]
-      },
-      db_errors: {
-        summary: "Database connection pool exhausted, causing cascading failures.",
-        likely_root_cause: "Connection pool size insufficient for current load. Possible connection leak or slow queries holding connections.",
-        mitigation_plan: [
-          "Increase max connections in connection pool",
-          "Implement connection timeout policy",
-          "Optimize slow-running queries",
-          "Add connection pooling proxy (PgBouncer)",
-          "Monitor connection lifecycle metrics",
-          "Implement query caching layer"
-        ]
-      },
-      recovery: {
-        summary: "System recovering from incident. Metrics normalizing.",
-        likely_root_cause: "Previous incident being resolved by mitigation measures.",
-        mitigation_plan: [
-          "Monitor SLO compliance as recovery continues",
-          "Verify all services are returning to baseline",
-          "Run post-incident diagnostics",
-          "Update runbooks with findings",
-          "Prepare detailed incident post-mortem"
-        ]
-      }
-    };
-
-    function renderRca(data) {
-      const lines = [];
-      lines.push(`Incident: ${data.incident}`);
-      lines.push(`Generated: ${formatTime(data.generated_at)}`);
-      lines.push("");
-      lines.push(`Summary: ${data.summary}`);
-      lines.push(`Likely Root Cause: ${data.likely_root_cause}`);
-      lines.push("");
-      lines.push("Signals:");
-      lines.push(`- CPU: ${data.signals.cpu_percent.toFixed(1)}%`);
-      lines.push(`- Memory: ${data.signals.memory_percent.toFixed(1)}%`);
-      lines.push(`- P95 Latency: ${data.signals.latency_p95_ms.toFixed(0)} ms`);
-      lines.push(`- Error Rate: ${data.signals.error_rate_percent.toFixed(2)}%`);
-      lines.push(`- Pods: ${data.signals.pod_count}`);
-      lines.push(`- RPM: ${data.signals.requests_per_min}`);
-      lines.push("");
-      lines.push("Mitigation Plan:");
-      (data.mitigation_plan || []).forEach((step, idx) => lines.push(`${idx + 1}. ${step}`));
-      document.getElementById("rca-output").textContent = lines.join("\n");
-    }
-
-    async function generateRca() {
-      const el = document.getElementById("rca-output");
-      el.textContent = "Generating incident analysis...";
-      try {
-        // Try backend first
-        const res = await fetch(`${API_BASE}/ops/incidents/rca`, { timeout: 2000 });
-        if (res.ok) {
-          const data = await res.json();
-          renderRca(data);
-          return;
-        }
-      } catch (e) {
-        // Fall back to sample RCA
-      }
-
-      // Generate sample RCA based on current scenario
-      const scenario = scenarios[currentScenario];
-      const metrics = getScenarioMetrics(scenario);
-      const template = rcaTemplates[currentScenario];
-
-      renderRca({
-        incident: currentScenario,
-        generated_at: new Date().toISOString(),
-        summary: template.summary,
-        likely_root_cause: template.likely_root_cause,
-        signals: metrics,
-        mitigation_plan: template.mitigation_plan
-      });
-    }
-
-    async function checkHealth() {
-      try {
-        const res = await fetch(`${API_BASE}/health`);
-        const data = await res.json();
-        document.getElementById("health-pill").textContent = `backend ${data.status} (${data.backend})`;
-        if (typeof data.kb_chunks === "number") {
-          document.getElementById("meta-kb").textContent = `KB CHUNKS: ${data.kb_chunks}`;
-        }
-      } catch {
-        document.getElementById("health-pill").textContent = "backend offline";
-      }
-    }
-
-    async function triggerIncident(type) {
-      // Map button types to scenario names
-      const scenarioMap = {
-        traffic_spike: "traffic_spike",
-        db_errors: "db_errors",
-        recovery: "recovery",
-        normal: "normal"
-      };
-
-      const scenario = scenarioMap[type] || type;
-      currentScenario = scenario;
-      scenarioStartTime = Date.now();
-      timelineEvents = [];
-
-      // Try backend trigger first
-      try {
-        await fetch(`${API_BASE}/ops/incidents/trigger`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ incident_type: type }),
-        });
-      } catch {
-        // Backend offline, will use sample data
-      }
-
-      // Update immediately with new scenario
-      await Promise.all([refreshMetrics(), refreshLogs(), refreshIncidents(), generateRca()]);
-    }
-
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/\"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function formatAiText(text) {
-      let html = escapeHtml(text || "");
-      html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-      html = html.replace(/(?:^|\n)-\s+/g, "<br>- ");
-      html = html.replace(/\n/g, "<br>");
-      return html;
-    }
-
-    function addChat(role, text, sources = []) {
-      const box = document.getElementById("chat-box");
-      const msg = document.createElement("div");
-      msg.className = `msg ${role}`;
-      if (role === "ai") {
-        msg.innerHTML = formatAiText(text);
-      } else {
-        msg.textContent = text;
-      }
-
-      if (role === "ai" && sources.length > 0) {
-        const ref = document.createElement("div");
-        ref.className = "sources";
-        ref.textContent = `Sources: ${sources.map((s) => `${s.source}#${s.chunk}`).join(", ")}`;
-        msg.appendChild(ref);
-      }
-
-      box.appendChild(msg);
-      box.scrollTop = box.scrollHeight;
-      return msg;
-    }
-
-    function clearChat() {
-      const box = document.getElementById("chat-box");
-      box.innerHTML = '<div class="msg ai">Ask about incident response, system architecture, scaling patterns, or observability best practices.</div>';
-    }
-
-    async function sendMessage() {
-      const promptEl = document.getElementById("prompt");
-      const btn = document.getElementById("send-btn");
-      const text = promptEl.value.trim();
-      if (!text) return;
-
-      addChat("user", text);
-      promptEl.value = "";
-      btn.disabled = true;
-      const ai = addChat("ai", "Thinking . .. ...");
-
-      try {
-        const res = await fetch(`${API_BASE}/generate/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: text }),
-        });
-        if (!res.ok) {
-          let detail = "AI request failed";
-          try {
-            const err = await res.json();
-            detail = err.detail || err.response || detail;
-          } catch {}
-          throw new Error(`${detail} (status ${res.status})`);
-        }
-        const data = await res.json();
-        ai.innerHTML = formatAiText(data.response || "No response received.");
-        if (Array.isArray(data.sources) && data.sources.length > 0) {
-          const ref = document.createElement("div");
-          ref.className = "sources";
-          ref.textContent = `Sources: ${data.sources.map((s) => `${s.source}#${s.chunk}`).join(", ")}`;
-          ai.appendChild(ref);
-        }
-      } catch (err) {
-        ai.innerHTML = formatAiText(err.message || "Ops Guru is unreachable right now.");
-      } finally {
-        btn.disabled = false;
-        promptEl.focus();
-      }
-    }
-
-    document.getElementById("prompt").addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-      }
+    // Sites table
+    $("#site-rows").innerHTML = sites.map((s, i) => {
+      const e5 = metricOf(s, "error_5xx_rate_7d");
+      const details = s.metrics.map((m) => `<div><dt>${esc(m.label)} · ${esc(m.window)}</dt><dd class="num">${fmt(m)}${m.note ? ` <small>${esc(m.note)}</small>` : ""}</dd><dt style="margin-top:4px">${esc(m.source)}</dt></div>`).join("");
+      return `<tr class="site-row" id="site-${esc(s.domain)}" data-i="${i}" tabindex="0" aria-expanded="false">
+        <td><div class="site-cell"><span class="site-icon" style="background:var(${s.color})">${esc(s.domain[0].toUpperCase())}</span><div><b>${esc(s.domain)}</b><small>${esc(s.name)}</small></div></div></td>
+        <td>${statusChip(s.status)}</td>
+        <td class="r num">${fmt(metricOf(s, "uptime_7d"))}</td>
+        <td class="r num">${fmt(metricOf(s, "check_duration_24h"))}</td>
+        <td class="r num">${fmt(metricOf(s, "requests_7d"))}</td>
+        <td class="r num">${fmt(e5)}</td>
+        <td class="r"><svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></td>
+      </tr>
+      <tr class="detail" hidden><td colspan="7"><p style="margin:0 0 10px;color:var(--ink-2)">${esc(s.description)}</p><dl class="metric-list">${details}</dl></td></tr>`;
+    }).join("");
+    document.querySelectorAll("tr.site-row").forEach((row) => {
+      const toggle = () => { const open = row.nextElementSibling.hidden; row.nextElementSibling.hidden = !open; row.classList.toggle("open", open); row.setAttribute("aria-expanded", String(open)); };
+      row.addEventListener("click", toggle);
+      row.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
     });
 
-    async function boot() {
-      updateMetaClock();
+    // Stat lists
+    const statRows = (site, rows) => rows.map(([key, label, judge]) => {
+      const m = site && metricOf(site, key);
+      const verdict = m && m.value !== null && judge ? judge(m.value) : "";
+      return `<div class="stat-row" title="${esc(m ? m.source + (m.note ? " — " + m.note : "") : "Not measured for this site")}"><span>${esc(label)}</span><b class="num">${fmt(m)}${verdict}</b></div>`;
+    }).join("");
+    const vitals = (good, poor) => (v) => v <= good ? chip("good", ICON.up, "Good") : v <= poor ? chip("warning", ICON.warn, "Needs work") : chip("critical", ICON.down, "Poor");
+    const zeroGood = (v) => v === 0 ? chip("good", ICON.up, "None") : chip("critical", ICON.warn, "Check");
+    const find = (key) => sites.find((s) => metricOf(s, key));
+    const ai = find("llm_calls_7d"), rum = find("page_views_7d"), waf = find("waf_blocked_7d");
+    if (ai) $("#ai-sub").textContent = `${ai.domain} · 7 days`;
+    $("#ai-stats").innerHTML = ai ? statRows(ai, [["llm_calls_7d", "LLM calls"], ["llm_tokens_7d", "Tokens"], ["llm_latency_p90_7d", "Latency (p90)"], ["bedrock_cost_7d", "Estimated cost"]])
+      : '<div class="stat-row"><span>No Bedrock data in this snapshot</span></div>';
+    $("#rum-stats").innerHTML = rum ? statRows(rum, [["page_views_7d", "Page views"], ["lcp_p75_7d", "LCP (p75)", vitals(2500, 4000)], ["cls_p75_7d", "CLS (p75)", vitals(0.1, 0.25)], ["inp_p75_7d", "INP (p75)", vitals(200, 500)], ["js_errors_7d", "JavaScript errors", zeroGood]])
+      : '<div class="stat-row"><span>No RUM data in this snapshot</span></div>';
+    $("#waf-stats").innerHTML = waf ? statRows(waf, [["waf_blocked_7d", "Blocked requests"], ["waf_blocked_share_7d", "Share blocked"], ["error_4xx_rate_7d", "4xx rate (incl. blocks)"]])
+      : '<div class="stat-row"><span>No WAF data in this snapshot</span></div>';
 
-      // Initialize with sample architecture
-      archData = {
-        nodes: ["Route53", "CloudFront", "S3 Frontend", "API Gateway", "Lambda AtlaOps API", "OpenAI LLM", "Vector Store", "CloudWatch"],
-        edges: [
-          ["Route53", "CloudFront"],
-          ["CloudFront", "S3 Frontend"],
-          ["CloudFront", "API Gateway"],
-          ["API Gateway", "Lambda AtlaOps API"],
-          ["Lambda AtlaOps API", "OpenAI LLM"],
-          ["Lambda AtlaOps API", "Vector Store"],
-          ["CloudWatch", "Lambda AtlaOps API"],
-          ["Route53", "API Gateway"]
-        ]
-      };
+    // Method
+    const sources = [...new Set(sites.flatMap((s) => s.metrics.map((m) => m.source)))];
+    const w = data.windows;
+    $("#method-list").innerHTML = [
+      `<li><b>Signal type:</b> ${esc(data.signal_type)}. Nothing on this page is simulated. A value that a source did not return shows <i>No data</i>.</li>`,
+      `<li><b>Snapshot:</b> ${esc(end.toLocaleString())} (${esc(ago(data.generated_at))}). Windows: 24h from ${esc(new Date(w["24h"].start).toLocaleString())}, 7d from ${esc(new Date(w["7d"].start).toLocaleString())}.</li>`,
+      `<li><b>Pipeline:</b> a GitHub Action runs <code>status/collect_status.py</code> every 15 minutes and publishes <a href="status.json">status.json</a>; this page only reads that file, so viewing it costs nothing.</li>`,
+      `<li><b>Rates</b> are weighted by requests (total errors ÷ total requests), so quiet minutes do not dominate. <b>Requests</b> include bots and page assets; they are not visitors.</li>`,
+      `<li><b>Unavailable this run:</b> ${data.unavailable_sources.length ? data.unavailable_sources.map(esc).join("; ") : "none. Every source answered."}</li>`,
+      `<li><b>Sources:</b><ul>${sources.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></li>`,
+    ].join("");
 
-      // Load initial metrics and setup
-      await Promise.all([
-        checkHealth(),
-        refreshMetrics(),
-        refreshLogs(),
-        refreshIncidents(),
-        refreshArchitecture(),
-        generateRca(),
-      ]);
+    const banner = $("#banner");
+    if (data.unavailable_sources.length) { banner.style.display = "block"; banner.style.background = "var(--warning-soft)"; banner.style.color = "var(--warning-ink)";
+      banner.textContent = `${data.unavailable_sources.length} source(s) did not answer this run, so some values show "No data". See How this is measured.`; }
+  }
 
-      // Auto-trigger a sample scenario after 5 seconds for demo
-      setTimeout(() => {
-        if (currentScenario === "normal") {
-          triggerIncident("traffic_spike");
-        }
-      }, 5000);
+  // Active section highlight
+  const links = [...document.querySelectorAll(".nav > a")];
+  const obs = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (e.isIntersecting) links.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+  }), { rootMargin: "-40% 0px -55% 0px" });
+  links.forEach((a) => { const t = document.querySelector(a.getAttribute("href")); if (t) obs.observe(t); });
 
-      setInterval(refreshMetrics, 2000);
-      setInterval(refreshLogs, 3000);
-      setInterval(refreshIncidents, 4000);
-      setInterval(checkHealth, 15000);
-      setInterval(updateMetaClock, 1000);
-    }
-
-    boot();
-  </script>
+  // ── Load ────────────────────────────────────────────────
+  fetch("status.json", { cache: "no-cache" })
+    .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then((data) => {
+      if (data.schema_version !== 1) throw new Error("unsupported schema_version " + data.schema_version);
+      window.__render = () => render(data);
+      window.__render();
+      let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(window.__render, 150); });
+      setInterval(() => { const u = $("#updated span"); if (u) u.textContent = ((Date.now() - new Date(data.generated_at)) / 60000 > STALE_MINUTES ? "Stale · " : "Updated ") + ago(data.generated_at); }, 60000);
+    })
+    .catch((err) => {
+      const upd = $("#updated"); upd.className = "pill error"; upd.querySelector("span").textContent = "Snapshot unavailable";
+      const b = $("#banner"); b.style.display = "block";
+      b.textContent = "Could not load status.json (" + err.message + "). No numbers are shown rather than stale or made-up ones.";
+    });
+})();
+</script>
 </body>
 </html>
