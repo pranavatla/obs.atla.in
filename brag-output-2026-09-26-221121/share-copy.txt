@@ -1,0 +1,2 @@
+obs.atla.in: one honest status page for every atla.in site. Uptime, traffic, real visitors, WAF and Bedrock, all pulled straight from CloudWatch.
+Measured, never simulated.
