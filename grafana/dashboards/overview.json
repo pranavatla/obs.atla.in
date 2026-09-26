@@ -2309,7 +2309,7 @@
     {
       "type": "stat",
       "title": "Requests",
-      "description": "Requests the load balancer received for gita.atla.in. Includes bots. Measured · CloudWatch AWS/ApplicationELB (ap-south-1) · load balancer k8s-gita-gitaapp-62bac50d1f.",
+      "description": "Requests the load balancer received for gita.atla.in. Includes bots. Measured · CloudWatch AWS/ApplicationELB (ap-south-1) · load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2324,11 +2324,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "ap-south-1",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"k8s-gita-gitaapp-62bac50d1f\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "RequestCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "Requests"
         }
       ],
@@ -2382,7 +2389,7 @@
     {
       "type": "stat",
       "title": "5xx responses",
-      "description": "App and load balancer 5xx responses for gita.atla.in. Measured · CloudWatch AWS/ApplicationELB (ap-south-1) · load balancer k8s-gita-gitaapp-62bac50d1f.",
+      "description": "App and load balancer 5xx responses for gita.atla.in. Measured · CloudWatch AWS/ApplicationELB (ap-south-1) · load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2399,7 +2406,7 @@
           "metricQueryType": 0,
           "metricEditorMode": 1,
           "region": "ap-south-1",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" \"k8s-gita-gitaapp-62bac50d1f\"', 'Sum', 300)), 0) + FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_5XX_Count\" \"k8s-gita-gitaapp-62bac50d1f\"', 'Sum', 300)), 0)",
+          "expression": "SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} LoadBalancer=\"app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77\" (MetricName=\"HTTPCode_Target_5XX_Count\" OR MetricName=\"HTTPCode_ELB_5XX_Count\")', 'Sum', 300))",
           "id": "",
           "period": "300",
           "label": "5xx"
@@ -2425,7 +2432,8 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "None recorded"
         },
         "overrides": []
       },

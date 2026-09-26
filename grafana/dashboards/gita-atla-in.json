@@ -53,7 +53,7 @@
         "name": "alb",
         "label": "Load balancer",
         "type": "constant",
-        "query": "k8s-gita-gitaapp-62bac50d1f",
+        "query": "app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77",
         "hide": 2
       },
       {
@@ -447,11 +447,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "RequestCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "Requests"
         }
       ],
@@ -514,11 +521,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_4XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_Target_4XX_Count",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "4xx"
         }
       ],
@@ -538,7 +552,8 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "None recorded"
         },
         "overrides": []
       },
@@ -582,11 +597,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_Target_5XX_Count",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "App 5xx"
         }
       ],
@@ -610,7 +632,8 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "None recorded"
         },
         "overrides": []
       },
@@ -654,11 +677,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_ELB_5XX_Count",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "LB 5xx"
         }
       ],
@@ -682,7 +712,8 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "None recorded"
         },
         "overrides": []
       },
@@ -726,11 +757,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"RequestCount\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "RequestCount",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "Requests"
         },
         {
@@ -742,11 +780,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_Target_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_Target_5XX_Count",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "App 5xx"
         },
         {
@@ -758,11 +803,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "FILL(SUM(SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"HTTPCode_ELB_5XX_Count\" \"${alb}\"', 'Sum', 300)), 0)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "HTTPCode_ELB_5XX_Count",
+          "statistic": "Sum",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "LB 5xx"
         }
       ],
@@ -817,11 +869,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"TargetResponseTime\" \"${alb}\"', 'Average', 300)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "TargetResponseTime",
+          "statistic": "Average",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "Average"
         },
         {
@@ -833,11 +892,18 @@
           "hide": false,
           "queryMode": "Metrics",
           "metricQueryType": 0,
-          "metricEditorMode": 1,
+          "metricEditorMode": 0,
           "region": "${region}",
-          "expression": "SEARCH('{AWS/ApplicationELB,LoadBalancer} MetricName=\"TargetResponseTime\" \"${alb}\"', 'p90', 300)",
-          "id": "",
+          "namespace": "AWS/ApplicationELB",
+          "metricName": "TargetResponseTime",
+          "statistic": "p90",
+          "dimensions": {
+            "LoadBalancer": "${alb}"
+          },
+          "matchExact": true,
           "period": "300",
+          "id": "",
+          "expression": "",
           "label": "p90"
         }
       ],
@@ -1568,7 +1634,7 @@
       "title": "About this data",
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://gita.atla.in/`. Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, answering with Amazon Bedrock. No CloudFront or WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `gita.atla.in homepage`, every 5 minutes from 3 probes.\n\n**Traffic:** CloudWatch `AWS/ApplicationELB` in `ap-south-1`, load balancer `k8s-gita-gitaapp-62bac50d1f` (created by the Kubernetes ingress). Requests include bots.\n\n**AI:** CloudWatch `AWS/Bedrock` in `ap-south-1`: answers from `global.amazon.nova-2-lite-v1:0`, search vectors from `amazon.titan-embed-text-v2:0`. The cost panel multiplies tokens by the prices you enter in the boxes at the top of the page.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF in front of this site); pod CPU, memory and restarts (Container Insights is not enabled); deploy markers; request logs (not collected)."
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://gita.atla.in/`. Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, answering with Amazon Bedrock. No CloudFront or WAF.\n\n**Availability:** Grafana Synthetic Monitoring check `gita.atla.in homepage`, every 5 minutes from 3 probes.\n\n**Traffic:** CloudWatch `AWS/ApplicationELB` in `ap-south-1`, load balancer `app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77` (created by the Kubernetes ingress). Requests include bots.\n\n**AI:** CloudWatch `AWS/Bedrock` in `ap-south-1`: answers from `global.amazon.nova-2-lite-v1:0`, search vectors from `amazon.titan-embed-text-v2:0`. The cost panel multiplies tokens by the prices you enter in the boxes at the top of the page.\n\n**Not shown:** real-visitor data (no RUM on this site); firewall data (no AWS WAF in front of this site); pod CPU, memory and restarts (Container Insights is not enabled); deploy markers; request logs (not collected)."
       },
       "id": 23,
       "gridPos": {
