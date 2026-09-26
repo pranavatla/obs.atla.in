@@ -24,7 +24,8 @@ jobs:
 
       # Publish only the public page, never repository internals. The bucket is
       # served as-is by CloudFront, so anything synced here is downloadable.
-      # --delete removes files left behind by earlier whole-repo uploads.
+      # --delete removes files left behind by earlier whole-repo uploads; status.json is
+      # published separately by publish-status.yml, so it is excluded from deletion.
       - name: Stage public files
         run: |
           mkdir -p site
@@ -32,7 +33,7 @@ jobs:
 
       - name: Sync frontend to S3
         run: |
-          aws s3 sync site/ s3://${{ vars.AWS_S3_BUCKET }} --delete
+          aws s3 sync site/ s3://${{ vars.AWS_S3_BUCKET }} --delete --exclude "status.json"
 
       - name: Invalidate CloudFront cache
         run: |

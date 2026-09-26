@@ -1,0 +1,50 @@
+name: Publish status snapshot
+
+# Collects real metrics for every atla.in site and publishes status.json, which obs.atla.in
+# renders. A fixed schedule keeps CloudWatch cost flat however many people view the page.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: publish-status
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install boto3
+        run: pip install --quiet boto3
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Collect status
+        env:
+          GRAFANA_PROM_URL: ${{ vars.GRAFANA_PROM_URL }}
+          GRAFANA_PROM_USER: ${{ vars.GRAFANA_PROM_USER }}
+          GRAFANA_PROM_TOKEN: ${{ secrets.GRAFANA_PROM_TOKEN }}
+        run: python3 status/collect_status.py --out out/status.json
+
+      # Short cache lifetimes let CloudFront refresh the snapshot without paid invalidations.
+      - name: Publish status.json
+        run: |
+          aws s3 cp out/status.json s3://${{ vars.AWS_S3_BUCKET }}/status.json \
+            --content-type application/json \
+            --cache-control "public, max-age=60, s-maxage=60"
