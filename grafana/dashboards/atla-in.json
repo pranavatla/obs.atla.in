@@ -69,6 +69,13 @@
         "type": "constant",
         "query": "CreatedByCloudFront-14eef7b4",
         "hide": 2
+      },
+      {
+        "name": "waf_region",
+        "label": "WAF region",
+        "type": "constant",
+        "query": "us-east-1",
+        "hide": 2
       }
     ]
   },
@@ -1866,7 +1873,7 @@
       "title": "About this data",
       "options": {
         "mode": "markdown",
-        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://atla.in/`. Portfolio: Next.js static export in S3 behind CloudFront (Free plan, AWS WAF included).\n\n**Availability:** Grafana Synthetic Monitoring check `atla.in homepage`, every 5 minutes from 3 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2OMRFTQ27WGMZ`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Security:** AWS WAF web ACL `CreatedByCloudFront-14eef7b4`. Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the site's GitHub Actions deploy.\n\n**Not shown:** request logs (not collected)."
+        "content": "**Signal type:** Measured. Every panel's ⓘ names its source.\n\n**Site:** `https://atla.in/`. Portfolio: Next.js static export in S3 behind CloudFront (Free plan, AWS WAF included).\n\n**Availability:** Grafana Synthetic Monitoring check `atla.in homepage`, every 5 minutes from 3 probes.\n\n**Real visitors:** CloudWatch RUM app monitor `atla-in` (no cookies, all sessions).\n\n**Delivery:** CloudWatch `AWS/CloudFront` in `us-east-1`, distribution `E2OMRFTQ27WGMZ`, one-minute data points, usually a few minutes behind. Requests count every file fetched and include bots, so they are not visitors.\n\n**Security:** AWS WAF web ACL `CreatedByCloudFront-14eef7b4` (us-east-1). Blocked requests return 403 and are also counted in the 4xx rate.\n\n**Deploy markers:** blue vertical lines, posted by the site's GitHub Actions deploy.\n\n**Not shown:** request logs (not collected)."
       },
       "id": 22,
       "gridPos": {
@@ -1892,7 +1899,7 @@
     {
       "type": "stat",
       "title": "Blocked by firewall",
-      "description": "Requests AWS WAF stopped before they reached the site, answered with 403. This is the firewall working, not the site failing. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Requests AWS WAF stopped before they reached the site, answered with 403. This is the firewall working, not the site failing. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1908,7 +1915,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "namespace": "AWS/WAFV2",
           "metricName": "BlockedRequests",
           "statistic": "Sum",
@@ -1967,7 +1974,7 @@
     {
       "type": "stat",
       "title": "Allowed by firewall",
-      "description": "Requests WAF let through to CloudFront and S3. Includes bots the managed rules do not recognise. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Requests WAF let through to the site. Includes bots the managed rules do not recognise. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1983,7 +1990,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "namespace": "AWS/WAFV2",
           "metricName": "AllowedRequests",
           "statistic": "Sum",
@@ -2042,7 +2049,7 @@
     {
       "type": "stat",
       "title": "Share blocked",
-      "description": "Blocked ÷ (blocked + allowed) over the selected range. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Blocked ÷ (blocked + allowed) over the selected range. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2058,7 +2065,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "namespace": "AWS/WAFV2",
           "metricName": "BlockedRequests",
           "statistic": "Sum",
@@ -2082,7 +2089,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "namespace": "AWS/WAFV2",
           "metricName": "AllowedRequests",
           "statistic": "Sum",
@@ -2174,7 +2181,7 @@
     {
       "type": "timeseries",
       "title": "Allowed vs blocked (hourly)",
-      "description": "Requests per hour by WAF decision. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Requests per hour by WAF decision. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2190,7 +2197,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "namespace": "AWS/WAFV2",
           "metricName": "AllowedRequests",
           "statistic": "Sum",
@@ -2214,7 +2221,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 0,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "namespace": "AWS/WAFV2",
           "metricName": "BlockedRequests",
           "statistic": "Sum",
@@ -2268,7 +2275,7 @@
     {
       "type": "table",
       "title": "Blocks by managed rule",
-      "description": "Which AWS managed rule matched blocked requests (for example path traversal, missing user agent, exploitable paths, bad IP reputation). Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Which AWS managed rule matched blocked requests (for example path traversal, missing user agent, exploitable paths, bad IP reputation). Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2283,7 +2290,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 1,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "expression": "SEARCH('{AWS/WAFV2,WebACL,ManagedRuleGroup,ManagedRuleGroupRule} MetricName=\"BlockedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
           "id": "",
           "period": "3600",
@@ -2365,7 +2372,7 @@
     {
       "type": "table",
       "title": "Blocked by country",
-      "description": "Countries the blocked requests came from, based on source IP. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Countries the blocked requests came from, based on source IP. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2380,7 +2387,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 1,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "expression": "SEARCH('{AWS/WAFV2,WebACL,Country} MetricName=\"BlockedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
           "id": "",
           "period": "3600",
@@ -2462,7 +2469,7 @@
     {
       "type": "table",
       "title": "Allowed by country",
-      "description": "Countries of requests WAF allowed. Includes unrecognised bots, so it approximates, not measures, visitor location. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "Countries of requests WAF allowed. Includes unrecognised bots, so it approximates, not measures, visitor location. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2477,7 +2484,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 1,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "expression": "SEARCH('{AWS/WAFV2,WebACL,Country} MetricName=\"AllowedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
           "id": "",
           "period": "3600",
@@ -2559,7 +2566,7 @@
     {
       "type": "table",
       "title": "Blocked by attack type",
-      "description": "WAF's classification of blocked requests. Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}.",
+      "description": "WAF's classification of blocked requests. Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -2574,7 +2581,7 @@
           "queryMode": "Metrics",
           "metricQueryType": 0,
           "metricEditorMode": 1,
-          "region": "us-east-1",
+          "region": "${waf_region}",
           "expression": "SEARCH('{AWS/WAFV2,WebACL,Attack} MetricName=\"BlockedRequests\" WebACL=\"${waf_acl}\"', 'Sum', 3600)",
           "id": "",
           "period": "3600",

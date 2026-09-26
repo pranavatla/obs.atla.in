@@ -173,9 +173,11 @@ def cloudfront_metrics(cw, dist, end, src):
     ], {"requests_hourly_24h": hourly(minute["req"], end)}
 
 
-def waf_metrics(cw, acl, end):
-    src = f"CloudWatch AWS/WAFV2 us-east-1, web ACL {acl}"
-    r = cw.fetch([stat_query(q, "AWS/WAFV2", m, {"WebACL": acl, "Rule": "ALL"}, "Sum", 3600)
+def waf_metrics(cw, acl, end, region="us-east-1"):
+    # CloudFront web ACLs report in us-east-1; regional ones (on a load balancer) add a Region dimension.
+    src = f"CloudWatch AWS/WAFV2 {region}, web ACL {acl}"
+    dims = {"WebACL": acl, "Rule": "ALL", **({"Region": region} if region != "us-east-1" else {})}
+    r = cw.fetch([stat_query(q, "AWS/WAFV2", m, dims, "Sum", 3600)
                   for q, m in (("blocked", "BlockedRequests"), ("allowed", "AllowedRequests"))], end - WEEK, end)
     blocked, allowed = total(r["blocked"]) or 0, total(r["allowed"]) or 0
     return [
@@ -347,7 +349,8 @@ def site_record(cfg, avail, cw_clients, end, errors):
         src = f"CloudWatch AWS/CloudFront us-east-1, distribution {cfg['distribution']}"
         add("CloudFront", lambda: cloudfront_metrics(cw_clients("us-east-1"), cfg["distribution"], end, src))
     if "waf_acl" in cfg:
-        add("WAF", lambda: waf_metrics(cw_clients("us-east-1"), cfg["waf_acl"], end))
+        region = cfg.get("waf_region", "us-east-1")
+        add("WAF", lambda: waf_metrics(cw_clients(region), cfg["waf_acl"], end, region))
     if "rum_app" in cfg:
         add("RUM", lambda: rum_metrics(cw_clients("us-east-1"), cfg["rum_app"], end))
     if "alb" in cfg:

@@ -39,13 +39,14 @@ DOMAINS = [
         "slug": "gita-atla-in", "uid": "gita-atla-in", "domain": "gita.atla.in",
         "sm_job": "gita.atla.in homepage", "rum_app": "gita-atla-in", "sm_schedule": "every 5 minutes from 3 probes",
         "alb": "app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77", "region": "ap-south-1",
+        "waf_acl": "gita-atla-in", "waf_region": "ap-south-1",
         "bedrock": {"region": "ap-south-1", "llm": "global.amazon.nova-2-lite-v1:0",
                     "embed": "amazon.titan-embed-text-v2:0",
                     # USD per 1K tokens, on-demand, from the AWS Price List for ap-south-1
                     # (published 2026-09-26): Nova 2.0 Lite cross-region global, Titan Embeddings V2.
                     "prices": {"llm_in": "0.00035", "llm_out": "0.00295", "embed_in": "0.000024"}},
         "notes": "Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, "
-                 "answering with Amazon Bedrock. No CloudFront or WAF.",
+                 "answering with Amazon Bedrock. Regional AWS WAF on the load balancer; no CloudFront.",
     },
 ]
 
@@ -55,7 +56,7 @@ EXPR = {"type": "__expr__", "uid": "__expr__"}
 
 CF_SRC = " Measured · CloudWatch AWS/CloudFront (us-east-1) · distribution ${distribution}."
 SM_SRC = " Measured · Grafana Synthetic Monitoring check \"${sm_job}\"."
-WAF_SRC = " Measured · CloudWatch AWS/WAFV2 (us-east-1) · web ACL ${waf_acl}."
+WAF_SRC = " Measured · CloudWatch AWS/WAFV2 (${waf_region}) · web ACL ${waf_acl}."
 RUM_SRC = (" Measured · CloudWatch AWS/RUM (us-east-1) · app monitor ${rum_app}. "
            "Browsers of real visitors only; most bots do not run JavaScript.")
 ALB_SRC = " Measured · CloudWatch AWS/ApplicationELB (${region}) · load balancer ${alb}."
@@ -93,16 +94,20 @@ def cf(ref, metric, stat, period="", label=None, hide=False, dist="${distributio
                      {"DistributionId": dist, "Region": "Global"}, period, label, hide)
 
 
-def waf(ref, metric, label, hide=False):
-    return cw_metric(ref, "AWS/WAFV2", metric, "Sum", {"WebACL": "${waf_acl}", "Rule": "ALL"},
-                     "3600", label, hide)
+def waf(ref, metric, label, hide=False, regional=False):
+    # CloudFront web ACLs report in us-east-1 by WebACL and Rule; regional ones (an ALB's) also
+    # carry a Region dimension and report in their own region.
+    dims = {"WebACL": "${waf_acl}", "Rule": "ALL", **({"Region": "${waf_region}"} if regional else {})}
+    return {**cw_metric(ref, "AWS/WAFV2", metric, "Sum", dims, "3600", label, hide), "region": "${waf_region}"}
 
 
-def waf_search(schema, metric, label_dim):
+def waf_search(schema, metric, label_dim, regional=False):
+    if regional:
+        schema = "Region," + schema
     expr = (f"SEARCH('{{AWS/WAFV2,{schema}}} MetricName=\"{metric}\" WebACL=\"${{waf_acl}}\"', "
             "'Sum', 3600)")
     return {"datasource": CW, "refId": "A", "queryMode": "Metrics", "metricQueryType": 0,
-            "metricEditorMode": 1, "region": "us-east-1", "expression": expr, "id": "",
+            "metricEditorMode": 1, "region": "${waf_region}", "expression": expr, "id": "",
             "period": "3600", "label": "${PROP('Dim." + label_dim + "')}"}
 
 
@@ -364,37 +369,40 @@ def delivery(lay, cfg):
     ], 8)
 
 
-def security(lay):
+def security(lay, cfg):
+    regional = cfg.get("waf_region", "us-east-1") != "us-east-1"
+    wf = lambda *a, **k: waf(*a, regional=regional, **k)  # noqa: E731
+    ws = lambda *a, **k: waf_search(*a, regional=regional, **k)  # noqa: E731
     lay.row("Security · AWS WAF")
-    share = [waf("A", "BlockedRequests", "Blocked", True), waf("B", "AllowedRequests", "Allowed", True),
+    share = [wf("A", "BlockedRequests", "Blocked", True), wf("B", "AllowedRequests", "Allowed", True),
              reduce_sum("C", "A"), reduce_sum("D", "B"), math("E", "$C / ($C + $D) * 100", hide=False)]
     lay.line([
         (stat("Blocked by firewall", "Requests AWS WAF stopped before they reached the site, answered with "
               "403. This is the firewall working, not the site failing." + WAF_SRC,
-              [waf("A", "BlockedRequests", "Blocked")], "short", calc="sum", sparkline=True), 8),
-        (stat("Allowed by firewall", "Requests WAF let through to CloudFront and S3. Includes bots the managed "
+              [wf("A", "BlockedRequests", "Blocked")], "short", calc="sum", sparkline=True), 8),
+        (stat("Allowed by firewall", "Requests WAF let through to the site. Includes bots the managed "
               "rules do not recognise." + WAF_SRC,
-              [waf("A", "AllowedRequests", "Allowed")], "short", calc="sum", sparkline=True), 8),
+              [wf("A", "AllowedRequests", "Allowed")], "short", calc="sum", sparkline=True), 8),
         (stat("Share blocked", "Blocked ÷ (blocked + allowed) over the selected range." + WAF_SRC,
               share, "percent", decimals=1), 8),
     ], 4)
     lay.line([
         (series("Allowed vs blocked (hourly)", "Requests per hour by WAF decision." + WAF_SRC,
-                [waf("A", "AllowedRequests", "Allowed"), waf("B", "BlockedRequests", "Blocked")],
+                [wf("A", "AllowedRequests", "Allowed"), wf("B", "BlockedRequests", "Blocked")],
                 "short", draw="bars", stacked=True), 12),
         (top_table("Blocks by managed rule", "Which AWS managed rule matched blocked requests (for example path "
                    "traversal, missing user agent, exploitable paths, bad IP reputation)." + WAF_SRC,
-                   waf_search("WebACL,ManagedRuleGroup,ManagedRuleGroupRule", "BlockedRequests",
+                   ws("WebACL,ManagedRuleGroup,ManagedRuleGroupRule", "BlockedRequests",
                               "ManagedRuleGroupRule"), "Rule"), 12),
     ], 8)
     lay.line([
         (top_table("Blocked by country", "Countries the blocked requests came from, based on source IP." + WAF_SRC,
-                   waf_search("WebACL,Country", "BlockedRequests", "Country"), "Country"), 8),
+                   ws("WebACL,Country", "BlockedRequests", "Country"), "Country"), 8),
         (top_table("Allowed by country", "Countries of requests WAF allowed. Includes unrecognised bots, so it "
                    "approximates, not measures, visitor location." + WAF_SRC,
-                   waf_search("WebACL,Country", "AllowedRequests", "Country"), "Country"), 8),
+                   ws("WebACL,Country", "AllowedRequests", "Country"), "Country"), 8),
         (top_table("Blocked by attack type", "WAF's classification of blocked requests." + WAF_SRC,
-                   waf_search("WebACL,Attack", "BlockedRequests", "Attack"), "Attack type"), 8),
+                   ws("WebACL,Attack", "BlockedRequests", "Attack"), "Attack type"), 8),
     ], 8)
 
 
@@ -493,7 +501,7 @@ def about(cfg):
                      f"vectors from `{b['embed']}`. The cost panel multiplies tokens by the per-1K-token prices in "
                      "the boxes at the top of the page (from the AWS Price List, 2026-09-26; update them if prices change).")
     if "waf_acl" in cfg:
-        parts.append(f"**Security:** AWS WAF web ACL `{cfg['waf_acl']}`. Blocked requests return 403 and are "
+        parts.append(f"**Security:** AWS WAF web ACL `{cfg['waf_acl']}` ({cfg.get('waf_region', 'us-east-1')}). Blocked requests return 403 and are "
                      "also counted in the 4xx rate.")
     if "deploy_tags" in cfg:
         parts.append("**Deploy markers:** blue vertical lines, posted by the site's GitHub Actions deploy.")
@@ -550,7 +558,7 @@ def domain_dashboard(cfg):
     if "bedrock" in cfg:
         bedrock_section(lay, cfg)
     if "waf_acl" in cfg:
-        security(lay)
+        security(lay, cfg)
     if "distribution" not in cfg:
         lay.line([(text("About this data", about(cfg)), 24)], 7)
 
@@ -573,7 +581,8 @@ def domain_dashboard(cfg):
                       price_box("price_embed_in", "Embedding $ per 1K tokens", prices["embed_in"])]
         sections.append("AI")
     if "waf_acl" in cfg:
-        variables.append(constant("waf_acl", "WAF web ACL", cfg["waf_acl"]))
+        variables += [constant("waf_acl", "WAF web ACL", cfg["waf_acl"]),
+                      constant("waf_region", "WAF region", cfg.get("waf_region", "us-east-1"))]
         sections.append("Security")
 
     annotations = []
