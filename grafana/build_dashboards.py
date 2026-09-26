@@ -252,9 +252,10 @@ def status_now(sel, title="Status now"):
 
 
 def uptime(sel, title="Uptime"):
+    # probe_success is 1 or 0 per probe per run, so its average over the range is the success
+    # share; unlike counter increases it needs no minimum number of runs.
     return stat(title, "Share of check runs that succeeded over the selected range, across all probes." + SM_SRC,
-                [prom(f"sum(increase(probe_all_success_sum{{{sel}}}[$__range])) / "
-                      f"sum(increase(probe_all_success_count{{{sel}}}[$__range]))", title)],
+                [prom(f"avg(avg_over_time(probe_success{{{sel}}}[$__range]))", title)],
                 "percentunit", steps(("red", None), ("yellow", 0.99), ("green", 0.999)),
                 decimals=2, datasource=PROM, no_value="No check")
 
@@ -437,9 +438,11 @@ def bedrock_section(lay, cfg):
               [bedrock("A", "InvocationLatency", "p90", llm, "p90")], "ms", good_poor(5000, 15000),
               calc="mean", decimals=0), 4),
         (stat("Errors & throttles", "Client errors, server errors and throttled calls across all Bedrock "
-              "models. Throttles mean a quota was hit." + BR_SRC,
+              "models. Throttles mean a quota was hit. CloudWatch publishes these metrics only when one "
+              "occurs, so \"None recorded\" means none in the selected range." + BR_SRC,
               [bedrock_search("A", ["InvocationClientErrors", "InvocationServerErrors", "InvocationThrottles"],
-                              "Sum", "Errors")], "short", ZERO_IS_GOOD, calc="sum", decimals=0), 4),
+                              "Sum", "Errors")], "short", ZERO_IS_GOOD, calc="sum", decimals=0,
+              no_value="None recorded"), 4),
     ], 4)
     per_model = cw_search("A", "${bedrock_region}",
                           "SEARCH('{AWS/Bedrock,ModelId} MetricName=\"Invocations\"', 'Sum', 3600)",

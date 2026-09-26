@@ -181,7 +181,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"atla.in homepage\"}[$__range])) / sum(increase(probe_all_success_count{job=\"atla.in homepage\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"atla.in homepage\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"
@@ -677,7 +677,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"aif.atla.in homepage\"}[$__range])) / sum(increase(probe_all_success_count{job=\"aif.atla.in homepage\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"aif.atla.in homepage\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"
@@ -1173,7 +1173,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"games.atla.in homepage\"}[$__range])) / sum(increase(probe_all_success_count{job=\"games.atla.in homepage\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"games.atla.in homepage\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"
@@ -1669,7 +1669,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"obs.atla.in homepage\"}[$__range])) / sum(increase(probe_all_success_count{job=\"obs.atla.in homepage\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"obs.atla.in homepage\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"
@@ -2165,7 +2165,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"gita.atla.in homepage\"}[$__range])) / sum(increase(probe_all_success_count{job=\"gita.atla.in homepage\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"gita.atla.in homepage\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"

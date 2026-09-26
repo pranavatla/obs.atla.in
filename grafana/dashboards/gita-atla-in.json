@@ -219,7 +219,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range])) / sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"${sm_job}\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"
@@ -1271,7 +1271,7 @@
     {
       "type": "stat",
       "title": "Errors & throttles",
-      "description": "Client errors, server errors and throttled calls across all Bedrock models. Throttles mean a quota was hit. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
+      "description": "Client errors, server errors and throttled calls across all Bedrock models. Throttles mean a quota was hit. CloudWatch publishes these metrics only when one occurs, so \"None recorded\" means none in the selected range. Measured · CloudWatch AWS/Bedrock (${bedrock_region}) · calls made by the app.",
       "datasource": {
         "type": "cloudwatch",
         "uid": "${datasource}"
@@ -1314,7 +1314,8 @@
               }
             ]
           },
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "None recorded"
         },
         "overrides": []
       },

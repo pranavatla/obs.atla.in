@@ -172,7 +172,7 @@
             "uid": "${prom}"
           },
           "refId": "A",
-          "expr": "sum(increase(probe_all_success_sum{job=\"${sm_job}\"}[$__range])) / sum(increase(probe_all_success_count{job=\"${sm_job}\"}[$__range]))",
+          "expr": "avg(avg_over_time(probe_success{job=\"${sm_job}\"}[$__range]))",
           "instant": true,
           "range": false,
           "legendFormat": "Uptime"
