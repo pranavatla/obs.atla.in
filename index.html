@@ -145,7 +145,7 @@ html.lenis, html.lenis body{ height:auto }
 .liquid{ position:absolute; inset:0; z-index:0 }
 .liquid img, .liquid canvas{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover }
 .liquid canvas{ pointer-events:none }
-.liquid img{ background:linear-gradient(160deg,var(--hero-from),var(--hero-to)) }
+.liquid img{ filter:grayscale(1) contrast(.92) brightness(1.08); background:linear-gradient(160deg,var(--hero-from),var(--hero-to)) }
 .vignette{ position:absolute; inset:0; z-index:1; pointer-events:none; background:linear-gradient(to bottom, rgba(255,255,255,.35), transparent, rgba(255,255,255,.35)) }
 .watermark{ pointer-events:none; position:absolute; inset-inline:0; bottom:7rem; z-index:1; text-align:center; user-select:none; font-weight:700; line-height:1;
   font-size:var(--text-watermark); letter-spacing:-.03em; color:rgba(255,255,255,1); opacity:0; transform:translateY(20px);
@@ -226,8 +226,8 @@ html.lenis, html.lenis body{ height:auto }
 .about-foot p{ max-width:40ch; font-size:1rem; line-height:1.55; color:rgba(17,17,17,.65) }
 .avatars{ display:flex; align-items:center; gap:.75rem; font-size:.875rem; font-weight:500 }
 .avatars .stack{ display:flex }
-.avatars .stack span{ width:2.5rem; height:2.5rem; border-radius:9999px; border:2px solid #fff; margin-left:-.625rem; background-size:cover; background-position:center; background-color:var(--surface-2) }
-.avatars .stack span:first-child{ margin-left:0 }
+.avatars .stack img{ object-fit:cover;  width:2.5rem; height:2.5rem; border-radius:9999px; border:2px solid #fff; margin-left:-.625rem; background-size:cover; background-position:center; background-color:var(--surface-2) }
+.avatars .stack img:first-child{ margin-left:0 }
 
 /* ---------- create band ---------- */
 .band{ padding-bottom:6rem }
@@ -461,7 +461,7 @@ html.lenis, html.lenis body{ height:auto }
   <!-- ============ Hero ============ -->
   <section id="home" class="hero" aria-labelledby="heroTitle">
     <div class="liquid" id="liquid">
-      <img id="heroBase" alt="Studio workspace bathed in soft daylight" fetchpriority="high" decoding="async" crossorigin="anonymous">
+      <img id="heroBase" alt="Bright, modern design studio with desks and large windows" fetchpriority="high" decoding="async">
       <canvas id="heroCanvas" aria-hidden="true"></canvas>
     </div>
     <div class="vignette"></div>
@@ -526,11 +526,7 @@ html.lenis, html.lenis body{ height:auto }
         <p class="statement words" id="statement" data-io>We're an independent studio of designers and engineers crafting brands, products, and the systems that connect them. <span class="mut">Small by design, senior by default — every project gets the people who actually make the work.</span></p>
         <div class="about-foot rv" data-io style="--d:200ms">
           <div class="avatars">
-            <div class="stack">
-              <span style="background-image:url(https://i.pravatar.cc/80?img=12)"></span>
-              <span style="background-image:url(https://i.pravatar.cc/80?img=47)"></span>
-              <span style="background-image:url(https://i.pravatar.cc/80?img=33)"></span>
-              <span style="background-image:url(https://i.pravatar.cc/80?img=5)"></span>
+            <div class="stack" id="avatars">
             </div>
             38 makers across 3 timezones
           </div>
@@ -728,24 +724,30 @@ html.lenis, html.lenis body{ height:auto }
 </script>
 <script type="module">
 /* ---------------- constants ---------------- */
-const IMG = (seed, w, h, gray) => `https://picsum.photos/seed/${seed}/${w}/${h}${gray ? '?grayscale' : ''}`;
-// Mapping preserved from the original: the "after" file is the always-visible base,
-// the "before" file is what the cursor brush paints over it.
-const HERO = {
-  beforeSrc: IMG('lumora-hero', 2400, 1600, true),   // hero/after.jpg  (base)
-  afterSrc:  IMG('lumora-hero', 2400, 1600, false),  // hero/before.jpg (brush)
-};
+const IMG = (id, w) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
+// Hero: one studio photo in two states. The base is shown desaturated (CSS filter on the <img>),
+// and the cursor brush paints the full-colour original over it.
+const HERO_PHOTO = IMG('1497366216548-37526070297c', 2400);   // bright modern studio
+const HERO = { beforeSrc: HERO_PHOTO, afterSrc: HERO_PHOTO };
 const SLIDES = [
-  { title:'Northwind Atlas', cat:'Brand',   tag:'Case study', img:IMG('lumora-slide-1', 800, 600) },
-  { title:'Orbital OS',      cat:'Product', tag:'New launch', img:IMG('lumora-slide-2', 800, 600) },
-  { title:'Halcyon Health',  cat:'Web',     tag:'Award',      img:IMG('lumora-slide-3', 800, 600) },
+  { title:'Northwind Atlas', cat:'Brand',   tag:'Case study', alt:'Designer choosing colours from a palette of swatches', img:IMG('1561070791-2526d30994b5', 900) },
+  { title:'Orbital OS',      cat:'Product', tag:'New launch', alt:'UX designer sketching app wireframes on paper',        img:IMG('1581291518857-4e27b48ff24e', 900) },
+  { title:'Halcyon Health',  cat:'Web',     tag:'Award',      alt:'Laptop on a desk showing website code',                img:IMG('1498050108023-c5249f4df085', 900) },
 ];
 const WORKS = [
-  { title:'Meridian Bank',  desc:'Rebrand & mobile banking app', tags:['Brand','Product'], year:'2025', img:IMG('lumora-work-1', 1200, 900) },
-  { title:'Solace Audio',   desc:'E-commerce & 3D product viewer', tags:['Web','3D'],     year:'2025', img:IMG('lumora-work-2', 1200, 900) },
-  { title:'Vanta Mobility', desc:'Fleet dashboard design system',   tags:['Product','System'], year:'2024', img:IMG('lumora-work-3', 1200, 900) },
-  { title:'Orbital Labs',   desc:'Identity, site & launch film',   tags:['Brand','Motion'], year:'2024', img:IMG('lumora-work-4', 1200, 900) },
+  { title:'Meridian Bank',  desc:'Rebrand & mobile banking app',   tags:['Brand','Product'],  year:'2025', alt:'Smartphone showing a mobile app interface', img:IMG('1512941937669-90a1b58e7e9c', 1400) },
+  { title:'Solace Audio',   desc:'E-commerce & 3D product viewer', tags:['Web','3D'],         year:'2025', alt:'Studio headphones on a plain backdrop',     img:IMG('1505740420928-5e560c06d30e', 1400) },
+  { title:'Vanta Mobility', desc:'Fleet dashboard design system',  tags:['Product','System'], year:'2024', alt:'Analytics dashboard open on a laptop',       img:IMG('1551288049-bebda4e38f71', 1400) },
+  { title:'Orbital Labs',   desc:'Identity, site & launch film',   tags:['Brand','Motion'],   year:'2024', alt:'Abstract 3D render of flowing gradient forms', img:IMG('1618005182384-a83a8bd57fbe', 1400) },
 ];
+const AVATARS = ['1494790108377-be9c29b29330','1507003211169-0a1dd7228f2d','1438761681033-6461ffad8d80','1500648767791-00dcc994a43e']
+  .map(id => IMG(id, 120) + '&h=120&crop=faces');
+// If a remote image fails, show a soft on-brand gradient instead of a broken icon.
+const FALLBACK = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#e3e2df'/><stop offset='1' stop-color='#b6b6b6'/></linearGradient></defs><rect width='4' height='3' fill='url(#g)'/></svg>`);
+addEventListener('error', e => {
+  const t = e.target;
+  if (t instanceof HTMLImageElement && t.src !== FALLBACK) t.src = FALLBACK;
+}, true);
 const SERVICES = [
   { title:'Brand Identity',  desc:'Positioning, naming, visual identity and the guidelines that keep it sharp as you scale.', tags:['Strategy','Identity','Guidelines'] },
   { title:'Product Design',  desc:'Research-led UX and interface design for apps, platforms and complex tools.', tags:['UX','UI','Design Systems'] },
@@ -835,7 +837,7 @@ const icon = id => `<svg class="ico"><use href="#${id}"/></svg>`;
 $('#worksGrid').innerHTML = WORKS.map((w, i) => `
   <article class="work rv" data-io style="--d:${(i % 2) * 120}ms" tabindex="0" role="link" aria-label="${w.title} — ${w.desc}">
     <div class="work-media">
-      <img src="${w.img}" alt="" loading="lazy" decoding="async">
+      <img src="${w.img}" alt="${w.alt}" loading="lazy" decoding="async">
       <div class="work-tags">${w.tags.map(t => `<span>${t}</span>`).join('')}</div>
       <span class="work-go">${icon('i-arrow-ur')}</span>
     </div>
@@ -850,6 +852,7 @@ $('#svcList').innerHTML = SERVICES.map((s, i) => `
       <span class="svc-arrow">${icon('i-arrow')}</span>
     </div>
   </li>`).join('');
+$('#avatars').innerHTML = AVATARS.map(src => `<img src="${src}" alt="" loading="lazy" decoding="async">`).join('');
 $('#year').textContent = new Date().getFullYear();
 
 // word split for the About statement (keeps the muted span)
@@ -896,7 +899,6 @@ tick(); setInterval(tick, 1000);
 /* ---------------- hero liquid reveal ---------------- */
 (function liquidReveal(){
   const wrap = $('#liquid'), base = $('#heroBase'), canvas = $('#heroCanvas');
-  base.addEventListener('error', () => { base.removeAttribute('src'); }, { once: true });
   base.src = HERO.beforeSrc;
   if (reduceMotion){ canvas.remove(); return; }
 
@@ -905,7 +907,7 @@ tick(); setInterval(tick, 1000);
   const ctx = canvas.getContext('2d');
   const cover = document.createElement('canvas'), cctx = cover.getContext('2d');
   const brush = document.createElement('canvas'), bctx = brush.getContext('2d');
-  const after = new Image(); after.crossOrigin = 'anonymous'; after.decoding = 'async';
+  const after = new Image(); after.decoding = 'async';
   let loaded = false, radius = brushRadius * dpr, diam = 0, rect = { width: 0, height: 0, left: 0, top: 0 };
   let points = [], last = null, idle = 0, rafId = 0;
 
@@ -970,7 +972,7 @@ tick(); setInterval(tick, 1000);
   }, { passive: true });
 
   new ResizeObserver(measure).observe(wrap);
-  after.onload = () => { loaded = true; measure(); };
+  after.onload = () => { if (after.src !== FALLBACK){ loaded = true; measure(); } };
   after.src = HERO.afterSrc;
 })();
 
@@ -978,7 +980,7 @@ tick(); setInterval(tick, 1000);
 (function carousel(){
   const media = $('#hcardMedia'), dots = $('#hcardDots');
   const imgs = SLIDES.map((s, i) => {
-    const im = document.createElement('img'); im.src = s.img; im.alt = `${s.title} — ${s.cat} project`; im.decoding = 'async';
+    const im = document.createElement('img'); im.src = s.img; im.alt = s.alt; im.decoding = 'async';
     if (i === 0) im.classList.add('on'); media.append(im); return im;
   });
   dots.innerHTML = SLIDES.map(() => '<span><i></i></span>').join('');
