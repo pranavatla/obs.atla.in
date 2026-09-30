@@ -2,7 +2,14 @@
 
 `collect_status.py` gathers real metrics for every atla.in site and writes `status.json`, which
 obs.atla.in renders. `.github/workflows/publish-status.yml` runs it every 15 minutes (and on any change to the collector or site list) and uploads
-the file to the obs.atla.in bucket. The site list is `DOMAINS` in `grafana/build_dashboards.py`,
+the file to the obs.atla.in bucket.
+
+The 15-minute schedule comes from AWS, not GitHub: GitHub's cron dropped most runs (once for five
+hours), so `trigger.yaml` is a CloudFormation stack whose EventBridge rule calls the workflow's
+`workflow_dispatch` API. GitHub's cron stays as a 3-hourly fallback. Deploy or update it with the
+command at the top of `trigger.yaml`; it needs a fine-grained GitHub token limited to this repository
+with Actions: Read and write. When the token expires, runs fall back to every 3 hours and the page
+shows "Stale"; the rule's `FailedInvocations` metric (AWS/Events) shows it too. The site list is `DOMAINS` in `grafana/build_dashboards.py`,
 shared with the Grafana dashboards.
 
 Why a snapshot instead of an embedded dashboard: CloudWatch bills per metric fetched, so cost

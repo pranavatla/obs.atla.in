@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Starts obs.atla.in's "Publish status snapshot" workflow every 15 minutes. GitHub's own cron
+  drops or delays many scheduled runs (gaps of five hours were seen), so an EventBridge rule calls
+  GitHub's workflow_dispatch API instead. The workflow itself is unchanged.
+
+  Deploy (from the repo root; the token is read from your shell and never stored in the repo):
+    read -s GH_TOKEN
+    aws cloudformation deploy --region ap-south-1 --stack-name obs-status-trigger \
+      --template-file status/trigger.yaml --capabilities CAPABILITY_IAM \
+      --parameter-overrides GitHubToken="$GH_TOKEN"
+    unset GH_TOKEN
+
+Parameters:
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: >-
+      Fine-grained GitHub token, repository access limited to pranavatla/obs.atla.in, with the
+      single permission Actions: Read and write. Stored by EventBridge in Secrets Manager.
+  Repository:
+    Type: String
+    Default: pranavatla/obs.atla.in
+  Workflow:
+    Type: String
+    Default: publish-status.yml
+  Schedule:
+    Type: String
+    Default: rate(15 minutes)
+
+Resources:
+  GitHubConnection:
+    Type: AWS::Events::Connection
+    Properties:
+      Description: GitHub API token for starting the status snapshot workflow
+      AuthorizationType: API_KEY
+      AuthParameters:
+        ApiKeyAuthParameters:
+          ApiKeyName: Authorization
+          ApiKeyValue: !Sub "Bearer ${GitHubToken}"
+
+  DispatchDestination:
+    Type: AWS::Events::ApiDestination
+    Properties:
+      Description: GitHub workflow_dispatch for the status snapshot
+      ConnectionArn: !GetAtt GitHubConnection.Arn
+      InvocationEndpoint: !Sub "https://api.github.com/repos/${Repository}/actions/workflows/${Workflow}/dispatches"
+      HttpMethod: POST
+      InvocationRateLimitPerSecond: 1
+
+  InvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Lets the schedule rule call the GitHub API destination, and nothing else
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: {Service: events.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: invoke-dispatch-destination
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: events:InvokeApiDestination
+                Resource: !GetAtt DispatchDestination.Arn
+
+  ScheduleRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Start the obs.atla.in status snapshot workflow
+      ScheduleExpression: !Ref Schedule
+      State: ENABLED
+      Targets:
+        - Id: github-workflow-dispatch
+          Arn: !GetAtt DispatchDestination.Arn
+          RoleArn: !GetAtt InvokeRole.Arn
+          Input: '{"ref": "main"}'
+          HttpParameters:
+            HeaderParameters:
+              Accept: application/vnd.github+json
+              X-GitHub-Api-Version: "2022-11-28"
+          # A run missed now is covered by the next one 15 minutes later; don't pile up retries.
+          RetryPolicy:
+            MaximumRetryAttempts: 2
+            MaximumEventAgeInSeconds: 600
+
+Outputs:
+  RuleName:
+    Value: !Ref ScheduleRule
+    Description: Check it with CloudWatch metrics AWS/Events Invocations and FailedInvocations
