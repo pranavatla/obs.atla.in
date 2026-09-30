@@ -55,6 +55,28 @@ Units: `percent` (0–100), `ms`, `count`, `bytes`, `usd`, `score` (CLS).
 | `waf_blocked_7d`, `waf_blocked_share_7d` | atla.in, games, obs, gita | AWS WAF blocks (aif has no WAF) |
 | `page_views_7d`, `lcp_p75_7d`, `cls_p75_7d`, `inp_p75_7d`, `js_errors_7d` | all | Real visitors (RUM), one app monitor per site |
 | `llm_calls_7d`, `llm_tokens_7d`, `llm_latency_p90_7d`, `bedrock_cost_7d` | gita | Amazon Bedrock |
+| `requests_*`, `error_5xx_*` | gate | Model calls through the gateway (not HTTP requests or page views) |
+| `gateway_blocked_7d`, `gateway_limited_7d`, `gateway_cache_hit_rate_7d`, `gateway_failovers_7d`, `gateway_tokens_7d`, `gateway_cost_7d`, `gateway_overhead_p50_7d`, `gateway_latency_p90_7d` | gate | Governance, cache, spend and latency from the gateway's audit log |
+
+## LLM gateway (gate.atla.in)
+
+gate.atla.in has no CloudFront, load balancer or WAF; its usage lives in its own Postgres audit
+log, which Grafana Cloud cannot reach. So the collector reads the gateway's public, aggregate-only
+`GET https://gate.atla.in/v1/stats` (totals over whole windows; no tenant, key or content data;
+cached 60 s on the gateway). Those totals become gate's site metrics and hourly series, and the
+top-level `gateway` object carries the model mix:
+
+```jsonc
+"gateway": {
+  "domain": "gate.atla.in", "generated_at": "…", "windows": {…},   // the gateway's own clock
+  "models_7d": [{"model": "bedrock/global.amazon.nova-2-lite-v1:0", "calls": 2290, "tokens": 343500, "cost_usd": 0.458},
+                {"model": "cache", "calls": 255, "tokens": 38250, "cost_usd": 0.051}],
+  "source": "…"
+}
+```
+
+`gateway` is `null` when the endpoint does not answer; the failure is listed in
+`unavailable_sources` and gate's uptime checks still publish.
 
 ## Bedrock models
 

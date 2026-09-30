@@ -48,6 +48,15 @@ DOMAINS = [
         "notes": "Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, "
                  "answering with Amazon Bedrock. Regional AWS WAF on the load balancer; no CloudFront.",
     },
+    {
+        "slug": "gate-atla-in", "uid": "gate-atla-in", "domain": "gate.atla.in",
+        "sm_job": "gate.atla.in homepage", "sm_schedule": "every 5 minutes from 3 probes",
+        # Public, aggregate-only totals from the gateway's own audit log (no tenant, key or content data).
+        "gateway_stats": "https://gate.atla.in/v1/stats",
+        "notes": "LLM gateway: FastAPI on one EC2 t4g.small (Docker Compose, Caddy TLS) in ap-south-1, in front of "
+                 "Anthropic, OpenAI, Gemini and Amazon Bedrock. gita.atla.in and the atla.in chatbot call models "
+                 "through it. No CloudFront, load balancer or WAF.",
+    },
 ]
 
 CW = {"type": "cloudwatch", "uid": "${datasource}"}
@@ -500,6 +509,10 @@ def about(cfg):
         parts.append(f"**AI:** CloudWatch `AWS/Bedrock` in `{b['region']}`: answers from `{b['llm']}`, search "
                      f"vectors from `{b['embed']}`. The cost panel multiplies tokens by the per-1K-token prices in "
                      "the boxes at the top of the page (from the AWS Price List, 2026-09-26; update them if prices change).")
+    if "gateway_stats" in cfg:
+        parts.append(f"**Gateway usage:** the gateway's own Grafana (on its host, provisioned from the gate repo) "
+                     f"reads its audit log directly. Aggregate totals are public at `{cfg['gateway_stats']}` and "
+                     "shown on obs.atla.in; Grafana Cloud has no route to the gateway's database.")
     if "waf_acl" in cfg:
         parts.append(f"**Security:** AWS WAF web ACL `{cfg['waf_acl']}` ({cfg.get('waf_region', 'us-east-1')}). Blocked requests return 403 and are "
                      "also counted in the 4xx rate.")
@@ -592,7 +605,7 @@ def domain_dashboard(cfg):
                             "target": {"type": "tags", "tags": cfg["deploy_tags"],
                                        "matchAny": False, "limit": 100}})
 
-    title = f"{cfg['domain']} · " + ", ".join(sections[:-1]) + " & " + sections[-1]
+    title = f"{cfg['domain']} · " + (", ".join(sections[:-1]) + " & " if len(sections) > 1 else "") + sections[-1]
     tags = [cfg["domain"], "measured"] + (["cloudfront"] if "distribution" in cfg else []) \
         + (["bedrock"] if "bedrock" in cfg else [])
     return base(cfg["uid"], title, f"Monitoring for https://{cfg['domain']}/.", tags, variables,
@@ -621,7 +634,7 @@ def overview_dashboard():
                             [cf("A", "Requests", "Sum", dist=dist)], "short", calc="sum", sparkline=True)
             err5 = stat("5xx rate", f"Request-weighted 5xx rate for {cfg['domain']}." + WEIGHTED + src,
                         weighted_rate("5xxErrorRate", dist), "percent", good_poor(0.5, 1), decimals=2)
-        else:
+        elif "alb" in cfg:
             src = ALB_SRC.replace("${region}", cfg["region"]).replace("${alb}", cfg["alb"])
             kw = {"name": cfg["alb"], "region": cfg["region"]}
             requests = stat("Requests", f"Requests the load balancer received for {cfg['domain']}. Includes bots." + src,
@@ -629,6 +642,11 @@ def overview_dashboard():
             err5 = stat("5xx responses", f"App and load balancer 5xx responses for {cfg['domain']}." + src,
                         [alb_5xx_total("A", cfg["alb"], cfg["region"])],
                         "short", ZERO_IS_GOOD, calc="sum", decimals=0, no_value="None recorded")
+        else:
+            requests = text("", f"**Traffic:** not in CloudWatch. {cfg['domain']} reports its own usage at "
+                                f"`{cfg.get('gateway_stats', 'its own dashboard')}`.")
+            err5 = text("", "Calls, errors, blocks, cache hits and spend are shown on "
+                            "[obs.atla.in](https://obs.atla.in/#gateway).")
         panels = [(name, 4), (status_now(sel), 4), (uptime(sel), 4), (check_duration(sel), 4),
                   (requests, 4), (err5, 4)]
         for panel, _ in panels[1:4]:

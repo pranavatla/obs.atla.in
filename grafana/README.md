@@ -16,6 +16,8 @@ python3 grafana/build_dashboards.py
 | `dashboards/obs-atla-in.json` | obs.atla.in: availability, real visitors (RUM), delivery, security (WAF) |
 | `dashboards/gita-atla-in.json` | gita.atla.in: availability, real visitors (RUM), traffic (load balancer), AI (Bedrock calls, tokens, latency, errors, estimated cost), security (regional WAF) |
 
+| `dashboards/gate-atla-in.json` | gate.atla.in: availability. Gateway usage is not in CloudWatch: it is on the gateway's own Grafana and, as aggregates, on obs.atla.in |
+
 A site gets a section only when its data exists: Security needs an AWS WAF web ACL, Real visitors
 needs a CloudWatch RUM app monitor, deploy markers need the site's deploy to post annotations.
 
