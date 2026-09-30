@@ -948,7 +948,7 @@
           <div class="mix-top"><b>${esc(modelName(m.model))}</b><span class="num">${fmt({ value: m.calls, unit: "count" })} calls · ${fmt({ value: m.cost_usd, unit: "usd" })}</span></div>
           <div class="mix-bar"><i style="width:${Math.max((m.calls / mixTotal) * 100, 2).toFixed(1)}%"></i></div></div>`).join("")
           : '<div class="stat-row"><span>No successful calls in this window</span></div>') +
-        `<p class="card-sub" style="margin:8px 2px 0">Model mix: successful calls, 7 days. From the gateway's append-only audit log; totals only, never prompts.</p>`;
+        `<p class="card-sub" style="margin:8px 2px 0">Model mix: successful calls, 7 days. From the gateway's append-only audit log; totals only, never prompts. gita.atla.in calls Bedrock through the gateway, so those calls also appear under AI · Bedrock: the same calls seen from both ends, not extra usage.</p>`;
     }
     $("#gw-sub").textContent = gw ? `Every model call from the apps · 7 days to ${new Date(gw.generated_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : "Every model call from the apps · 7 days";
 
