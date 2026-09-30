@@ -28,8 +28,8 @@
     --accent-soft: #e8f1fc;
     --accent-ink: #1c5cab;
     --idle-bar: #e9ebef;
-    /* Categorical slots 1-5, validated (light): fixed site order, never by rank. */
-    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4;
+    /* Categorical slots 1-6, validated (light): fixed site order, never by rank. */
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #8a63d2;
     /* Status: reserved, always paired with an icon and a label. */
     --good: #0ca30c; --good-ink: #006300; --good-soft: #e7f6e7;
     --warning: #fab219; --warning-ink: #8a5a00; --warning-soft: #fff4dc;
@@ -47,7 +47,7 @@
       --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --axis: #383835;
       --border: rgba(255, 255, 255, 0.08); --shadow: none;
       --accent: #3987e5; --accent-soft: #16263b; --accent-ink: #86b6ef; --idle-bar: #2a2a28;
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #9a7ce6;
       --good-ink: #0ca30c; --good-soft: #13261a; --warning-ink: #fab219; --warning-soft: #2d2410;
       --critical-ink: #e66767; --critical-soft: #2e1616; --unknown-soft: #262624;
     }
@@ -58,7 +58,7 @@
     --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --axis: #383835;
     --border: rgba(255, 255, 255, 0.08); --shadow: none;
     --accent: #3987e5; --accent-soft: #16263b; --accent-ink: #86b6ef; --idle-bar: #2a2a28;
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #9a7ce6;
     --good-ink: #0ca30c; --good-soft: #13261a; --warning-ink: #fab219; --warning-soft: #2d2410;
     --critical-ink: #e66767; --critical-soft: #2e1616; --unknown-soft: #262624;
   }
@@ -140,7 +140,7 @@
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
 
-  .shares { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 18px; padding: 14px 16px;
+  .shares { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-top: 18px; padding: 14px 16px;
             border: 1px solid var(--border); border-radius: 12px; }
   .share { min-width: 0; padding-left: 10px; border-left: 2px solid var(--grid); }
   .share b { display: block; font-size: 17px; }
@@ -261,6 +261,15 @@
   .model-sites { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; font-size: 12px; }
   .used-by { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: -4px 0 14px; }
   .used-by a { text-decoration: none; }
+  .ai-totals.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mix { padding: 10px 12px; border-radius: 10px; background: var(--surface-2); margin-bottom: 8px; }
+  .mix-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px; }
+  .mix-top b { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mix-top span { color: var(--ink-2); font-size: 12px; white-space: nowrap; }
+  .mix-bar { height: 6px; margin-top: 8px; border-radius: 6px; background: var(--idle-bar); overflow: hidden; }
+  .mix-bar i { display: block; height: 100%; border-radius: 6px; background: var(--s6); }
+  .orb.gw-orb { background: radial-gradient(circle at 35% 30%, #e6dcfa 0%, #9a7ce6 38%, #6a46b8 70%, #3b2470 100%);
+            box-shadow: 0 10px 30px rgba(138,99,210,.35); }
 
   /* AI + small stat lists */
   .orb { width: 72px; height: 72px; border-radius: 50%; margin: 4px auto 14px;
@@ -301,7 +310,7 @@
     .sidebar { position: static; height: auto; flex-direction: row; align-items: center; overflow-x: auto; padding: 10px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
     .brand { padding: 0 8px 0 0; }
     .nav-label, .promo, .nav .site-link { display: none; }
-    .nav { display: flex; gap: 2px; }
+    .nav { display: flex; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
     .nav a { padding: 8px 10px; white-space: nowrap; }
     main { padding: 16px 16px 32px; }
     .topbar .hide-sm { display: none; }
@@ -359,6 +368,7 @@
       <a href="#sites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>Sites</a>
       <a href="#visitors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>Real visitors</a>
       <a href="#ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.2 5.2L19 10l-4.8 1.8L12 17l-2.2-5.2L5 10l4.8-1.8z"/></svg>AI · Bedrock</a>
+      <a href="#gateway"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 17h16M8 3v18M16 3v18"/></svg>LLM gateway</a>
       <a href="#security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Security</a>
       <a href="#method"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>How it's measured</a>
       <div class="nav-label">Sites</div>
@@ -387,7 +397,7 @@
       <div class="page-head">
         <div>
           <h1>Overview</h1>
-          <p>Status, traffic, visitor experience, security and AI usage for every atla.in site. Measured, never simulated.</p>
+          <p>Status, traffic, visitor experience, security, AI usage and the LLM gateway for every atla.in site. Measured, never simulated.</p>
         </div>
       </div>
       <div class="grid kpis" id="kpis"></div>
@@ -456,6 +466,15 @@
           <div class="stat-list" id="ai-stats"></div>
         </section>
 
+        <section class="card" id="gateway">
+          <div class="card-head">
+            <div><h2 class="card-title">LLM gateway · gate.atla.in</h2><p class="card-sub" id="gw-sub">Every model call from the apps · 7 days</p></div>
+          </div>
+          <div class="orb gw-orb" aria-hidden="true"></div>
+          <div class="used-by" id="gw-chips"></div>
+          <div class="stat-list" id="gw-stats"></div>
+        </section>
+
 
       </div>
     </div>
@@ -483,7 +502,7 @@
   "use strict";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const SLOTS = ["--s1", "--s2", "--s3", "--s4", "--s5"];   // fixed order by site, never by rank
+  const SLOTS = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];   // fixed order by site, never by rank
   const STALE_MINUTES = 60;
   const ICON = {
     up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-10"/></svg>',
@@ -626,7 +645,8 @@
 
   // Readable names for Bedrock model IDs; unknown IDs are shown as-is.
   function modelName(id) {
-    const base = id.replace(/^(global|us|eu|apac|ap|jp|au|ca)\./, "");
+    if (id === "cache") return "Semantic cache";
+    const base = id.replace(/^(bedrock|anthropic|openai|gemini)\//, "").replace(/^(global|us|eu|apac|ap|jp|au|ca)\./, "");
     const known = {
       "amazon.nova-2-lite-v1:0": "Amazon Nova 2 Lite", "amazon.nova-lite-v1:0": "Amazon Nova Lite", "amazon.nova-pro-v1:0": "Amazon Nova Pro",
       "amazon.nova-micro-v1:0": "Amazon Nova Micro", "amazon.titan-embed-text-v2:0": "Amazon Titan Text Embeddings v2",
@@ -718,6 +738,8 @@
     ["Real visitors", SVG.user, ["page_views_7d", "lcp_p75_7d", "cls_p75_7d", "inp_p75_7d", "js_errors_7d"]],
     ["Security", SVG.shield, ["waf_blocked_7d", "waf_blocked_share_7d"]],
     ["AI · Bedrock", SVG.spark, ["llm_calls_7d", "llm_tokens_7d", "llm_latency_p90_7d", "bedrock_cost_7d"]],
+    ["LLM gateway", SVG.shield, ["gateway_blocked_7d", "gateway_limited_7d", "gateway_cache_hit_rate_7d", "gateway_failovers_7d",
+                                 "gateway_tokens_7d", "gateway_cost_7d", "gateway_overhead_p50_7d", "gateway_latency_p90_7d"]],
   ];
   const STATE_LABEL = { up: "Operational", down: "Down", unknown: "No data" };
   let openDomain = null;
@@ -799,7 +821,8 @@
     $("#sites-count").textContent = `${sites.length} sites`;
     $("#site-grid").innerHTML = sites.map((s) => {
       const extra = metricOf(s, "page_views_7d") ? ["Page views 7d", SVG.eye, metricOf(s, "page_views_7d")]
-                  : metricOf(s, "llm_calls_7d") ? ["LLM calls 7d", SVG.spark, metricOf(s, "llm_calls_7d")] : null;
+                  : metricOf(s, "llm_calls_7d") ? ["LLM calls 7d", SVG.spark, metricOf(s, "llm_calls_7d")]
+                  : metricOf(s, "gateway_blocked_7d") ? ["Blocked 7d", SVG.shield, metricOf(s, "gateway_blocked_7d")] : null;
       const rows = [["Check time", SVG.clock, metricOf(s, "check_duration_24h")], ["Uptime 24h", SVG.server, metricOf(s, "uptime_24h")],
                     ["Requests 7d", SVG.bars, metricOf(s, "requests_7d")], ["5xx rate 7d", SVG.alert, metricOf(s, "error_5xx_rate_7d")]];
       if (extra) rows.push(extra);
@@ -905,6 +928,30 @@
         <div class="model-sites">${m.used_by.length ? m.used_by.map((d) => `<span class="site-tag"><i class="dot" style="background:var(${siteColor(d)})"></i>${esc(d)}</span>`).join("") : '<span class="nodata">Not attributed to a site</span>'}</div>
       </div>`).join("") +
       (priced.length < models.length ? '<p class="card-sub" style="margin:8px 2px 0">Cost total covers models with a configured price only.</p>' : "");
+    // LLM gateway: totals from gate.atla.in's own audit log, model mix from its /v1/stats.
+    const gwSite = sites.find((x) => x.domain === "gate.atla.in"), gw = data.gateway;
+    const gm = (k) => gwSite && metricOf(gwSite, k);
+    $("#gw-chips").innerHTML = gwSite
+      ? `<a href="#sites" data-open="gate.atla.in">${chip("", `<i class="dot" style="width:7px;height:7px;border-radius:50%;background:var(${gwSite.color})"></i>`, "gate.atla.in")}</a>`
+        + chip(gwSite.status === "up" ? "good" : gwSite.status === "down" ? "critical" : "unknown", ICON[gwSite.status] || ICON.unknown, STATE_LABEL[gwSite.status] || STATE_LABEL.unknown)
+      : "";
+    document.querySelectorAll("#gw-chips a").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); selectSite(a.dataset.open, true); }));
+    if (!gwSite || !gm("requests_7d")) {
+      $("#gw-stats").innerHTML = '<div class="stat-row"><span>No gateway stats in this snapshot</span></div>';
+    } else {
+      const cells = [["Calls", gm("requests_7d")], ["Model spend", gm("gateway_cost_7d")], ["Cache hit rate", gm("gateway_cache_hit_rate_7d")],
+                     ["Blocked", gm("gateway_blocked_7d")], ["Overhead p50", gm("gateway_overhead_p50_7d")], ["Latency p90", gm("gateway_latency_p90_7d")]];
+      const mix = (gw && gw.models_7d) || [], mixTotal = mix.reduce((a, m) => a + m.calls, 0) || 1;
+      $("#gw-stats").innerHTML =
+        `<div class="ai-totals six">${cells.map(([l, m]) => `<div title="${esc(m ? (m.note || m.source) : "")}"><small>${l}</small><b class="num">${fmt(m)}</b></div>`).join("")}</div>` +
+        (mix.length ? mix.map((m) => `<div class="mix" title="${esc(m.model)}">
+          <div class="mix-top"><b>${esc(modelName(m.model))}</b><span class="num">${fmt({ value: m.calls, unit: "count" })} calls · ${fmt({ value: m.cost_usd, unit: "usd" })}</span></div>
+          <div class="mix-bar"><i style="width:${Math.max((m.calls / mixTotal) * 100, 2).toFixed(1)}%"></i></div></div>`).join("")
+          : '<div class="stat-row"><span>No successful calls in this window</span></div>') +
+        `<p class="card-sub" style="margin:8px 2px 0">Model mix: successful calls, 7 days. From the gateway's append-only audit log; totals only, never prompts.</p>`;
+    }
+    $("#gw-sub").textContent = gw ? `Every model call from the apps · 7 days to ${new Date(gw.generated_at).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : "Every model call from the apps · 7 days";
+
     // Real visitors and Security list every site with equal weight; gaps are shown, not hidden.
     const siteLabel = (x) => `<span class="site-tag"><i class="dot" style="background:var(${x.color})"></i>${esc(x.domain)}</span>`;
     const VITALS = [["lcp_p75_7d", "LCP", 2500, 4000], ["cls_p75_7d", "CLS", 0.1, 0.25], ["inp_p75_7d", "INP", 200, 500]];

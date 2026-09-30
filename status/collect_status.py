@@ -6,6 +6,7 @@ Sources are the same ones the Grafana dashboards read:
   - Uptime checks: Grafana Cloud Prometheus (Synthetic Monitoring), over its HTTP API
   - CloudFront, WAF, RUM: CloudWatch in us-east-1
   - Load balancer, Bedrock: CloudWatch in the site's region
+  - LLM gateway (gate.atla.in): its public, aggregate-only GET /v1/stats endpoint
 
 Every metric carries its source and window. A source that fails is recorded as unavailable with
 the reason, never replaced by a guessed value.
@@ -82,6 +83,13 @@ class CloudWatch:
                 if list(dims) == [dimension]:
                     values.add(dims[dimension])
         return sorted(values)
+
+
+def fetch_json(url):
+    req = urllib.request.Request(url, headers={"Accept": "application/json",
+                                               "User-Agent": "obs.atla.in status collector"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        return json.load(resp)
 
 
 def stat_query(qid, namespace, metric, dims, stat, period):
@@ -257,6 +265,45 @@ def bedrock_metrics(cw, cfg, end):
     ]
 
 
+def gateway_metrics(stats, url):
+    """Metrics from gate.atla.in's /v1/stats: totals the gateway computes from its own audit log."""
+    src = f"gate.atla.in audit log, aggregated at {url}"
+    t = stats["totals_7d"]
+    calls = t["calls"]
+    rate = lambda n: n / calls * 100 if calls else None  # noqa: E731
+    lookups = t["cache_lookups"]
+    return [
+        metric("requests_7d", "API calls", calls, "count", "7d", src,
+               "Every model call through the gateway, including ones it blocked; not page views."),
+        metric("requests_24h", "API calls", t["calls_24h"], "count", "24h", src),
+        metric("error_5xx_count_7d", "5xx responses", t["errors_5xx"], "count", "7d", src,
+               "Provider failures after every fallback was tried."),
+        metric("error_5xx_rate_7d", "5xx rate", rate(t["errors_5xx"]), "percent", "7d", src),
+        metric("gateway_blocked_7d", "Blocked by policy", t["blocked"], "count", "7d", src,
+               "PII, model allow-list, size caps, blocked phrases and agent rules."),
+        metric("gateway_limited_7d", "Rate or budget limited", t["rate_limited"] + t["over_budget"], "count", "7d",
+               src, "Refused for a tenant's requests-per-minute, tokens-per-minute or monthly budget."),
+        metric("gateway_cache_hit_rate_7d", "Cache hit rate", t["cache_hits"] / lookups * 100 if lookups else None,
+               "percent", "7d", src, "Semantic cache hits among calls that looked it up."),
+        metric("gateway_failovers_7d", "Failovers", t["failovers"], "count", "7d", src,
+               "Calls that needed a fallback model."),
+        metric("gateway_tokens_7d", "Tokens", t["input_tokens"] + t["output_tokens"], "count", "7d", src,
+               "Input and output, every provider."),
+        metric("gateway_cost_7d", "Model spend", t["cost_usd"], "usd", "7d", src,
+               "Tokens × the gateway's price table, every provider; check each provider's billing for the charge."),
+        metric("gateway_overhead_p50_7d", "Gateway overhead (p50)", t["gateway_ms_p50"], "ms", "7d", src,
+               "Time the gateway adds on top of the provider: keys, limits, policy, cache, audit."),
+        metric("gateway_latency_p90_7d", "End-to-end latency (p90)", t["latency_ms_p90"], "ms", "7d", src,
+               "Successful calls, including provider time."),
+    ], {"requests_hourly_24h": [float(v) for v in stats["calls_hourly_24h"]]}
+
+
+def gateway_summary(cfg, stats):
+    """Model mix and windows for the gateway card; the site record carries the totals."""
+    return {"domain": cfg["domain"], "generated_at": stats["generated_at"], "windows": stats["windows"],
+            "models_7d": stats["models_7d"], "source": f"gate.atla.in audit log, aggregated at {cfg['gateway_stats']}"}
+
+
 # Regions searched for Bedrock activity; models are discovered, not assumed.
 BEDROCK_REGIONS = ["ap-south-1", "us-east-1"]
 
@@ -318,7 +365,7 @@ def ai_models(cw_clients, end, errors, regions=BEDROCK_REGIONS):
 
 # ── Snapshot ─────────────────────────────────────────────────────────────────
 
-def site_record(cfg, avail, cw_clients, end, errors):
+def site_record(cfg, avail, cw_clients, end, errors, gateway_stats=None):
     a = avail.get(cfg["sm_job"], {})
     sm_src = f"Grafana Synthetic Monitoring check \"{cfg['sm_job']}\", {cfg['sm_schedule']}"
     up = a.get("up_now")
@@ -357,14 +404,25 @@ def site_record(cfg, avail, cw_clients, end, errors):
         add("load balancer", lambda: alb_metrics(cw_clients(cfg["region"]), cfg["alb"], cfg["region"], end))
     if "bedrock" in cfg:
         add("Bedrock", lambda: bedrock_metrics(cw_clients(cfg["bedrock"]["region"]), cfg, end))
+    if gateway_stats is not None:
+        add("gateway stats", lambda: gateway_metrics(gateway_stats, cfg["gateway_stats"]))
     return rec
 
 
-def snapshot(prom, cw_clients, now=None, sites=DOMAINS):
+def snapshot(prom, cw_clients, now=None, sites=DOMAINS, get_json=fetch_json):
     end = (now or datetime.now(timezone.utc)).replace(second=0, microsecond=0)
     errors = []
     avail = availability(prom, sites, errors)
-    records = [site_record(cfg, avail, cw_clients, end, errors) for cfg in sites]
+    gateway, records = None, []
+    for cfg in sites:
+        stats = None
+        if "gateway_stats" in cfg:
+            try:
+                stats = get_json(cfg["gateway_stats"])
+                gateway = gateway_summary(cfg, stats)
+            except Exception as exc:
+                errors.append(f"{cfg['domain']} gateway stats: {exc}")
+        records.append(site_record(cfg, avail, cw_clients, end, errors, stats))
     models = ai_models(cw_clients, end, errors)
     return {
         "schema_version": SCHEMA_VERSION,
@@ -374,6 +432,7 @@ def snapshot(prom, cw_clients, now=None, sites=DOMAINS):
         "signal_type": "measured",
         "sites": records,
         "ai_models": models,
+        "gateway": gateway,
         "unavailable_sources": errors,
     }
 
