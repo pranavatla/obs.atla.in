@@ -1,0 +1,1145 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-03T15:15:00Z",
+  "windows": {
+    "24h": {
+      "start": "2026-10-02T15:15:00Z",
+      "end": "2026-10-03T15:15:00Z"
+    },
+    "7d": {
+      "start": "2026-09-26T15:15:00Z",
+      "end": "2026-10-03T15:15:00Z"
+    }
+  },
+  "signal_type": "measured",
+  "sites": [
+    {
+      "domain": "atla.in",
+      "name": "Portfolio",
+      "description": "Portfolio: Next.js static export in S3 behind CloudFront (Free plan, AWS WAF included).",
+      "status": "up",
+      "metrics": [
+        {
+          "key": "uptime_24h",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"atla.in homepage\", every 5 minutes from 3 probes"
+        },
+        {
+          "key": "uptime_7d",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "7d",
+          "source": "Grafana Synthetic Monitoring check \"atla.in homepage\", every 5 minutes from 3 probes"
+        },
+        {
+          "key": "check_duration_24h",
+          "label": "Check duration",
+          "value": 250.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"atla.in homepage\", every 5 minutes from 3 probes",
+          "note": "DNS, connect, TLS and response, from outside."
+        },
+        {
+          "key": "requests_7d",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2OMRFTQ27WGMZ",
+          "note": "Every file fetched, bots included; not visitors."
+        },
+        {
+          "key": "requests_24h",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "24h",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2OMRFTQ27WGMZ"
+        },
+        {
+          "key": "error_5xx_rate_7d",
+          "label": "5xx rate",
+          "value": 0.9900990099009901,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2OMRFTQ27WGMZ",
+          "note": "Request-weighted."
+        },
+        {
+          "key": "error_4xx_rate_7d",
+          "label": "4xx rate",
+          "value": 0.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2OMRFTQ27WGMZ",
+          "note": "Request-weighted; includes firewall blocks and bots requesting missing paths."
+        },
+        {
+          "key": "bytes_7d",
+          "label": "Data served",
+          "value": 2.0,
+          "unit": "bytes",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2OMRFTQ27WGMZ"
+        },
+        {
+          "key": "waf_blocked_7d",
+          "label": "Blocked by firewall",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 us-east-1, web ACL CreatedByCloudFront-14eef7b4"
+        },
+        {
+          "key": "waf_blocked_share_7d",
+          "label": "Share blocked",
+          "value": 50.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 us-east-1, web ACL CreatedByCloudFront-14eef7b4"
+        },
+        {
+          "key": "page_views_7d",
+          "label": "Page views",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor atla-in",
+          "note": "Real browsers only."
+        },
+        {
+          "key": "lcp_p75_7d",
+          "label": "LCP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor atla-in",
+          "note": "Good \u2264 2500 ms."
+        },
+        {
+          "key": "cls_p75_7d",
+          "label": "CLS (p75)",
+          "value": 2.0,
+          "unit": "score",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor atla-in",
+          "note": "Good \u2264 0.1."
+        },
+        {
+          "key": "inp_p75_7d",
+          "label": "INP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor atla-in",
+          "note": "Good \u2264 200 ms."
+        },
+        {
+          "key": "js_errors_7d",
+          "label": "JavaScript errors",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor atla-in"
+        }
+      ],
+      "series": {
+        "requests_hourly_24h": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          101.0
+        ]
+      }
+    },
+    {
+      "domain": "aif.atla.in",
+      "name": "AIF-C01 study site",
+      "description": "AIF-C01 study site: S3 website endpoint (us-east-1) behind CloudFront (pay-as-you-go). No WAF.",
+      "status": "up",
+      "metrics": [
+        {
+          "key": "uptime_24h",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"aif.atla.in homepage\", every 10 minutes from 2 probes"
+        },
+        {
+          "key": "uptime_7d",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "7d",
+          "source": "Grafana Synthetic Monitoring check \"aif.atla.in homepage\", every 10 minutes from 2 probes"
+        },
+        {
+          "key": "check_duration_24h",
+          "label": "Check duration",
+          "value": 250.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"aif.atla.in homepage\", every 10 minutes from 2 probes",
+          "note": "DNS, connect, TLS and response, from outside."
+        },
+        {
+          "key": "requests_7d",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2A5DBVVXUZ6JO",
+          "note": "Every file fetched, bots included; not visitors."
+        },
+        {
+          "key": "requests_24h",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "24h",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2A5DBVVXUZ6JO"
+        },
+        {
+          "key": "error_5xx_rate_7d",
+          "label": "5xx rate",
+          "value": 0.9900990099009901,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2A5DBVVXUZ6JO",
+          "note": "Request-weighted."
+        },
+        {
+          "key": "error_4xx_rate_7d",
+          "label": "4xx rate",
+          "value": 0.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2A5DBVVXUZ6JO",
+          "note": "Request-weighted; includes firewall blocks and bots requesting missing paths."
+        },
+        {
+          "key": "bytes_7d",
+          "label": "Data served",
+          "value": 2.0,
+          "unit": "bytes",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2A5DBVVXUZ6JO"
+        },
+        {
+          "key": "page_views_7d",
+          "label": "Page views",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor aif-atla-in",
+          "note": "Real browsers only."
+        },
+        {
+          "key": "lcp_p75_7d",
+          "label": "LCP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor aif-atla-in",
+          "note": "Good \u2264 2500 ms."
+        },
+        {
+          "key": "cls_p75_7d",
+          "label": "CLS (p75)",
+          "value": 2.0,
+          "unit": "score",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor aif-atla-in",
+          "note": "Good \u2264 0.1."
+        },
+        {
+          "key": "inp_p75_7d",
+          "label": "INP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor aif-atla-in",
+          "note": "Good \u2264 200 ms."
+        },
+        {
+          "key": "js_errors_7d",
+          "label": "JavaScript errors",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor aif-atla-in"
+        }
+      ],
+      "series": {
+        "requests_hourly_24h": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          101.0
+        ]
+      }
+    },
+    {
+      "domain": "games.atla.in",
+      "name": "Games site",
+      "description": "Games site: S3 website endpoint (ap-south-1) behind CloudFront (Free plan, AWS WAF included).",
+      "status": "down",
+      "metrics": [
+        {
+          "key": "uptime_24h",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"games.atla.in homepage\", every 10 minutes from 2 probes"
+        },
+        {
+          "key": "uptime_7d",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "7d",
+          "source": "Grafana Synthetic Monitoring check \"games.atla.in homepage\", every 10 minutes from 2 probes"
+        },
+        {
+          "key": "check_duration_24h",
+          "label": "Check duration",
+          "value": 250.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"games.atla.in homepage\", every 10 minutes from 2 probes",
+          "note": "DNS, connect, TLS and response, from outside."
+        },
+        {
+          "key": "requests_7d",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E1HCLV5K7MXCST",
+          "note": "Every file fetched, bots included; not visitors."
+        },
+        {
+          "key": "requests_24h",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "24h",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E1HCLV5K7MXCST"
+        },
+        {
+          "key": "error_5xx_rate_7d",
+          "label": "5xx rate",
+          "value": 0.9900990099009901,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E1HCLV5K7MXCST",
+          "note": "Request-weighted."
+        },
+        {
+          "key": "error_4xx_rate_7d",
+          "label": "4xx rate",
+          "value": 0.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E1HCLV5K7MXCST",
+          "note": "Request-weighted; includes firewall blocks and bots requesting missing paths."
+        },
+        {
+          "key": "bytes_7d",
+          "label": "Data served",
+          "value": 2.0,
+          "unit": "bytes",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E1HCLV5K7MXCST"
+        },
+        {
+          "key": "waf_blocked_7d",
+          "label": "Blocked by firewall",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 us-east-1, web ACL CreatedByCloudFront-af869b7f"
+        },
+        {
+          "key": "waf_blocked_share_7d",
+          "label": "Share blocked",
+          "value": 50.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 us-east-1, web ACL CreatedByCloudFront-af869b7f"
+        },
+        {
+          "key": "page_views_7d",
+          "label": "Page views",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor games-atla-in",
+          "note": "Real browsers only."
+        },
+        {
+          "key": "lcp_p75_7d",
+          "label": "LCP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor games-atla-in",
+          "note": "Good \u2264 2500 ms."
+        },
+        {
+          "key": "cls_p75_7d",
+          "label": "CLS (p75)",
+          "value": 2.0,
+          "unit": "score",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor games-atla-in",
+          "note": "Good \u2264 0.1."
+        },
+        {
+          "key": "inp_p75_7d",
+          "label": "INP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor games-atla-in",
+          "note": "Good \u2264 200 ms."
+        },
+        {
+          "key": "js_errors_7d",
+          "label": "JavaScript errors",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor games-atla-in"
+        }
+      ],
+      "series": {
+        "requests_hourly_24h": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          101.0
+        ]
+      }
+    },
+    {
+      "domain": "obs.atla.in",
+      "name": "Observability page",
+      "description": "Observability page: private S3 bucket behind CloudFront (Free plan, AWS WAF included).",
+      "status": "up",
+      "metrics": [
+        {
+          "key": "uptime_24h",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"obs.atla.in homepage\", every 10 minutes from 2 probes"
+        },
+        {
+          "key": "uptime_7d",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "7d",
+          "source": "Grafana Synthetic Monitoring check \"obs.atla.in homepage\", every 10 minutes from 2 probes"
+        },
+        {
+          "key": "check_duration_24h",
+          "label": "Check duration",
+          "value": 250.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"obs.atla.in homepage\", every 10 minutes from 2 probes",
+          "note": "DNS, connect, TLS and response, from outside."
+        },
+        {
+          "key": "requests_7d",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2EXL4C10F3QBA",
+          "note": "Every file fetched, bots included; not visitors."
+        },
+        {
+          "key": "requests_24h",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "24h",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2EXL4C10F3QBA"
+        },
+        {
+          "key": "error_5xx_rate_7d",
+          "label": "5xx rate",
+          "value": 0.9900990099009901,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2EXL4C10F3QBA",
+          "note": "Request-weighted."
+        },
+        {
+          "key": "error_4xx_rate_7d",
+          "label": "4xx rate",
+          "value": 0.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2EXL4C10F3QBA",
+          "note": "Request-weighted; includes firewall blocks and bots requesting missing paths."
+        },
+        {
+          "key": "bytes_7d",
+          "label": "Data served",
+          "value": 2.0,
+          "unit": "bytes",
+          "window": "7d",
+          "source": "CloudWatch AWS/CloudFront us-east-1, distribution E2EXL4C10F3QBA"
+        },
+        {
+          "key": "waf_blocked_7d",
+          "label": "Blocked by firewall",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 us-east-1, web ACL CreatedByCloudFront-44b6e91d"
+        },
+        {
+          "key": "waf_blocked_share_7d",
+          "label": "Share blocked",
+          "value": 50.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 us-east-1, web ACL CreatedByCloudFront-44b6e91d"
+        },
+        {
+          "key": "page_views_7d",
+          "label": "Page views",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor obs-atla-in",
+          "note": "Real browsers only."
+        },
+        {
+          "key": "lcp_p75_7d",
+          "label": "LCP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor obs-atla-in",
+          "note": "Good \u2264 2500 ms."
+        },
+        {
+          "key": "cls_p75_7d",
+          "label": "CLS (p75)",
+          "value": 2.0,
+          "unit": "score",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor obs-atla-in",
+          "note": "Good \u2264 0.1."
+        },
+        {
+          "key": "inp_p75_7d",
+          "label": "INP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor obs-atla-in",
+          "note": "Good \u2264 200 ms."
+        },
+        {
+          "key": "js_errors_7d",
+          "label": "JavaScript errors",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor obs-atla-in"
+        }
+      ],
+      "series": {
+        "requests_hourly_24h": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          101.0
+        ]
+      }
+    },
+    {
+      "domain": "gita.atla.in",
+      "name": "Gita RAG app",
+      "description": "Gita RAG app: FastAPI on EKS (gita-rag-cluster) behind an Application Load Balancer, answering with Amazon Bedrock. Regional AWS WAF on the load balancer; no CloudFront.",
+      "status": "up",
+      "metrics": [
+        {
+          "key": "uptime_24h",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"gita.atla.in homepage\", every 5 minutes from 3 probes"
+        },
+        {
+          "key": "uptime_7d",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "7d",
+          "source": "Grafana Synthetic Monitoring check \"gita.atla.in homepage\", every 5 minutes from 3 probes"
+        },
+        {
+          "key": "check_duration_24h",
+          "label": "Check duration",
+          "value": 250.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"gita.atla.in homepage\", every 5 minutes from 3 probes",
+          "note": "DNS, connect, TLS and response, from outside."
+        },
+        {
+          "key": "waf_blocked_7d",
+          "label": "Blocked by firewall",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 ap-south-1, web ACL gita-atla-in"
+        },
+        {
+          "key": "waf_blocked_share_7d",
+          "label": "Share blocked",
+          "value": 50.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/WAFV2 ap-south-1, web ACL gita-atla-in"
+        },
+        {
+          "key": "page_views_7d",
+          "label": "Page views",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor gita-atla-in",
+          "note": "Real browsers only."
+        },
+        {
+          "key": "lcp_p75_7d",
+          "label": "LCP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor gita-atla-in",
+          "note": "Good \u2264 2500 ms."
+        },
+        {
+          "key": "cls_p75_7d",
+          "label": "CLS (p75)",
+          "value": 2.0,
+          "unit": "score",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor gita-atla-in",
+          "note": "Good \u2264 0.1."
+        },
+        {
+          "key": "inp_p75_7d",
+          "label": "INP (p75)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor gita-atla-in",
+          "note": "Good \u2264 200 ms."
+        },
+        {
+          "key": "js_errors_7d",
+          "label": "JavaScript errors",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/RUM us-east-1, app monitor gita-atla-in"
+        },
+        {
+          "key": "requests_7d",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/ApplicationELB ap-south-1, load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77",
+          "note": "Bots included; not visitors."
+        },
+        {
+          "key": "requests_24h",
+          "label": "Requests",
+          "value": 101.0,
+          "unit": "count",
+          "window": "24h",
+          "source": "CloudWatch AWS/ApplicationELB ap-south-1, load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77"
+        },
+        {
+          "key": "error_5xx_count_7d",
+          "label": "5xx responses",
+          "value": 4.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/ApplicationELB ap-south-1, load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77",
+          "note": "App and load balancer."
+        },
+        {
+          "key": "error_5xx_rate_7d",
+          "label": "5xx rate",
+          "value": 3.9603960396039604,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/ApplicationELB ap-south-1, load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77"
+        },
+        {
+          "key": "error_4xx_rate_7d",
+          "label": "4xx rate",
+          "value": 3.9603960396039604,
+          "unit": "percent",
+          "window": "7d",
+          "source": "CloudWatch AWS/ApplicationELB ap-south-1, load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77",
+          "note": "App and load balancer; mostly bots requesting paths that do not exist."
+        },
+        {
+          "key": "response_p90_24h",
+          "label": "Response time (p90)",
+          "value": 2000.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "CloudWatch AWS/ApplicationELB ap-south-1, load balancer app/k8s-gita-gitaapp-62bac50d1f/3f31a5493e811f77"
+        },
+        {
+          "key": "llm_calls_7d",
+          "label": "LLM calls",
+          "value": 2.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/Bedrock ap-south-1",
+          "note": "global.amazon.nova-2-lite-v1:0"
+        },
+        {
+          "key": "llm_tokens_7d",
+          "label": "LLM tokens",
+          "value": 4.0,
+          "unit": "count",
+          "window": "7d",
+          "source": "CloudWatch AWS/Bedrock ap-south-1",
+          "note": "Input and output."
+        },
+        {
+          "key": "llm_latency_p90_7d",
+          "label": "LLM latency (p90)",
+          "value": 2.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "CloudWatch AWS/Bedrock ap-south-1"
+        },
+        {
+          "key": "bedrock_cost_7d",
+          "label": "Bedrock cost (est.)",
+          "value": 0.0,
+          "unit": "usd",
+          "window": "7d",
+          "source": "CloudWatch AWS/Bedrock ap-south-1",
+          "note": "Tokens \u00d7 on-demand prices from the AWS Price List; check AWS Billing for the charge."
+        }
+      ],
+      "series": {
+        "requests_hourly_24h": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          101.0
+        ]
+      }
+    },
+    {
+      "domain": "gate.atla.in",
+      "name": "LLM gateway",
+      "description": "LLM gateway: FastAPI on one EC2 t4g.small (Docker Compose, Caddy TLS) in ap-south-1, in front of Anthropic, OpenAI, Gemini and Amazon Bedrock. gita.atla.in and the atla.in chatbot call models through it. No CloudFront, load balancer or WAF.",
+      "status": "up",
+      "metrics": [
+        {
+          "key": "uptime_24h",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"gate.atla.in homepage\", every 5 minutes from 3 probes"
+        },
+        {
+          "key": "uptime_7d",
+          "label": "Uptime",
+          "value": 99.9,
+          "unit": "percent",
+          "window": "7d",
+          "source": "Grafana Synthetic Monitoring check \"gate.atla.in homepage\", every 5 minutes from 3 probes"
+        },
+        {
+          "key": "check_duration_24h",
+          "label": "Check duration",
+          "value": 250.0,
+          "unit": "ms",
+          "window": "24h",
+          "source": "Grafana Synthetic Monitoring check \"gate.atla.in homepage\", every 5 minutes from 3 probes",
+          "note": "DNS, connect, TLS and response, from outside."
+        },
+        {
+          "key": "requests_7d",
+          "label": "API calls",
+          "value": 200,
+          "unit": "count",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Every model call through the gateway, including ones it blocked; not page views."
+        },
+        {
+          "key": "requests_24h",
+          "label": "API calls",
+          "value": 40,
+          "unit": "count",
+          "window": "24h",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats"
+        },
+        {
+          "key": "error_5xx_count_7d",
+          "label": "5xx responses",
+          "value": 2,
+          "unit": "count",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Provider failures after every fallback was tried."
+        },
+        {
+          "key": "error_5xx_rate_7d",
+          "label": "5xx rate",
+          "value": 1.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats"
+        },
+        {
+          "key": "gateway_blocked_7d",
+          "label": "Blocked by policy",
+          "value": 12,
+          "unit": "count",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "PII, model allow-list, size caps, blocked phrases and agent rules."
+        },
+        {
+          "key": "gateway_limited_7d",
+          "label": "Rate or budget limited",
+          "value": 6,
+          "unit": "count",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Refused for a tenant's requests-per-minute, tokens-per-minute or monthly budget."
+        },
+        {
+          "key": "gateway_cache_hit_rate_7d",
+          "label": "Cache hit rate",
+          "value": 25.0,
+          "unit": "percent",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Semantic cache hits among calls that looked it up."
+        },
+        {
+          "key": "gateway_failovers_7d",
+          "label": "Failovers",
+          "value": 3,
+          "unit": "count",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Calls that needed a fallback model."
+        },
+        {
+          "key": "gateway_tokens_7d",
+          "label": "Tokens",
+          "value": 10000,
+          "unit": "count",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Input and output, every provider."
+        },
+        {
+          "key": "gateway_cost_7d",
+          "label": "Model spend",
+          "value": 0.0123,
+          "unit": "usd",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Tokens \u00d7 the gateway's price table, every provider; check each provider's billing for the charge."
+        },
+        {
+          "key": "gateway_overhead_p50_7d",
+          "label": "Gateway overhead (p50)",
+          "value": 23.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Time the gateway adds on top of the provider: keys, limits, policy, cache, audit."
+        },
+        {
+          "key": "gateway_latency_p90_7d",
+          "label": "End-to-end latency (p90)",
+          "value": 1750.0,
+          "unit": "ms",
+          "window": "7d",
+          "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats",
+          "note": "Successful calls, including provider time."
+        }
+      ],
+      "series": {
+        "requests_hourly_24h": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          17.0
+        ]
+      }
+    }
+  ],
+  "ai_models": [
+    {
+      "model_id": "global.amazon.nova-2-lite-v1:0",
+      "region": "ap-south-1",
+      "role": "Text generation",
+      "used_by": [
+        "gita.atla.in"
+      ],
+      "calls_7d": 2.0,
+      "input_tokens_7d": 2.0,
+      "output_tokens_7d": 2.0,
+      "latency_p90_ms_7d": 2.0,
+      "cost_usd_7d": 0.0,
+      "cost_note": "On-demand prices from the AWS Price List.",
+      "source": "CloudWatch AWS/Bedrock ap-south-1, ModelId global.amazon.nova-2-lite-v1:0"
+    },
+    {
+      "model_id": "amazon.titan-embed-text-v2:0",
+      "region": "ap-south-1",
+      "role": "Embeddings",
+      "used_by": [
+        "gita.atla.in"
+      ],
+      "calls_7d": 2.0,
+      "input_tokens_7d": 2.0,
+      "output_tokens_7d": 2.0,
+      "latency_p90_ms_7d": 2.0,
+      "cost_usd_7d": 0.0,
+      "cost_note": "On-demand prices from the AWS Price List.",
+      "source": "CloudWatch AWS/Bedrock ap-south-1, ModelId amazon.titan-embed-text-v2:0"
+    },
+    {
+      "model_id": "us.anthropic.claude-sonnet-4-6",
+      "region": "ap-south-1",
+      "role": "Text generation",
+      "used_by": [],
+      "calls_7d": 2.0,
+      "input_tokens_7d": 2.0,
+      "output_tokens_7d": 2.0,
+      "latency_p90_ms_7d": 2.0,
+      "cost_usd_7d": null,
+      "cost_note": "No price configured for this model.",
+      "source": "CloudWatch AWS/Bedrock ap-south-1, ModelId us.anthropic.claude-sonnet-4-6"
+    },
+    {
+      "model_id": "global.amazon.nova-2-lite-v1:0",
+      "region": "us-east-1",
+      "role": "Text generation",
+      "used_by": [],
+      "calls_7d": 2.0,
+      "input_tokens_7d": 2.0,
+      "output_tokens_7d": 2.0,
+      "latency_p90_ms_7d": 2.0,
+      "cost_usd_7d": null,
+      "cost_note": "No price configured for this model.",
+      "source": "CloudWatch AWS/Bedrock us-east-1, ModelId global.amazon.nova-2-lite-v1:0"
+    },
+    {
+      "model_id": "amazon.titan-embed-text-v2:0",
+      "region": "us-east-1",
+      "role": "Embeddings",
+      "used_by": [],
+      "calls_7d": 2.0,
+      "input_tokens_7d": 2.0,
+      "output_tokens_7d": 2.0,
+      "latency_p90_ms_7d": 2.0,
+      "cost_usd_7d": null,
+      "cost_note": "No price configured for this model.",
+      "source": "CloudWatch AWS/Bedrock us-east-1, ModelId amazon.titan-embed-text-v2:0"
+    },
+    {
+      "model_id": "us.anthropic.claude-sonnet-4-6",
+      "region": "us-east-1",
+      "role": "Text generation",
+      "used_by": [],
+      "calls_7d": 2.0,
+      "input_tokens_7d": 2.0,
+      "output_tokens_7d": 2.0,
+      "latency_p90_ms_7d": 2.0,
+      "cost_usd_7d": null,
+      "cost_note": "No price configured for this model.",
+      "source": "CloudWatch AWS/Bedrock us-east-1, ModelId us.anthropic.claude-sonnet-4-6"
+    }
+  ],
+  "gateway": {
+    "domain": "gate.atla.in",
+    "generated_at": "2026-09-26T12:00:00Z",
+    "windows": {
+      "24h": {
+        "start": "2026-09-25T12:00:00Z",
+        "end": "2026-09-26T12:00:00Z"
+      },
+      "7d": {
+        "start": "2026-09-19T12:00:00Z",
+        "end": "2026-09-26T12:00:00Z"
+      }
+    },
+    "models_7d": [
+      {
+        "model": "bedrock/global.amazon.nova-2-lite-v1:0",
+        "calls": 150,
+        "tokens": 9000,
+        "cost_usd": 0.012
+      },
+      {
+        "model": "cache",
+        "calls": 30,
+        "tokens": 0,
+        "cost_usd": 0.0
+      }
+    ],
+    "source": "gate.atla.in audit log, aggregated at https://gate.atla.in/v1/stats"
+  },
+  "unavailable_sources": []
+}
