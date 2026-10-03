@@ -1091,6 +1091,75 @@
     color: #fff;
     box-shadow: 0 2px 8px var(--accent-glow);
   }
+
+  /* Keep intrinsic chart/table widths inside their own layout tracks. */
+  .main-content *, .top-bar-inner > * { min-width: 0; }
+  .finops-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .probe-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .chat-input { min-width: 0; }
+  .chat-bubble, .chat-meta { overflow-wrap: anywhere; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  @media (max-width: 1200px) {
+    .top-bar-inner { height: auto; min-height: 70px; flex-wrap: wrap; padding-block: 14px; gap: 12px; }
+    .brand-sub { display: none; }
+    .nav-tabs { order: 3; flex: 0 0 100%; }
+    .tab-btn { flex-shrink: 0; min-height: 44px; }
+  }
+  @media (max-width: 680px) {
+    .top-bar { position: relative; }
+    .top-bar-inner { padding: 16px; display: grid; grid-template-columns: 1fr; }
+    .brand-lockup { gap: 10px; }
+    .brand-sub { display: inline; font-size: 11px; }
+    .top-actions { flex-wrap: wrap; gap: 8px; }
+    #freshness-badge { flex-basis: 100%; width: fit-content; overflow-wrap: anywhere; }
+    .nav-tabs { order: 3; max-width: 100%; border-radius: 8px; }
+    .action-btn, .icon-only-btn, .sim-btn { min-height: 44px; height: auto; }
+    .icon-only-btn { width: 44px; flex-shrink: 0; }
+    .action-btn { padding: 10px 12px; }
+    .main-content { padding: 20px 16px 40px; gap: 24px; }
+    #view-overview { gap: 24px !important; }
+    .perspective-bar { gap: 12px; padding-bottom: 16px; }
+    .perspective-pills { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 8px; }
+    .perspective-btn { height: auto; min-height: 56px; padding: 10px; font-size: 12px; text-align: left; line-height: 1.4; }
+    .perspective-btn svg { flex-shrink: 0; }
+    .panel { padding: 20px 16px; gap: 18px; }
+    .panel-header { flex-wrap: wrap; gap: 10px; }
+    .panel-header > div { flex: 1 1 100%; }
+    .panel-title { font-size: 17px; }
+    .panel-desc { line-height: 1.6; }
+    .dashboard-grid, .dual-grid { gap: 16px; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kpi-card { padding: 16px 12px; }
+    .kpi-header { flex-wrap: wrap; gap: 6px; font-size: 11px; }
+    .kpi-value { font-size: 26px; overflow-wrap: anywhere; }
+    .traffic-hero { gap: 18px; }
+    .hero-stat-val { font-size: 36px; }
+    .shares-grid { grid-template-columns: 1fr 1fr; padding: 14px; gap: 14px; }
+    .finops-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .finops-card { padding: 14px 12px; }
+    .finops-val { font-size: 24px; overflow-wrap: anywhere; }
+    .services-topology-grid, .probe-grid { grid-template-columns: 1fr; }
+    .service-node-top, .site-detail-hero, .site-detail-left { flex-wrap: wrap; gap: 12px; }
+    .site-detail-hero > div { flex-wrap: wrap; }
+    .site-detail-name { font-size: 24px; overflow-wrap: anywhere; }
+    .rings-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .matrix-table { min-width: 640px; }
+    .matrix-table th, .matrix-table td { padding: 12px; }
+    .rca-banner { padding: 18px 16px; }
+    .rca-header, .rca-actions { flex-wrap: wrap; gap: 10px; }
+    .modal-backdrop { padding: 12px; }
+    .modal-window { max-height: calc(100dvh - 24px); }
+    .modal-head, .modal-body { padding: 16px; }
+    .modal-body { min-height: 0; }
+    .chat-msg { max-width: 96%; }
+    .chat-input-bar { padding: 12px; gap: 8px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+    .chat-input { font-size: 16px; padding-inline: 10px; }
+  }
+  @media (max-width: 360px) {
+    .brand-sub { display: none; }
+    .kpi-grid, .finops-grid, .rings-grid { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 <body>
@@ -1267,7 +1336,7 @@
             <span class="status-badge good">Budget Adherent</span>
           </div>
 
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+          <div class="finops-grid">
             <div class="finops-card">
               <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Monthly Budget</span>
               <div class="finops-val num">$120.00</div>
@@ -2039,7 +2108,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
               </div>
               <span class="num" style="font-size:13px; color:var(--text-muted);">Mean Latency: <b>${res.avg_latency_ms} ms</b></span>
             </div>
-            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+            <div class="probe-grid">
               ${res.probes.map((p) => `
                 <div style="padding:10px 14px; background:var(--surface-raised); border-radius:8px; border:1px solid var(--border);">
                   <div style="font-size:11.5px; font-weight:700; color:var(--text-subtle); text-transform:uppercase;">${esc(p.region_name)}</div>
