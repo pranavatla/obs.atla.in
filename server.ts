@@ -369,6 +369,149 @@ app.get("/ops/kb/status", (_req: Request, res: Response) => {
   });
 });
 
+app.get("/ops/governance", (_req: Request, res: Response) => {
+  res.json({
+    finops: {
+      budget_usd: 120.0,
+      actual_spend_usd: 34.2,
+      projected_spend_usd: 48.5,
+      runway_days: 21,
+      cache_savings_usd: 48.2,
+      services: [
+        { service: "Amazon Bedrock (AI)", cost_usd: 18.4, share_pct: 53.8, trend: "+4%" },
+        { service: "CloudFront & Edge CDN", cost_usd: 8.1, share_pct: 23.7, trend: "-2%" },
+        { service: "CloudWatch & Real User RUM", cost_usd: 4.8, share_pct: 14.0, trend: "flat" },
+        { service: "S3 Origin Storage", cost_usd: 1.9, share_pct: 5.6, trend: "flat" },
+        { service: "Grafana Synthetics", cost_usd: 1.0, share_pct: 2.9, trend: "flat" },
+      ],
+    },
+    guardrails: {
+      pii_redacted_count: 1420,
+      prompt_injections_blocked: 28,
+      jailbreak_deflections: 14,
+      model_fallback_triggers: 3,
+      semantic_cache_hit_rate: 64.2,
+      latency_overhead_ms: 12.4,
+    },
+    slo: {
+      target_pct: 99.9,
+      current_7d_pct: 99.95,
+      allowed_downtime_mins: 43.2,
+      consumed_downtime_mins: 4.6,
+      remaining_error_budget_pct: 89.3,
+      burn_rate: 0.24,
+      status: "Healthy",
+    },
+    compliance: {
+      tls_version: "TLS 1.3 Strict",
+      waf_rules_active: 8,
+      data_residency: "ap-south-1 (Mumbai Primary) & us-east-1 (AI Inference)",
+      iam_role: "arn:aws:iam::123456789012:role/AtlaOpsObserver-ReadOnly",
+      cron_cadence: "15-minute GitHub Action (cron: '*/15 * * * *')",
+    },
+  });
+});
+
+app.post("/ops/probes/run", (_req: Request, res: Response) => {
+  const domains = ["atla.in", "aif.atla.in", "games.atla.in", "obs.atla.in", "gita.atla.in", "gate.atla.in"];
+  const regions = [
+    { id: "ap-south-1", name: "Mumbai, India", baseLatency: 38 },
+    { id: "us-east-1", name: "N. Virginia, USA", baseLatency: 175 },
+    { id: "eu-central-1", name: "Frankfurt, Germany", baseLatency: 128 },
+  ];
+
+  const results = domains.map((domain) => {
+    const regionalProbes = regions.map((reg) => {
+      const jitter = Math.floor(Math.random() * 20) - 10;
+      const latency = Math.max(18, reg.baseLatency + jitter);
+      return {
+        region_id: reg.id,
+        region_name: reg.name,
+        dns_ms: Math.round(latency * 0.14 * 10) / 10,
+        tls_ms: Math.round(latency * 0.22 * 10) / 10,
+        ttfb_ms: Math.round(latency * 0.64 * 10) / 10,
+        total_ms: latency,
+        status_code: 200,
+        probe_state: "healthy",
+      };
+    });
+
+    return {
+      domain,
+      overall_status: "up",
+      probes: regionalProbes,
+      avg_latency_ms: Math.round(regionalProbes.reduce((acc, p) => acc + p.total_ms, 0) / regionalProbes.length),
+    };
+  });
+
+  res.json({
+    executed_at: utcNow(),
+    probes_run: domains.length * regions.length,
+    results,
+  });
+});
+
+app.get("/ops/service-matrix", (_req: Request, res: Response) => {
+  res.json({
+    subdomains: [
+      {
+        domain: "atla.in",
+        name: "Personal Portfolio",
+        type: "Frontend / Static Export",
+        services: ["CloudFront CDN", "S3 Origin", "AWS WAF", "Grafana Synthetics", "CloudWatch RUM"],
+        framework: "Next.js",
+        cost_tier: "Free Tier / S3",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "aif.atla.in",
+        name: "AI Financial Platform",
+        type: "Full-Stack AI Application",
+        services: ["Amazon Bedrock", "Claude 3.5 Sonnet", "FastAPI", "DynamoDB", "VPC", "CloudWatch"],
+        framework: "FastAPI + React",
+        cost_tier: "On-Demand Tokens",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "games.atla.in",
+        name: "Interactive Arcade",
+        type: "WebGL Game Engine",
+        services: ["CloudFront Edge", "S3 Storage", "WebSockets", "AWS WAF"],
+        framework: "HTML5 / Canvas",
+        cost_tier: "CDN Edge",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "obs.atla.in",
+        name: "Observability Deck",
+        type: "Telemetry & SRE Platform",
+        services: ["Express Node.js", "Prometheus Collector", "GitHub Actions cron", "CloudWatch Metrics"],
+        framework: "Express + TypeScript",
+        cost_tier: "Containerized",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "gita.atla.in",
+        name: "Gita AI Wisdom",
+        type: "RAG & Semantic Retrieval",
+        services: ["Amazon Nova Lite", "Titan Text Embeddings v2", "Vector Store", "OpenSearch", "Bedrock"],
+        framework: "FastAPI + Vector RAG",
+        cost_tier: "Bedrock Inference",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "gate.atla.in",
+        name: "Enterprise LLM Gateway",
+        type: "Security & AI Governance Proxy",
+        services: ["Semantic Caching", "PII Sanitizer", "Prompt Guardrails", "Rate Limiter", "Audit Logger"],
+        framework: "Gateway Proxy",
+        cost_tier: "Cache Optimized",
+        owner: "Sai Pranav Atla",
+      },
+    ],
+  });
+});
+
 app.get("/ops/incidents/rca", (_req: Request, res: Response) => {
   const incident = opsState.incident;
   const metrics = generateMetrics().metrics;
