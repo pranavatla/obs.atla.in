@@ -1,0 +1,251 @@
+{
+  "uid": "gate-langsmith",
+  "title": "gate.atla.in · LangSmith Traces",
+  "description": "Observability dashboard for LangSmith traces integrated with gate.atla.in gateway metrics.",
+  "tags": [
+    "gate.atla.in",
+    "langsmith",
+    "traces",
+    "observability"
+  ],
+  "timezone": "browser",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "timepicker": {
+    "refresh_intervals": [
+      "30s",
+      "1m",
+      "5m",
+      "30m"
+    ]
+  },
+  "schemaVersion": 39,
+  "editable": true,
+  "graphTooltip": 1,
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "label": "Postgres",
+        "type": "datasource",
+        "query": "postgres",
+        "current": {
+          "value": "postgres",
+          "text": "Postgres"
+        },
+        "hide": 0
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "type": "text",
+      "title": "LangSmith Tracing Status",
+      "options": {
+        "content": "This dashboard shows LangSmith input/output traces correlated with gateway metrics. **Trace link**: Click any row in the Recent Traces table to view the full trace in LangSmith."
+      }
+    },
+    {
+      "id": 2,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 2
+      },
+      "type": "timeseries",
+      "title": "LangSmith Latency by Model",
+      "targets": [
+        {
+          "format": "time_series",
+          "refId": "A",
+          "rawSql": "SELECT created_at AS time, ls_model_name, AVG(latency_ms) as latency FROM langsmith_traces WHERE created_at > now() - interval '24h' GROUP BY 1, 2",
+          "datasourceUid": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {"mode": "multi"}
+      }
+    },
+    {
+      "id": 3,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 2
+      },
+      "type": "timeseries",
+      "title": "LangSmith Cost by Model (24h)",
+      "targets": [
+        {
+          "format": "time_series",
+          "refId": "A",
+          "rawSql": "SELECT created_at AS time, ls_model_name, SUM(cost_usd) as cost FROM langsmith_traces WHERE created_at > now() - interval '24h' GROUP BY 1, 2",
+          "datasourceUid": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "never",
+            "spanNulls": true
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "calcs": ["sum"],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {"mode": "multi"}
+      }
+    },
+    {
+      "id": 4,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "type": "stat",
+      "title": "Summary Stats (24h)",
+      "targets": [
+        {
+          "format": "table",
+          "refId": "A",
+          "rawSql": "SELECT COUNT(*) as trace_count, COUNT(DISTINCT ls_model_name) as unique_models, ROUND(AVG(latency_ms)::numeric, 1) as avg_latency_ms, ROUND(SUM(cost_usd)::numeric, 4) as total_cost_usd FROM langsmith_traces WHERE created_at > now() - interval '24h'",
+          "datasourceUid": "postgres"
+        }
+      ],
+      "options": {
+        "graphMode": "area",
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "value"
+      }
+    },
+    {
+      "id": 5,
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "type": "table",
+      "title": "Recent LangSmith Traces (Last 1h)",
+      "targets": [
+        {
+          "format": "table",
+          "refId": "A",
+          "rawSql": "SELECT created_at, run_name, status, ls_model_name, latency_ms, cost_usd, input_tokens, output_tokens, ls_run_id FROM langsmith_traces WHERE created_at > now() - interval '1h' ORDER BY created_at DESC LIMIT 50",
+          "datasourceUid": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {"align": "auto", "displayMode": "auto"},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"color": "green", "value": null}]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {"id": "byName", "options": "latency_ms"},
+            "properties": [{"id": "unit", "value": "ms"}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "cost_usd"},
+            "properties": [{"id": "unit", "value": "currencyUSD"}]
+          },
+          {
+            "matcher": {"id": "byName", "options": "status"},
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-background"
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "success": {"color": "green", "index": 0},
+                      "error": {"color": "red", "index": 1},
+                      "pending": {"color": "yellow", "index": 2}
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {"id": "byName", "options": "ls_run_id"},
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
+              },
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "title": "View in LangSmith",
+                    "url": "https://smith.langchain.com/runs/${__value.raw}",
+                    "targetBlank": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "displayName": "created_at",
+            "desc": true
+          }
+        ]
+      }
+    }
+  ]
+}
