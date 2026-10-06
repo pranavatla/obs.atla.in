@@ -18,11 +18,19 @@ This guide walks through setting up LangSmith trace collection and visualization
 
 ## Step 1: Database Setup
 
-Run the migration to create LangSmith trace tables:
+The migration is deployed automatically by the deployment script. If deploying manually via SSH to the production host:
 
 ```bash
-# On your Postgres host
-psql -U gate -d gate < /path/to/db/018_langsmith_integration.sql
+# SSH to production (65.1.42.221)
+ssh root@65.1.42.221
+
+# Navigate to gate directory
+cd /opt/gate
+
+# Run migration via Docker Compose (database runs in Docker container)
+docker compose -f deploy/app/compose.yaml exec -T gate-postgres psql -U gate -d gate << 'EOF'
+$(cat db/018_langsmith_integration.sql)
+EOF
 ```
 
 This creates:
