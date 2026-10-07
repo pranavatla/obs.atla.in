@@ -8,13 +8,10 @@
 <meta property="og:title" content="atla.in · Observability & Cloud Governance">
 <meta property="og:description" content="Enterprise Observability, FinOps Governance, Multi-Region Probes, and Incident Response across all atla.in subdomains.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Cpath d='M8 20l5-6 4 4 7-8' stroke='%2338bdf8' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
   try {
     const t = localStorage.getItem("obs-theme");
-    if (t) document.documentElement.dataset.theme = t;
+    document.documentElement.dataset.theme = t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   } catch (e) {}
 </script>
 <style>
@@ -33,6 +30,10 @@
     --grid: rgba(255, 255, 255, 0.04);
     --axis: rgba(255, 255, 255, 0.12);
     --accent: #5aaea2;
+    --on-accent: #102a26;
+    /* Surfaces use 10px corners; controls use 6px. Brand marks keep their shape. */
+    --radius-surface: 10px;
+    --radius-control: 6px;
     --accent-glow: rgba(90, 174, 162, 0.12);
     --idle-bar: rgba(255, 255, 255, 0.08);
 
@@ -42,7 +43,7 @@
     --status-warn: #f59e0b;
     --status-warn-bg: rgba(245, 158, 11, 0.12);
     --status-warn-border: rgba(245, 158, 11, 0.28);
-    --status-crit: #ef4444;
+    --status-crit: #f87171;
     --status-crit-bg: rgba(239, 68, 68, 0.12);
     --status-crit-border: rgba(239, 68, 68, 0.28);
 
@@ -53,8 +54,8 @@
     --s5: #ec4899;
     --s6: #a855f7;
 
-    --font: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -62,24 +63,25 @@
     color-scheme: light;
     --bg-page: #f8fafc;
     --bg-canvas: #f1f5f9;
-    --surface: #ffffff;
+    --surface: #fcfdfd;
     --surface-hover: #f8fafc;
     --surface-raised: #f1f5f9;
     --border: #e2e8f0;
     --border-strong: #cbd5e1;
     --text-main: #0f172a;
     --text-muted: #475569;
-    --text-subtle: #94a3b8;
+    --text-subtle: #59666b;
     --grid: #f1f5f9;
     --axis: #e2e8f0;
     --accent: #247c70;
+    --on-accent: #fcfdfd;
     --accent-glow: rgba(36, 124, 112, 0.12);
     --idle-bar: #e2e8f0;
 
-    --status-good: #059669;
+    --status-good: #087854;
     --status-good-bg: #ecfdf5;
     --status-good-border: #a7f3d0;
-    --status-warn: #d97706;
+    --status-warn: #945600;
     --status-warn-bg: #fffbeb;
     --status-warn-border: #fde68a;
     --status-crit: #dc2626;
@@ -146,12 +148,12 @@
     height: 36px;
     border-radius: 9px;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     display: grid;
     place-items: center;
     font-weight: 800;
     font-size: 16px;
-    box-shadow: 0 2px 10px var(--accent-glow);
+
   }
 
   .brand-title {
@@ -174,7 +176,7 @@
     gap: 6px;
     background: var(--bg-canvas);
     padding: 4px;
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     border: 1px solid var(--border);
     overflow-x: auto;
     scrollbar-width: none;
@@ -187,7 +189,7 @@
     gap: 8px;
     height: 34px;
     padding: 0 14px;
-    border-radius: 7px;
+    border-radius: var(--radius-control);
     color: var(--text-muted);
     font-size: 13px;
     font-weight: 500;
@@ -222,7 +224,7 @@
     gap: 8px;
     height: 36px;
     padding: 0 14px;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     font-size: 13px;
     font-weight: 600;
     background: var(--surface-raised);
@@ -236,9 +238,9 @@
   }
   .action-btn.primary {
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     border-color: transparent;
-    box-shadow: 0 2px 8px var(--accent-glow);
+
   }
   .action-btn.primary:hover {
     opacity: 0.94;
@@ -249,7 +251,7 @@
     padding: 0;
     display: grid;
     place-items: center;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     background: var(--surface-raised);
     color: var(--text-muted);
     border: 1px solid var(--border);
@@ -268,7 +270,7 @@
     font-size: 12px;
     font-weight: 600;
     padding: 4px 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-control);
     background: var(--surface-raised);
     border: 1px solid var(--border);
   }
@@ -318,7 +320,7 @@
     gap: 8px;
     height: 38px;
     padding: 0 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     font-size: 13px;
     font-weight: 600;
     color: var(--text-muted);
@@ -332,9 +334,9 @@
   }
   .perspective-btn.active {
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     border-color: transparent;
-    box-shadow: 0 2px 8px var(--accent-glow);
+
   }
 
   /* RCA Alert Banner */
@@ -342,7 +344,7 @@
     display: none;
     background: var(--status-crit-bg);
     border: 1px solid var(--status-crit-border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 22px 26px;
     color: var(--text-main);
   }
@@ -386,7 +388,7 @@
     font-size: 12.5px;
     font-family: var(--mono);
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-control);
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text-muted);
@@ -408,7 +410,7 @@
   .kpi-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -449,7 +451,7 @@
   .panel {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -507,7 +509,7 @@
     gap: 16px;
     padding: 20px;
     background: var(--surface-raised);
-    border-radius: 12px;
+    border-radius: var(--radius-surface);
     border: 1px solid var(--border);
   }
   .share-item {
@@ -592,7 +594,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     background: var(--surface-raised);
     border: 1px solid var(--border);
     font-size: 13.5px;
@@ -630,7 +632,7 @@
   .site-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -656,12 +658,12 @@
   .site-badge-icon {
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     display: grid;
     place-items: center;
     font-weight: 800;
     font-size: 16px;
-    color: #fff;
+    color: var(--on-accent);
   }
   .site-domain-name {
     font-size: 16px;
@@ -698,7 +700,7 @@
   .incident-sim-box {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -720,7 +722,7 @@
   .sim-btn {
     height: 36px;
     padding: 0 16px;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     font-size: 13px;
     font-weight: 600;
     border: 1px solid var(--border);
@@ -734,16 +736,18 @@
   }
   .sim-btn.active {
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     border-color: transparent;
   }
   .sim-btn.danger.active {
-    background: var(--status-crit);
-    color: #fff;
+    background: var(--status-crit-bg);
+    color: var(--status-crit);
+    border-color: var(--status-crit-border);
   }
   .sim-btn.warn.active {
-    background: var(--status-warn);
-    color: #000;
+    background: var(--status-warn-bg);
+    color: var(--status-warn);
+    border-color: var(--status-warn-border);
   }
 
   /* Live Services Topology */
@@ -758,7 +762,7 @@
   }
   .service-node {
     padding: 16px 18px;
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     background: var(--surface-raised);
     border: 1px solid var(--border);
     display: flex;
@@ -785,7 +789,7 @@
   .log-terminal {
     background: #040711;
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 16px 20px;
     font-family: var(--mono);
     font-size: 12px;
@@ -833,7 +837,7 @@
   .service-tag {
     display: inline-block;
     padding: 3px 8px;
-    border-radius: 5px;
+    border-radius: var(--radius-control);
     background: var(--surface-raised);
     border: 1px solid var(--border);
     font-size: 11.5px;
@@ -844,7 +848,7 @@
 
   .finops-card {
     padding: 20px;
-    border-radius: 12px;
+    border-radius: var(--radius-surface);
     background: var(--surface-raised);
     border: 1px solid var(--border);
     display: flex;
@@ -860,7 +864,7 @@
   .site-detail-hero {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: var(--radius-surface);
     padding: 32px 36px;
     display: flex;
     align-items: center;
@@ -876,12 +880,12 @@
   .site-detail-icon {
     width: 56px;
     height: 56px;
-    border-radius: 12px;
+    border-radius: var(--radius-surface);
     display: grid;
     place-items: center;
     font-weight: 800;
     font-size: 24px;
-    color: #fff;
+    color: var(--on-accent);
   }
   .site-detail-name {
     font-size: 28px;
@@ -902,7 +906,7 @@
   .ring-tile {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
@@ -951,7 +955,7 @@
   .modal-window {
     background: var(--surface);
     border: 1px solid var(--border-strong);
-    border-radius: 16px;
+    border-radius: var(--radius-surface);
     width: 100%;
     max-width: 720px;
     max-height: 85vh;
@@ -993,13 +997,13 @@
   }
   .chat-bubble {
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-surface);
     font-size: 14px;
     line-height: 1.55;
   }
   .chat-msg.user .chat-bubble {
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     border-bottom-right-radius: 2px;
   }
   .chat-msg.ai .chat-bubble {
@@ -1042,7 +1046,7 @@
     pointer-events: none;
     min-width: 150px;
     padding: 12px 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-surface);
     background: var(--surface);
     border: 1px solid var(--border-strong);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -1075,7 +1079,7 @@
     gap: 6px;
     height: 28px;
     padding: 0 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-control);
     font-size: 11.5px;
     font-weight: 600;
     background: var(--surface-raised);
@@ -1086,8 +1090,8 @@
   }
   .reset-zoom-btn:hover {
     background: var(--accent);
-    color: #fff;
-    box-shadow: 0 2px 8px var(--accent-glow);
+    color: var(--on-accent);
+
   }
 
   /* Keep intrinsic chart/table widths inside their own layout tracks. */
@@ -1110,7 +1114,7 @@
     .brand-sub { display: inline; font-size: 11px; }
     .top-actions { flex-wrap: wrap; gap: 8px; }
     #freshness-badge { flex-basis: 100%; width: fit-content; overflow-wrap: anywhere; }
-    .nav-tabs { order: 3; max-width: 100%; border-radius: 8px; }
+    .nav-tabs { order: 3; max-width: 100%; border-radius: var(--radius-control); }
     .action-btn, .icon-only-btn, .sim-btn { min-height: 44px; height: auto; }
     .icon-only-btn { width: 44px; flex-shrink: 0; }
     .action-btn { padding: 10px 12px; }
@@ -1207,6 +1211,29 @@
     .kpi-card { padding: 14px; gap: 8px; }
     .kpi-value { font-size: 25px; }
     .shares-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+  .chat-input::placeholder { color: var(--text-muted); opacity: 1; }
+  .site-badge-icon, .site-detail-icon { background: var(--surface-raised); color: var(--text-main); border: 1px solid var(--border); }
+  .action-btn { white-space: nowrap; }
+  .kpi-grid { gap: 0; border-block: 1px solid var(--border); padding-block: 8px; }
+  .kpi-card { background: transparent; border: 0; border-radius: 0; justify-content: flex-start; }
+  .kpi-value-row { min-height: 48px; }
+  .kpi-footer { margin-top: auto; }
+  .kpi-card + .kpi-card { border-left: 1px solid var(--border); }
+  .kpi-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .kpi-header .status-badge { font-size: 11px; }
+  .kpi-footer { font-size: 12px; line-height: 1.6; }
+  .log-terminal { background: var(--bg-canvas); color: var(--text-muted); }
+  .log-line.info { color: var(--text-main); }
+  .log-line.warn { color: var(--status-warn); }
+  .log-line.error { color: var(--status-crit); }
+  @media (max-width: 1024px) {
+    .kpi-card:nth-child(3) { border-left: 0; }
+    .kpi-card:nth-child(n + 3) { border-top: 1px solid var(--border); }
+  }
+  @media (max-width: 320px) {
+    .kpi-card + .kpi-card { border-left: 0; border-top: 1px solid var(--border); }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
@@ -1325,7 +1352,7 @@
             <div class="traffic-hero">
               <div class="hero-stat-box">
                 <span class="hero-stat-label">Total Ingress</span>
-                <div class="hero-stat-val num" id="req24-val">—</div>
+                <div class="hero-stat-val num" id="req24-val">No data</div>
                 <span class="panel-desc" id="req24-count">Loading endpoints...</span>
               </div>
               <div>
@@ -1348,7 +1375,7 @@
               <div class="gauge-container">
                 <svg class="chart" id="gauge" viewBox="0 0 240 132" role="img" aria-label="Availability gauge"></svg>
                 <div class="gauge-readout">
-                  <span class="gauge-num num" id="gauge-value">—</span>
+                  <span class="gauge-num num" id="gauge-value">No data</span>
                   <span class="gauge-label" id="gauge-note">Meeting target</span>
                 </div>
               </div>
@@ -1630,6 +1657,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
       </div>
     </div>
     <form class="chat-input-bar" id="guru-form">
+      <label class="sr-only" for="guru-input">Ask Ops Guru a question</label>
       <input type="text" class="chat-input" id="guru-input" placeholder="Ask about playbooks, active incidents, or latency spikes..." autocomplete="off">
       <button type="submit" class="action-btn primary">Send</button>
     </form>
@@ -2242,7 +2270,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
     $("#tabs").innerHTML =
       `<button type="button" class="tab-btn" data-tab="overview" aria-pressed="${openDomain === null}">Overview</button>` +
       sites.map((x) => `<button type="button" class="tab-btn" data-tab="${esc(x.domain)}" aria-pressed="${openDomain === x.domain}">
-        <span class="tab-dot" style="background:var(${x.color})"></span>${esc(x.domain)}
+${esc(x.domain)}
       </button>`).join("");
 
     document.querySelectorAll("#tabs .tab-btn").forEach((btn) => {
@@ -2277,12 +2305,12 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
       </div>`,
       `<div class="kpi-card">
         <div class="kpi-header"><span>Availability · 7d</span><span class="status-badge ${avgUptime >= 99.9 ? "good" : "warn"}">${avgUptime >= 99.9 ? "SLA Met" : "Warning"}</span></div>
-        <div class="kpi-value-row"><span class="kpi-value num">${avgUptime !== null ? avgUptime.toFixed(2) + "%" : "—"}</span></div>
+        <div class="kpi-value-row"><span class="kpi-value num">${avgUptime !== null ? avgUptime.toFixed(2) + "%" : "No data"}</span></div>
         <div class="kpi-footer">Synthetic Monitoring 5m probes · Target 99.90%</div>
       </div>`,
       `<div class="kpi-card">
         <div class="kpi-header"><span>Requests · 7d</span><span class="status-badge">7d Aggregated</span></div>
-        <div class="kpi-value-row"><span class="kpi-value num">${totalReq7 ? compact(totalReq7) : "—"}</span></div>
+        <div class="kpi-value-row"><span class="kpi-value num">${totalReq7 ? compact(totalReq7) : "No data"}</span></div>
         <div class="kpi-footer">CloudFront edge requests & load balancer streams</div>
       </div>`,
       `<div class="kpi-card">
@@ -2310,7 +2338,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
       }
       if (req24Chip) {
         req24Chip.className = "status-badge warn";
-        req24Chip.textContent = `Zoom: ${hourLabel(zHours[0])} – ${hourLabel(zHours[zHours.length - 1])}`;
+        req24Chip.textContent = `Zoom: ${hourLabel(zHours[0])} - ${hourLabel(zHours[zHours.length - 1])}`;
       }
       $("#req24-val").textContent = Math.round(zTotalSum).toLocaleString("en");
       $("#req24-count").textContent = `Selected window (${zHours.length} hours)`;
@@ -2321,7 +2349,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
         req24Chip.textContent = "24h Rolling";
       }
       const totalReq24 = sites.map((s) => metricOf(s, "requests_24h")).filter((m) => m && m.value !== null).reduce((a, m) => a + m.value, 0);
-      $("#req24-val").textContent = totalReq24 ? Math.round(totalReq24).toLocaleString("en") : "—";
+      $("#req24-val").textContent = totalReq24 ? Math.round(totalReq24).toLocaleString("en") : "No data";
       $("#req24-count").textContent = `${withSeries.length} of ${sites.length} endpoints reporting`;
     }
 
@@ -2360,7 +2388,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
 
     // Availability Gauge
     gauge($("#gauge"), avgUptime);
-    $("#gauge-value").textContent = avgUptime !== null ? avgUptime.toFixed(2) + "%" : "—";
+    $("#gauge-value").textContent = avgUptime !== null ? avgUptime.toFixed(2) + "%" : "No data";
     $("#gauge-note").textContent = avgUptime >= 99.9 ? "Meeting 99.90% SLA Target" : "Sub-optimal availability";
 
     // Tracked Sites Grid
@@ -2375,7 +2403,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
       return `<button type="button" class="site-card" data-domain="${esc(s.domain)}">
         <div class="site-card-top">
           <div class="site-identity">
-            <div class="site-badge-icon" style="background:var(${s.color})">${esc(s.domain[0].toUpperCase())}</div>
+            <div class="site-badge-icon">${esc(s.domain[0].toUpperCase())}</div>
             <div>
               <div class="site-domain-name">${esc(s.domain)}</div>
               <div class="site-desc">${esc(s.name)}</div>
@@ -2456,7 +2484,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
       $("#site-detail").innerHTML = `
         <div class="site-detail-hero">
           <div class="site-detail-left">
-            <div class="site-detail-icon" style="background:var(${targetSite.color})">${esc(targetSite.domain[0].toUpperCase())}</div>
+            <div class="site-detail-icon">${esc(targetSite.domain[0].toUpperCase())}</div>
             <div>
               <div class="site-detail-name">${esc(targetSite.domain)}</div>
               <div class="site-detail-sub">${esc(targetSite.description)}</div>
@@ -2508,7 +2536,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
         }
         if (detailChip) {
           detailChip.className = "status-badge warn";
-          detailChip.textContent = `Zoom: ${hourLabel(dzHours[0])} – ${hourLabel(dzHours[dzHours.length - 1])} (${Math.round(dzTotal).toLocaleString("en")} reqs)`;
+          detailChip.textContent = `Zoom: ${hourLabel(dzHours[0])} - ${hourLabel(dzHours[dzHours.length - 1])} (${Math.round(dzTotal).toLocaleString("en")} reqs)`;
         }
       } else {
         if (detailResetBtn) detailResetBtn.style.display = "none";
