@@ -24,3 +24,12 @@ for (const [saved, systemDark, expected] of [[null, false, 'light'], [null, true
 }
 for (const script of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) new vm.Script(script[1]);
 console.log('Contrast, theme preference, and JavaScript syntax checks passed');
+const gaugeSource = html.match(/  function gauge\(svg, pct\) \{[\s\S]*?\n  \}/)[0];
+const gauge = vm.runInNewContext(`${gaugeSource}\ngauge`, { el: (tag, attrs) => ({ tag, attrs }), cssVar: name => name });
+for (const [pct, pathCount, dash] of [[null, 1, null], [98, 1, null], [99, 1, null], [99.5, 2, '50 100'], [100, 2, '100 100'], [101, 2, '100 100']]) {
+  const paths = [];
+  gauge({ innerHTML: '', append: path => paths.push(path) }, pct);
+  assert.equal(paths.length, pathCount);
+  if (dash) assert.equal(paths[1].attrs['stroke-dasharray'], dash);
+}
+console.log('Availability arc checks passed');

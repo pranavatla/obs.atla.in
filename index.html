@@ -108,7 +108,7 @@
   }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; border: 0; background: transparent; }
-  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .num { font-family: var(--font); font-variant-numeric: tabular-nums; }
 
   /* ── App Shell & Spacious Top Navigation ──────────────────── */
   .app-shell {
@@ -571,11 +571,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    padding-bottom: 12px;
+    padding-bottom: 8px;
   }
   .gauge-num {
-    font-size: 40px;
-    font-weight: 800;
+    font-size: 32px;
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
   .gauge-label {
@@ -1058,7 +1058,7 @@
 
   /* SVG Chart Essentials */
   svg.chart { display: block; width: 100%; overflow: visible; user-select: none; }
-  svg.chart text { fill: var(--text-muted); font-size: 11px; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  svg.chart text { fill: var(--text-muted); font-size: 11px; font-family: var(--font); font-variant-numeric: tabular-nums; }
   .hit { fill: transparent; cursor: crosshair; }
 
   /* Drag-to-Zoom Selection & Reset Controls */
@@ -1376,9 +1376,9 @@
                 <svg class="chart" id="gauge" viewBox="0 0 240 132" role="img" aria-label="Availability gauge"></svg>
                 <div class="gauge-readout">
                   <span class="gauge-num num" id="gauge-value">No data</span>
-                  <span class="gauge-label" id="gauge-note">Meeting target</span>
                 </div>
               </div>
+              <p class="gauge-label" id="gauge-note" style="text-align:center;">Checking availability</p>
             </div>
 
             <!-- Peak Hourly Distribution -->
@@ -1929,26 +1929,11 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
 
   function gauge(svg, pct) {
     svg.innerHTML = "";
-    const cx = 120, cy = 120, r1 = 82, r2 = 104, ticks = 46;
-    const lo = 99, frac = pct === null ? 0 : Math.max(0, Math.min(1, (pct - lo) / (100 - lo)));
-    const color = pct === null ? "--idle-bar" : pct >= 99.9 ? "--status-good" : pct >= 99 ? "--status-warn" : "--status-crit";
-
-    for (let i = 0; i < ticks; i++) {
-      const a = Math.PI - (Math.PI * (i + 0.5)) / ticks;
-      const on = (i + 0.5) / ticks <= frac;
-      svg.append(el("line", {
-        x1: cx + r1 * Math.cos(a), y1: cy - r1 * Math.sin(a),
-        x2: cx + r2 * Math.cos(a), y2: cy - r2 * Math.sin(a),
-        stroke: cssVar(on ? color : "--idle-bar"),
-        "stroke-width": 3.2, "stroke-linecap": "round"
-      }));
-    }
-    [["99%", 0], ["100%", 1]].forEach(([label, f]) => {
-      const a = Math.PI - Math.PI * f;
-      const t = el("text", { x: cx + (r2 + 4) * Math.cos(a) + (f ? -12 : 12), y: cy + 4, "text-anchor": "middle" });
-      t.textContent = label;
-      svg.append(t);
-    });
+    const fraction = pct === null ? 0 : Math.max(0, Math.min(1, (pct - 99) / 1));
+    const color = pct === null ? "--idle-bar" : pct >= 99.9 ? "--status-good" : "--status-warn";
+    const arc = { d: "M20 120 A100 100 0 0 1 220 120", fill: "none", "stroke-width": 7, "stroke-linecap": "round", pathLength: 100 };
+    svg.append(el("path", { ...arc, stroke: cssVar("--idle-bar") }));
+    if (fraction > 0) svg.append(el("path", { ...arc, stroke: cssVar(color), "stroke-dasharray": `${fraction * 100} 100` }));
   }
 
   function sparkline(series, color) {
@@ -2389,7 +2374,7 @@ ${esc(x.domain)}
     // Availability Gauge
     gauge($("#gauge"), avgUptime);
     $("#gauge-value").textContent = avgUptime !== null ? avgUptime.toFixed(2) + "%" : "No data";
-    $("#gauge-note").textContent = avgUptime >= 99.9 ? "Meeting 99.90% SLA Target" : "Sub-optimal availability";
+    $("#gauge-note").textContent = avgUptime === null ? "Availability data unavailable" : avgUptime >= 99.9 ? "Meeting the 99.90% target" : "Below the 99.90% target";
 
     // Tracked Sites Grid
     $("#sites-count-badge").textContent = `${sites.length} Endpoints Active`;
