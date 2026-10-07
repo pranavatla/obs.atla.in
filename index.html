@@ -1465,12 +1465,12 @@
         </div>
 
         <div class="dual-grid" style="margin-top: 24px;">
-          <!-- AI Bedrock Token Usage -->
+          <!-- AI Model Usage -->
           <div class="panel">
             <div class="panel-header">
               <div>
                 <h2 class="panel-title">AI Model Consumption</h2>
-                <p class="panel-desc">Amazon Bedrock tokens and invocation distribution</p>
+                <p class="panel-desc">Bedrock telemetry plus Gate's aggregated 7-day model usage</p>
               </div>
             </div>
             <div id="ai-stats" class="data-list"></div>
@@ -2068,12 +2068,17 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
 
   // ── Service Matrix Data Fetcher ───────────────────────────
   function fetchServiceMatrix() {
-    fetch("/ops/service-matrix")
-      .then((r) => r.json())
-      .then((mat) => {
-        const tbody = $("#matrix-tbody");
-        if (!tbody) return;
-        tbody.innerHTML = mat.subdomains.map((s) => `
+    const subdomains = [
+      { domain: "atla.in", name: "Personal Portfolio", type: "Frontend / Static Export", services: ["CloudFront CDN", "S3 Origin", "AWS WAF", "Grafana Synthetics", "CloudWatch RUM"], framework: "Next.js", cost_tier: "Free Tier / S3" },
+      { domain: "aif.atla.in", name: "AI Financial Platform", type: "Full-Stack AI Application", services: ["Amazon Bedrock", "Claude 3.5 Sonnet", "FastAPI", "DynamoDB", "VPC", "CloudWatch"], framework: "FastAPI + React", cost_tier: "On-Demand Tokens" },
+      { domain: "games.atla.in", name: "Interactive Arcade", type: "WebGL Game Engine", services: ["CloudFront Edge", "S3 Storage", "WebSockets", "AWS WAF"], framework: "HTML5 / Canvas", cost_tier: "CDN Edge" },
+      { domain: "obs.atla.in", name: "Observability Deck", type: "Telemetry & SRE Platform", services: ["Express Node.js", "Prometheus Collector", "GitHub Actions cron", "CloudWatch Metrics"], framework: "Express + TypeScript", cost_tier: "Containerized" },
+      { domain: "gita.atla.in", name: "Gita AI Wisdom", type: "RAG & Semantic Retrieval", services: ["Amazon Nova Lite", "Titan Text Embeddings v2", "Vector Store", "OpenSearch", "Bedrock"], framework: "FastAPI + Vector RAG", cost_tier: "Bedrock Inference" },
+      { domain: "gate.atla.in", name: "Enterprise LLM Gateway", type: "Security & AI Governance Proxy", services: ["Semantic Caching", "PII Sanitizer", "Prompt Guardrails", "Rate Limiter", "Audit Logger"], framework: "Gateway Proxy", cost_tier: "Cache Optimized" },
+    ];
+    const tbody = $("#matrix-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = subdomains.map((s) => `
           <tr>
             <td><b style="font-size:14px; color:var(--text-main);">${esc(s.domain)}</b><div style="font-size:12px; color:var(--text-muted);">${esc(s.name)}</div></td>
             <td><span class="status-badge">${esc(s.type)}</span></td>
@@ -2082,8 +2087,6 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
             <td><span class="status-badge good">${esc(s.cost_tier)}</span></td>
           </tr>
         `).join("");
-      })
-      .catch(() => {});
   }
 
   // ── Live Regional Health Probe Runner ─────────────────────
@@ -2358,7 +2361,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
 
     // AI Models
     const models = data.ai_models || [];
-    $("#ai-stats").innerHTML = models.length ? models.map((m) => `
+    const bedrockHtml = models.length ? models.map((m) => `
       <div class="data-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
         <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
           <span style="font-weight:700; font-size:14px;">${esc(modelName(m.model_id))}</span>
@@ -2372,6 +2375,12 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
         </div>
       </div>
     `).join("") : '<div class="data-row"><span style="color:var(--text-subtle)">No Bedrock activity detected in last 7 days</span></div>';
+    const gatewayModels = data.gateway?.models_7d || [];
+    const gatewayHtml = gatewayModels.length ? `
+      <div style="margin:18px 0 8px; font-size:12px; color:var(--text-muted); font-weight:700;">Gate model usage · 7 days</div>
+      ${gatewayModels.map((m) => `<div class="data-row"><div class="data-row-left"><b>${esc(m.model)}</b></div><div><span class="num">${fmt({ value: m.calls, unit: "count" })} calls</span> · <span class="num">${fmt({ value: m.tokens, unit: "count" })} tokens</span> · <span class="num">${fmt({ value: m.cost_usd, unit: "usd" })}</span></div></div>`).join("")}
+    ` : "";
+    $("#ai-stats").innerHTML = bedrockHtml + gatewayHtml;
 
     // Site Detail View
     const targetSite = sites.find((x) => x.domain === openDomain);
