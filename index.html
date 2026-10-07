@@ -20,20 +20,20 @@
 <style>
   :root {
     color-scheme: dark;
-    --bg-page: #0a0f1d;
-    --bg-canvas: #070a14;
-    --surface: #111827;
-    --surface-hover: #172033;
-    --surface-raised: #1e293b;
+    --bg-page: #101315;
+    --bg-canvas: #14181b;
+    --surface: #191d20;
+    --surface-hover: #202629;
+    --surface-raised: #202529;
     --border: rgba(255, 255, 255, 0.08);
     --border-strong: rgba(255, 255, 255, 0.16);
     --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --text-subtle: #64748b;
+    --text-muted: #a0aaae;
+    --text-subtle: #899499;
     --grid: rgba(255, 255, 255, 0.04);
     --axis: rgba(255, 255, 255, 0.12);
-    --accent: #38bdf8;
-    --accent-glow: rgba(56, 189, 248, 0.18);
+    --accent: #5aaea2;
+    --accent-glow: rgba(90, 174, 162, 0.12);
     --idle-bar: rgba(255, 255, 255, 0.08);
 
     --status-good: #10b981;
@@ -72,8 +72,8 @@
     --text-subtle: #94a3b8;
     --grid: #f1f5f9;
     --axis: #e2e8f0;
-    --accent: #0284c7;
-    --accent-glow: rgba(2, 132, 199, 0.12);
+    --accent: #247c70;
+    --accent-glow: rgba(36, 124, 112, 0.12);
     --idle-bar: #e2e8f0;
 
     --status-good: #059669;
@@ -102,7 +102,7 @@
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
-    min-height: 100vh;
+    min-height: 100dvh;
   }
   a { color: inherit; text-decoration: none; }
   button { font-family: inherit; cursor: pointer; border: 0; background: transparent; }
@@ -112,7 +112,7 @@
   .app-shell {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .top-bar {
@@ -125,10 +125,10 @@
   }
 
   .top-bar-inner {
-    max-width: 1400px;
+    max-width: 1320px;
     margin: 0 auto;
     padding: 0 32px;
-    height: 70px;
+    height: 72px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -198,7 +198,7 @@
     color: var(--text-main);
     background: var(--surface-hover);
   }
-  .tab-btn[aria-selected="true"] {
+  .tab-btn[aria-pressed="true"] {
     background: var(--surface);
     color: var(--text-main);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
@@ -284,14 +284,14 @@
 
   /* ── Main Layout ─────────────────────────────────────────── */
   .main-content {
-    max-width: 1400px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 32px 32px 64px;
+    padding: 28px 32px 64px;
     width: 100%;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 36px;
+    gap: 24px;
   }
 
   /* Perspective / Sub-Nav View Filter (Pillars) */
@@ -342,7 +342,7 @@
     display: none;
     background: var(--status-crit-bg);
     border: 1px solid var(--status-crit-border);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 22px 26px;
     color: var(--text-main);
   }
@@ -408,7 +408,7 @@
   .kpi-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -418,8 +418,7 @@
   }
   .kpi-card:hover {
     border-color: var(--border-strong);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+
   }
   .kpi-header {
     display: flex;
@@ -436,7 +435,7 @@
     gap: 12px;
   }
   .kpi-value {
-    font-size: 38px;
+    font-size: 32px;
     font-weight: 800;
     letter-spacing: -0.03em;
     color: var(--text-main);
@@ -450,8 +449,8 @@
   .panel {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px 32px;
+    border-radius: 10px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 22px;
@@ -477,7 +476,7 @@
   /* Traffic Hero */
   .traffic-hero {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 1fr;
     gap: 32px;
     align-items: center;
   }
@@ -541,7 +540,7 @@
   /* Grids */
   .dashboard-grid {
     display: grid;
-    grid-template-columns: 1.8fr 1.2fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     gap: 24px;
   }
   @media (max-width: 1100px) {
@@ -631,7 +630,7 @@
   .site-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -642,8 +641,7 @@
   }
   .site-card:hover {
     border-color: var(--border-strong);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
   }
   .site-card-top {
     display: flex;
@@ -700,8 +698,8 @@
   .incident-sim-box {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px 32px;
+    border-radius: 10px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 22px;
@@ -904,7 +902,7 @@
   .ring-tile {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
@@ -1155,14 +1153,69 @@
     .chat-input-bar { padding: 12px; gap: 8px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
     .chat-input { font-size: 16px; padding-inline: 10px; }
   }
-  @media (max-width: 360px) {
+  @media (max-width: 320px) {
     .brand-sub { display: none; }
     .kpi-grid, .finops-grid, .rings-grid { grid-template-columns: 1fr; }
+  }
+
+  [hidden] { display: none !important; }
+  .overview-layout { display: flex; flex-direction: column; gap: 24px; }
+  .skip-link { position: fixed; top: -80px; left: 16px; z-index: 80; padding: 12px; background: var(--surface); }
+  .skip-link:focus { top: 12px; }
+  .page-heading h1 { font-size: 32px; font-weight: 700; letter-spacing: -.04em; margin: 4px 0; }
+  .page-heading p { color: var(--text-muted); }
+  .eyebrow, .scope-label { font-size: 12px; color: var(--text-muted); }
+  .scope-bar { display: flex; align-items: center; gap: 18px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  .nav-tabs { background: transparent; border: 0; padding: 0; border-radius: 0; }
+  .tab-btn { height: 38px; }
+  .tab-btn[aria-pressed="true"] { background: var(--surface-raised); box-shadow: none; }
+  .perspective-bar { padding-bottom: 0; border-bottom: 1px solid var(--border); }
+  .perspective-pills { gap: 24px; }
+  .perspective-btn { background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 0 2px 14px; height: 46px; }
+  .perspective-btn.active { background: transparent; color: var(--accent); border-bottom-color: var(--accent); box-shadow: none; }
+  .perspective-bar > div:last-child { padding-bottom: 10px; }
+  .kpi-card { gap: 12px; padding: 20px; }
+  .kpi-header { flex-wrap: wrap; gap: 8px; font-size: 12px; }
+  .kpi-header .status-badge { font-size: 10px; padding: 2px 6px; background: transparent; border: 0; }
+  .kpi-footer { font-size: 11px; }
+  .panel-title { font-size: 16px; }
+  .panel-desc { max-width: 65ch; font-size: 12px; }
+  .hero-stat-label { text-transform: none; letter-spacing: 0; }
+  .hero-stat-val { font-size: 36px; }
+  .shares-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); background: transparent; border: 0; border-top: 1px solid var(--border); border-radius: 0; padding: 18px 0 0; }
+  .share-val { font-size: 16px; }
+  .site-card { color: var(--text-main); width: 100%; }
+  .site-card-top { flex-wrap: wrap; gap: 12px; }
+  .site-domain-name { font-size: 14px; }
+  .site-badge-icon { width: 32px; height: 32px; font-size: 13px; flex-shrink: 0; }
+  .data-row { flex-wrap: wrap; gap: 10px; }
+  button:active { transform: translateY(1px); }
+  @media (max-width: 680px) {
+    .top-bar-inner { display: flex; flex-wrap: wrap; gap: 14px; }
+    .brand-sub { display: none; }
+    .top-actions { display: flex; width: 100%; flex-wrap: nowrap; gap: 8px; }
+    #freshness-badge { flex: 1; font-size: 10px; padding-inline: 6px; }
+    #open-guru-btn { flex-shrink: 0; padding-inline: 10px; font-size: 11px; }
+    #open-guru-btn svg { display: none; }
+    .page-heading h1 { font-size: 28px; }
+    .scope-bar { gap: 10px; }
+    .nav-tabs { flex: 1; }
+    .perspective-pills { display: flex; gap: 16px; width: 100%; overflow-x: auto; flex-wrap: nowrap; }
+    .perspective-btn { min-height: 44px; height: 44px; padding: 0 0 12px; white-space: nowrap; font-size: 12px; }
+    .perspective-btn svg { display: none; }
+    .perspective-bar > div:last-child { width: 100%; }
+    .kpi-card { padding: 14px; gap: 8px; }
+    .kpi-value { font-size: 25px; }
+    .shares-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
   }
 
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to dashboard</a>
 <div class="app-shell">
   <!-- Top Navigation Bar -->
   <header class="top-bar">
@@ -1170,11 +1223,9 @@
       <div class="brand-lockup">
         <div class="brand-logo" aria-hidden="true">O</div>
         <a href="#overview" class="brand-title">obs<span style="color:var(--accent)">.</span>atla<span style="color:var(--accent)">.</span>in</a>
-        <span class="brand-sub">· Cloud Governance & Observability</span>
+        <span class="brand-sub">Operations console</span>
       </div>
 
-      <!-- Segmented Site Tabs -->
-      <nav class="nav-tabs" id="tabs" role="tablist" aria-label="Subdomains Navigation"></nav>
 
       <div class="top-actions">
         <!-- Live Snapshot Freshness Indicator -->
@@ -1186,7 +1237,7 @@
         <!-- Ops Guru AI Trigger -->
         <button type="button" class="action-btn primary" id="open-guru-btn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 3l2.2 5.2L19 10l-4.8 1.8L12 17l-2.2-5.2L5 10l4.8-1.8z"/></svg>
-          Ops Guru AI
+          Ask Ops Guru
         </button>
 
         <!-- Theme Toggle -->
@@ -1195,7 +1246,7 @@
         </button>
 
         <!-- Raw Data Link -->
-        <a href="status.json" target="_blank" rel="noopener" class="icon-only-btn" title="View raw status.json">
+        <a aria-label="View raw snapshot" href="status.json" target="_blank" rel="noopener" class="icon-only-btn" title="View raw status.json">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </a>
       </div>
@@ -1203,7 +1254,11 @@
   </header>
 
   <!-- Main Viewport -->
-  <main class="main-content">
+  <main class="main-content" id="main-content">
+    <div class="page-heading">
+      <div><span class="eyebrow">atla.in / Operations</span><h1>Observability</h1><p>Availability, traffic, and cloud operations in one place.</p></div>
+    </div>
+    <div class="scope-bar"><span class="scope-label">Site</span><nav class="nav-tabs" id="tabs" aria-label="Select a monitored site"></nav></div>
     <!-- Active Incident Alert Banner -->
     <div id="rca-banner" class="rca-banner">
       <div class="rca-header">
@@ -1216,38 +1271,38 @@
     </div>
 
     <!-- View: Overview -->
-    <div id="view-overview" style="display: flex; flex-direction: column; gap: 36px;">
-      <!-- High Level Hero KPIs -->
-      <section class="kpi-grid" id="kpis"></section>
-
+    <div id="view-overview" class="overview-layout">
       <!-- 4 Pillars Navigation: MONITORING, GOVERNANCE, USAGE, ADMIN -->
       <div class="perspective-bar">
         <div class="perspective-pills" id="perspective-pills">
           <button type="button" class="perspective-btn active" data-view="monitoring">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            Monitoring & Reliability
+            Monitoring
           </button>
           <button type="button" class="perspective-btn" data-view="governance">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            Governance & FinOps
+            Governance
           </button>
           <button type="button" class="perspective-btn" data-view="usage">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-            Usage & Service Matrix
+            Usage
           </button>
           <button type="button" class="perspective-btn" data-view="admin">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            Admin & Global Probes
+            Diagnostics
           </button>
         </div>
 
         <div style="display: flex; gap: 8px;">
           <button type="button" class="action-btn" id="export-report-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export Compliance Audit
+            Export audit
           </button>
         </div>
       </div>
+
+      <!-- High Level Hero KPIs -->
+      <section class="kpi-grid" id="kpis"></section>
 
       <!-- PILLAR 1: MONITORING & RELIABILITY -->
       <section id="section-monitoring" class="perspective-section">
@@ -1255,7 +1310,7 @@
           <div class="panel">
             <div class="panel-header">
               <div>
-                <h2 class="panel-title">Ingress Volume · Last 24 Hours</h2>
+                <h2 class="panel-title">Request traffic</h2>
                 <p class="panel-desc">Requests per hour aggregated across all sites. <span style="color:var(--accent);font-weight:600;">Drag across chart to zoom window</span>.</p>
               </div>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -1286,7 +1341,7 @@
             <div class="panel">
               <div class="panel-header">
                 <div>
-                  <h2 class="panel-title">SLA Compliance Target</h2>
+                  <h2 class="panel-title">Availability target</h2>
                   <p class="panel-desc">7-day weighted uptime · Objective 99.90%</p>
                 </div>
               </div>
@@ -1303,7 +1358,7 @@
             <div class="panel">
               <div class="panel-header">
                 <div>
-                  <h2 class="panel-title">Hourly Peak Load</h2>
+                  <h2 class="panel-title">Hourly distribution</h2>
                   <p class="panel-desc">Aggregated traffic distribution across day cycles</p>
                 </div>
               </div>
@@ -1316,7 +1371,7 @@
         <div style="margin-top: 36px;">
           <div class="panel-header" style="margin-bottom: 20px;">
             <div>
-              <h2 class="panel-title" style="font-size: 20px;">Monitored Subdomains</h2>
+              <h2 class="panel-title" style="font-size: 20px;">Monitored sites</h2>
               <p class="panel-desc">Synthetic probe latency, 24-hour trends, and real-time availability status.</p>
             </div>
             <span class="status-badge" id="sites-count-badge">6 Active Endpoints</span>
@@ -1589,6 +1644,8 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
   "use strict";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const SITE_ORDER = new Map(["atla.in", "gita.atla.in", "gate.atla.in", "obs.atla.in", "games.atla.in", "aif.atla.in"].map((domain, index) => [domain, index]));
+  const orderSites = (sites) => [...sites].sort((a, b) => (SITE_ORDER.get(a.domain) ?? Infinity) - (SITE_ORDER.get(b.domain) ?? Infinity));
   const SLOTS = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];
   const STALE_MINUTES = 60;
   const STATUS = {
@@ -2078,7 +2135,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
     ];
     const tbody = $("#matrix-tbody");
     if (!tbody) return;
-    tbody.innerHTML = subdomains.map((s) => `
+    tbody.innerHTML = orderSites(subdomains).map((s) => `
           <tr>
             <td><b style="font-size:14px; color:var(--text-main);">${esc(s.domain)}</b><div style="font-size:12px; color:var(--text-muted);">${esc(s.name)}</div></td>
             <td><span class="status-badge">${esc(s.type)}</span></td>
@@ -2102,7 +2159,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
         btn.disabled = false;
         btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Execute Multi-Region Probes Now`;
         
-        container.innerHTML = data.results.map((res) => `
+        container.innerHTML = orderSites(data.results).map((res) => `
           <div class="panel" style="padding:18px 24px; gap:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <div style="display:flex; align-items:center; gap:10px;">
@@ -2166,7 +2223,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
 
   // ── Render Logic ──────────────────────────────────────────
   function render(data) {
-    const sites = data.sites.map((s, i) => ({
+    const sites = orderSites(data.sites).map((s, i) => ({
       ...s,
       color: SLOTS[i % SLOTS.length],
       series: (s.series && s.series.requests_hourly_24h) || []
@@ -2183,8 +2240,8 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
     // Segmented Navigation Tabs
     if (openDomain && !sites.some((x) => x.domain === openDomain)) openDomain = null;
     $("#tabs").innerHTML =
-      `<button type="button" class="tab-btn" data-tab="overview" aria-selected="${openDomain === null}">Overview</button>` +
-      sites.map((x) => `<button type="button" class="tab-btn" data-tab="${esc(x.domain)}" aria-selected="${openDomain === x.domain}">
+      `<button type="button" class="tab-btn" data-tab="overview" aria-pressed="${openDomain === null}">Overview</button>` +
+      sites.map((x) => `<button type="button" class="tab-btn" data-tab="${esc(x.domain)}" aria-pressed="${openDomain === x.domain}">
         <span class="tab-dot" style="background:var(${x.color})"></span>${esc(x.domain)}
       </button>`).join("");
 
@@ -2214,22 +2271,22 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
 
     $("#kpis").innerHTML = [
       `<div class="kpi-card">
-        <div class="kpi-header"><span>Overall System State</span><span class="status-badge ${upSites === sites.length ? "good" : "crit"}">${upSites}/${sites.length} Active</span></div>
+        <div class="kpi-header"><span>Endpoints online</span><span class="status-badge ${upSites === sites.length ? "good" : "crit"}">${upSites}/${sites.length} Active</span></div>
         <div class="kpi-value-row"><span class="kpi-value">${upSites === sites.length ? "100%" : Math.round((upSites/sites.length)*100) + "%"}</span><span class="status-pulse" style="background:var(${upSites === sites.length ? "--status-good" : "--status-crit"})"></span></div>
         <div class="kpi-footer">Synthetic check across all registered atla.in subdomains</div>
       </div>`,
       `<div class="kpi-card">
-        <div class="kpi-header"><span>7-Day Mean Availability</span><span class="status-badge ${avgUptime >= 99.9 ? "good" : "warn"}">${avgUptime >= 99.9 ? "SLA Met" : "Warning"}</span></div>
+        <div class="kpi-header"><span>Availability · 7d</span><span class="status-badge ${avgUptime >= 99.9 ? "good" : "warn"}">${avgUptime >= 99.9 ? "SLA Met" : "Warning"}</span></div>
         <div class="kpi-value-row"><span class="kpi-value num">${avgUptime !== null ? avgUptime.toFixed(2) + "%" : "—"}</span></div>
         <div class="kpi-footer">Synthetic Monitoring 5m probes · Target 99.90%</div>
       </div>`,
       `<div class="kpi-card">
-        <div class="kpi-header"><span>Weekly Request Ingress</span><span class="status-badge">7d Aggregated</span></div>
+        <div class="kpi-header"><span>Requests · 7d</span><span class="status-badge">7d Aggregated</span></div>
         <div class="kpi-value-row"><span class="kpi-value num">${totalReq7 ? compact(totalReq7) : "—"}</span></div>
         <div class="kpi-footer">CloudFront edge requests & load balancer streams</div>
       </div>`,
       `<div class="kpi-card">
-        <div class="kpi-header"><span>Server Error Rate (5xx)</span><span class="status-badge ${errRate === null || errRate < 0.5 ? "good" : "crit"}">${errRate === null || errRate < 0.5 ? "Nominal" : "Elevated"}</span></div>
+        <div class="kpi-header"><span>Server errors · 7d</span><span class="status-badge ${errRate === null || errRate < 0.5 ? "good" : "crit"}">${errRate === null || errRate < 0.5 ? "Nominal" : "Elevated"}</span></div>
         <div class="kpi-value-row"><span class="kpi-value num">${errRate !== null ? errRate.toFixed(2) + "%" : "0.00%"}</span></div>
         <div class="kpi-footer">${Math.round(err5).toLocaleString()} server errors of ${compact(errBase)} requests</div>
       </div>`,
@@ -2315,7 +2372,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
       const err = metricOf(s, "error_5xx_rate_7d");
       const [statusClass, statusLabel] = STATUS[s.status] || STATUS.unknown;
 
-      return `<div class="site-card" data-domain="${esc(s.domain)}">
+      return `<button type="button" class="site-card" data-domain="${esc(s.domain)}">
         <div class="site-card-top">
           <div class="site-identity">
             <div class="site-badge-icon" style="background:var(${s.color})">${esc(s.domain[0].toUpperCase())}</div>
@@ -2335,7 +2392,7 @@ I monitor active incidents, latency trends, database error bursts, and knowledge
           <div class="site-metrics-row"><span>Requests (7d)</span><b class="num">${fmt(req)}</b></div>
           <div class="site-metrics-row"><span>Error 5xx</span><b class="num">${fmt(err)}</b></div>
         </div>
-      </div>`;
+      </button>`;
     }).join("");
 
     document.querySelectorAll(".site-card").forEach((card) => {

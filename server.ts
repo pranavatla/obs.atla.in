@@ -413,7 +413,7 @@ app.get("/ops/governance", (_req: Request, res: Response) => {
 });
 
 app.post("/ops/probes/run", (_req: Request, res: Response) => {
-  const domains = ["atla.in", "aif.atla.in", "games.atla.in", "obs.atla.in", "gita.atla.in", "gate.atla.in"];
+  const domains = ["atla.in", "gita.atla.in", "gate.atla.in", "obs.atla.in", "games.atla.in", "aif.atla.in"];
   const regions = [
     { id: "ap-south-1", name: "Mumbai, India", baseLatency: 38 },
     { id: "us-east-1", name: "N. Virginia, USA", baseLatency: 175 },
@@ -464,33 +464,6 @@ app.get("/ops/service-matrix", (_req: Request, res: Response) => {
         owner: "Sai Pranav Atla",
       },
       {
-        domain: "aif.atla.in",
-        name: "AI Financial Platform",
-        type: "Full-Stack AI Application",
-        services: ["Amazon Bedrock", "Claude 3.5 Sonnet", "FastAPI", "DynamoDB", "VPC", "CloudWatch"],
-        framework: "FastAPI + React",
-        cost_tier: "On-Demand Tokens",
-        owner: "Sai Pranav Atla",
-      },
-      {
-        domain: "games.atla.in",
-        name: "Interactive Arcade",
-        type: "WebGL Game Engine",
-        services: ["CloudFront Edge", "S3 Storage", "WebSockets", "AWS WAF"],
-        framework: "HTML5 / Canvas",
-        cost_tier: "CDN Edge",
-        owner: "Sai Pranav Atla",
-      },
-      {
-        domain: "obs.atla.in",
-        name: "Observability Deck",
-        type: "Telemetry & SRE Platform",
-        services: ["Express Node.js", "Prometheus Collector", "GitHub Actions cron", "CloudWatch Metrics"],
-        framework: "Express + TypeScript",
-        cost_tier: "Containerized",
-        owner: "Sai Pranav Atla",
-      },
-      {
         domain: "gita.atla.in",
         name: "Gita AI Wisdom",
         type: "RAG & Semantic Retrieval",
@@ -506,6 +479,33 @@ app.get("/ops/service-matrix", (_req: Request, res: Response) => {
         services: ["Semantic Caching", "PII Sanitizer", "Prompt Guardrails", "Rate Limiter", "Audit Logger"],
         framework: "Gateway Proxy",
         cost_tier: "Cache Optimized",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "obs.atla.in",
+        name: "Observability Deck",
+        type: "Telemetry & SRE Platform",
+        services: ["Express Node.js", "Prometheus Collector", "GitHub Actions cron", "CloudWatch Metrics"],
+        framework: "Express + TypeScript",
+        cost_tier: "Containerized",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "games.atla.in",
+        name: "Interactive Arcade",
+        type: "WebGL Game Engine",
+        services: ["CloudFront Edge", "S3 Storage", "WebSockets", "AWS WAF"],
+        framework: "HTML5 / Canvas",
+        cost_tier: "CDN Edge",
+        owner: "Sai Pranav Atla",
+      },
+      {
+        domain: "aif.atla.in",
+        name: "AI Financial Platform",
+        type: "Full-Stack AI Application",
+        services: ["Amazon Bedrock", "Claude 3.5 Sonnet", "FastAPI", "DynamoDB", "VPC", "CloudWatch"],
+        framework: "FastAPI + React",
+        cost_tier: "On-Demand Tokens",
         owner: "Sai Pranav Atla",
       },
     ],
