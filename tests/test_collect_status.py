@@ -189,6 +189,22 @@ class SnapshotTest(unittest.TestCase):
         buckets = cs.hourly(pts, NOW)
         self.assertEqual((len(buckets), buckets[0], buckets[-1], sum(buckets)), (24, 2.0, 5.0, 7.0))
 
+    def test_alb_rates_count_responses_the_load_balancer_answered_itself(self):
+        class AlbCloudWatch:
+            # 60 routed requests (10 app 4xx), plus 140 WAF/ELB 4xx that RequestCount leaves out.
+            def fetch(self, queries, start, end):
+                t = end - timedelta(minutes=30)
+                series = {"req": [(t, 60.0)], "t4": [(t, 10.0)], "l4": [(t, 140.0)],
+                          "t5": [], "l5": [], "rt": [(t, 0.002)]}
+                return {q["Id"]: series[q["Id"]] for q in queries}
+
+        metrics, series = cs.alb_metrics(AlbCloudWatch(), "app/lb/1", "ap-south-1", NOW)
+        m = {x["key"]: x["value"] for x in metrics}
+        self.assertEqual(m["requests_7d"], 200)
+        self.assertAlmostEqual(m["error_4xx_rate_7d"], 75.0)
+        self.assertLessEqual(m["error_4xx_rate_7d"], 100)
+        self.assertEqual(sum(series["requests_hourly_24h"]), 200)
+
 
 if __name__ == "__main__":
     unittest.main()

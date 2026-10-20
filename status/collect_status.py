@@ -227,20 +227,26 @@ def alb_metrics(cw, lb, region, end):
         stat_query("l4", "AWS/ApplicationELB", "HTTPCode_ELB_4XX_Count", dims, "Sum", 300),
         stat_query("rt", "AWS/ApplicationELB", "TargetResponseTime", dims, "p90", int(DAY.total_seconds())),
     ], end - WEEK, end)
-    reqs = total(r["req"]) or 0
+    # RequestCount only counts requests the load balancer routed to a target. Responses the
+    # load balancer generates itself (WAF blocks, 4xx/5xx with no target) are reported only as
+    # HTTPCode_ELB_*, so they are added to the request total; otherwise the 4xx rate can pass 100%
+    # (gita.atla.in showed 167%). This also matches CloudFront, whose Requests include WAF blocks.
+    answered = r["req"] + r["l4"] + r["l5"]
+    reqs = total(answered) or 0
     err5 = (total(r["t5"]) or 0) + (total(r["l5"]) or 0)
     err4 = (total(r["t4"]) or 0) + (total(r["l4"]) or 0)
-    last_day = [(t, v) for t, v in r["req"] if t >= end - DAY]
+    last_day = [(t, v) for t, v in answered if t >= end - DAY]
     return [
-        metric("requests_7d", "Requests", reqs, "count", "7d", src, "Bots included; not visitors."),
+        metric("requests_7d", "Requests", reqs, "count", "7d", src,
+               "Bots included; not visitors. Includes requests the load balancer answered itself, such as WAF blocks."),
         metric("requests_24h", "Requests", total(last_day) or 0, "count", "24h", src),
         metric("error_5xx_count_7d", "5xx responses", err5, "count", "7d", src, "App and load balancer."),
         metric("error_5xx_rate_7d", "5xx rate", err5 / reqs * 100 if reqs else None, "percent", "7d", src),
         metric("error_4xx_rate_7d", "4xx rate", err4 / reqs * 100 if reqs else None, "percent", "7d", src,
-               "App and load balancer; mostly bots requesting paths that do not exist."),
+               "App and load balancer, WAF blocks included; mostly bots."),
         metric("response_p90_24h", "Response time (p90)", r["rt"][-1][1] * 1000 if r["rt"] else None,
                "ms", "24h", src),
-    ], {"requests_hourly_24h": hourly(r["req"], end)}
+    ], {"requests_hourly_24h": hourly(answered, end)}
 
 
 def bedrock_metrics(cw, cfg, end):
