@@ -294,8 +294,9 @@
     controls.autoRotateSpeed = 0.35;
     controls.addEventListener("start", () => { controls.autoRotate = false; flight = null; });
   }
-  const HOME = { pos: new THREE.Vector3(20, 30, 28), target: new THREE.Vector3(0, 4, 0) };
-  const homeView = () => (narrow() ? { pos: new THREE.Vector3(26, 42, 38), target: new THREE.Vector3(0, 3, 2) } : HOME);
+  // Home view looks in from +z, through the gap between obs.atla.in and games.atla.in, straight at the gate
+  const HOME = { pos: new THREE.Vector3(2, 26, 36), target: new THREE.Vector3(0, 4, 0) };
+  const homeView = () => (narrow() ? { pos: new THREE.Vector3(2, 40, 50), target: new THREE.Vector3(0, 3, 2) } : HOME);
   camera.position.copy(homeView().pos);
   if (controls) controls.target.copy(homeView().target);
 
@@ -404,37 +405,71 @@
     g.position.copy(at);
     const ref = { kind: "site", id: site.domain };
     const isGate = site.domain === GATE;
-    const h = towerHeight(valueOf(site, "requests_24h"));
+    let h = towerHeight(valueOf(site, "requests_24h"));
     const health = siteHealth(site);
     const hc = new THREE.Color(healthColor(health));
 
     // Plinth
-    const plinth = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.3, 0.35, 48), new THREE.MeshStandardMaterial({ color: css("--surface-raised"), roughness: 0.9 }));
+    const plinth = new THREE.Mesh(isGate ? new THREE.CylinderGeometry(3.9, 4.1, 0.35, 64) : new THREE.CylinderGeometry(3.1, 3.3, 0.35, 48), new THREE.MeshStandardMaterial({ color: css("--surface-raised"), roughness: 0.9 }));
     plinth.position.y = 0.175; plinth.receiveShadow = true;
     g.add(plinth);
 
-    // Tower: the gateway is a cylinder (a hub), sites are blocks
-    const geo = isGate ? new THREE.CylinderGeometry(1.25, 1.45, h, 8) : new THREE.BoxGeometry(2, h, 2);
     const mat = new THREE.MeshStandardMaterial({ color: css("--tower"), roughness: 0.55, metalness: 0.15, emissive: hc, emissiveIntensity: 0.0 });
-    const tower = new THREE.Mesh(geo, mat);
-    tower.position.y = 0.35 + h / 2;
-    tower.castShadow = true; tower.receiveShadow = true;
-    tower.userData.ref = ref;
-    g.add(tower);
-    pickables.push(tower);
+    const edgeMat = () => new THREE.LineBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.55 });
+    const solid = (geo, x, y, z) => {
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x, y, z);
+      m.castShadow = true; m.receiveShadow = true;
+      m.userData.ref = ref;
+      g.add(m);
+      pickables.push(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat());
+      e.position.copy(m.position);
+      g.add(e);
+      return m;
+    };
 
-    // Floor lines so the height reads at a glance
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.55 }));
-    edges.position.copy(tower.position);
-    g.add(edges);
-    const floors = Math.max(1, Math.floor(h / 1.1));
-    for (let i = 1; i < floors; i++) {
-      const y = 0.35 + (h / floors) * i;
-      const ringGeo = isGate ? new THREE.TorusGeometry(1.3, 0.02, 4, 8) : new THREE.BoxGeometry(2.04, 0.04, 2.04);
-      const band = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.35 }));
-      if (isGate) { band.rotation.x = Math.PI / 2; band.rotation.z = Math.PI / 8; }
-      band.position.y = y;
-      g.add(band);
+    if (isGate) {
+      // The gateway is drawn as a gate: two pillars, a crossbeam and cap, and a glowing
+      // arched portal the tenants' traffic flows into. Pillar height still tracks API calls.
+      const ph = Math.max(6.2, h + 0.6);
+      const span = 2.1;                       // half the opening's width
+      const spring = Math.max(0.6, ph - span - 0.2);
+      [-1, 1].forEach((side) => {
+        solid(new THREE.BoxGeometry(0.85, ph, 1.1), side * (span + 0.425), 0.35 + ph / 2, 0);
+        solid(new THREE.BoxGeometry(1.2, 0.35, 1.45), side * (span + 0.425), 0.52, 0);      // pillar foot
+      });
+      solid(new THREE.BoxGeometry(span * 2 + 1.9, 0.5, 1.15), 0, 0.35 + ph + 0.25, 0);     // crossbeam
+      solid(new THREE.BoxGeometry(span * 2 + 2.6, 0.22, 1.45), 0, 0.35 + ph + 0.61, 0);    // cap
+
+      // Arched opening outline and portal
+      const arch = new THREE.Mesh(new THREE.TorusGeometry(span, 0.09, 8, 40, Math.PI), new THREE.MeshBasicMaterial({ color: css("--accent") }));
+      arch.position.set(0, 0.35 + spring, 0);
+      g.add(arch);
+      [-1, 1].forEach((side) => {
+        const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.18, spring, 0.18), new THREE.MeshBasicMaterial({ color: css("--accent") }));
+        jamb.position.set(side * span, 0.35 + spring / 2, 0);
+        g.add(jamb);
+      });
+      const shape = new THREE.Shape();
+      shape.moveTo(-span, 0); shape.lineTo(-span, spring); shape.absarc(0, spring, span, Math.PI, 0, true); shape.lineTo(span, 0); shape.lineTo(-span, 0);
+      const portal = new THREE.Mesh(new THREE.ShapeGeometry(shape, 32), new THREE.MeshBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+      portal.position.y = 0.35;
+      portal.userData.ref = ref;
+      g.add(portal);
+      pickables.push(portal);
+      g.userData.portal = portal;
+      g.userData.portalY = 0.35 + spring * 0.75;
+      h = ph + 0.8;                            // beacon and label sit above the cap
+    } else {
+      // Tower with floor lines so the height reads at a glance
+      solid(new THREE.BoxGeometry(2, h, 2), 0, 0.35 + h / 2, 0);
+      const floors = Math.max(1, Math.floor(h / 1.1));
+      for (let i = 1; i < floors; i++) {
+        const band = new THREE.Mesh(new THREE.BoxGeometry(2.04, 0.04, 2.04), new THREE.MeshBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.35 }));
+        band.position.y = 0.35 + (h / floors) * i;
+        g.add(band);
+      }
     }
 
     // Beacon on top: green up, amber over a limit, red down
@@ -526,7 +561,9 @@
       const tenants = sites.filter((x) => x.domain !== GATE && gateSite && (gateSite.description || "").includes(x.domain));
       tenants.forEach((t) => {
         const tg = built.get(t.domain);
-        buildFlow(tg.position.clone().setY(tg.userData.top), gateTop, valueOf(gateSite, "requests_7d"), accent, world, 3);
+        // Tenant traffic lands in the portal, so it reads as passing through the gate
+        const portalIn = gateG.position.clone().setY(gateG.userData.portalY || gateG.userData.top);
+        buildFlow(tg.position.clone().setY(tg.userData.top), portalIn, valueOf(gateSite, "requests_7d"), accent, world, 4);
       });
 
       // Model providers float above the gateway; each is a clickable orb
@@ -906,6 +943,7 @@
       if (world) world.traverse((o) => {
         if (o.userData && o.userData.spin) { o.rotation.y += dt * 0.6; o.rotation.x += dt * 0.25; }
         if (o.userData && o.userData.shieldSpin) o.userData.shieldSpin.rotation.y += dt * 0.05;
+        if (o.userData && o.userData.portal) o.userData.portal.material.opacity = 0.2 + Math.sin(time * 2.2) * 0.08;
       });
     } else if (flows.length && !flows[0].placed) {
       flows.forEach((f) => { f.mesh.position.copy(f.curve.getPointAt(f.t)); f.placed = true; });
