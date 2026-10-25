@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>atla.in observability · table view</title>
+<meta name="description" content="Uptime, traffic, errors, real-user experience and AI usage for every atla.in site, measured every 15 minutes.">
+<meta property="og:title" content="atla.in observability">
+<meta property="og:description" content="Uptime, traffic, errors, real-user experience and AI usage for every atla.in site, measured every 15 minutes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1915'/%3E%3Cpath d='M7 21l5-6 4 4 9-9' stroke='%23e08a6b' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>
+  try {
+    const t = localStorage.getItem("obs-theme");
+    document.documentElement.dataset.theme = t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  } catch (e) {}
+</script>
+<style>
+  :root {
+    color-scheme: dark;
+
+    --bg-page: #1a1915;
+    --surface: #24231f;
+    --surface-raised: #2c2a26;
+    --text-main: #f2efe8;
+    --text-muted: #bcb7ac;
+    --text-subtle: #a9a499;
+    --accent: #e08a6b;
+    --on-accent: #1f120c;
+    --border: rgba(242, 239, 232, 0.10);
+    --grid: rgba(242, 239, 232, 0.08);
+    --bar-muted: rgba(242, 239, 232, 0.22);
+
+    --good: #7cc48a;
+    --warn: #e5b85c;
+    --bad: #f08a7e;
+
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --radius: 12px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+
+    --bg-page: #f5f3ee;
+    --surface: #ffffff;
+    --surface-raised: #faf9f5;
+    --text-main: #1f1e1b;
+    --text-muted: #57544d;
+    --text-subtle: #67635b;
+    --accent: #b0502d;
+    --on-accent: #ffffff;
+    --border: rgba(31, 30, 27, 0.12);
+    --grid: rgba(31, 30, 27, 0.08);
+    --bar-muted: rgba(31, 30, 27, 0.22);
+
+    --good: #2f7d3e;
+    --warn: #8a6100;
+    --bad: #b3261e;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg-page); color: var(--text-main); font-family: var(--sans); font-size: 15px; line-height: 1.45; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1240px; margin-inline: auto; padding: 32px 24px 64px; display: flex; flex-direction: column; gap: 24px; }
+  @media (max-width: 640px) { .wrap { padding: 20px 16px 48px; } }
+
+  header.head { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: space-between; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  .take { margin: 6px 0 0; font-size: 16px; }
+  .take b { font-weight: 600; }
+  .snap { margin: 6px 0 0; color: var(--text-muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; }
+  .pill.fresh { color: var(--good); }
+  .pill.stale { color: var(--warn); }
+  .theme { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .theme:hover { background: var(--surface-raised); }
+
+  .warnbox { border: 1px solid var(--border); border-left: 3px solid var(--warn); background: var(--surface); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--text-muted); }
+  .warnbox[hidden] { display: none; }
+  .warnbox ul { margin: 4px 0 0; padding-left: 18px; }
+
+  nav.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; white-space: nowrap; background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 14px; margin-bottom: -1px; color: var(--text-muted); font: inherit; cursor: pointer; }
+  .tab:hover { color: var(--text-main); }
+  .tab[aria-selected="true"] { color: var(--text-main); border-bottom-color: var(--accent); }
+  .tab:focus-visible, .theme:focus-visible, .search:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .page { display: flex; flex-direction: column; gap: 16px; }
+  .page[hidden] { display: none; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; min-width: 0; }
+  .card h2, .card h3 { font-size: 16px; font-weight: 600; margin: 0; }
+  .note { color: var(--text-muted); font-size: 13px; margin: 4px 0 16px; }
+
+  .site-top { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-subtle); flex: none; }
+  .dot.up { background: var(--good); }
+  .dot.down { background: var(--bad); }
+  .site-top a { color: inherit; text-decoration: none; }
+  .site-top a:hover { text-decoration: underline; }
+  .status { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .stat-l { color: var(--text-muted); font-size: 12px; }
+  .stat-v { font-family: var(--serif); font-size: 22px; line-height: 1.2; }
+  .stat-w { color: var(--text-subtle); font-size: 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 12px; }
+  .tiles .stat { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .tiles .stat-v { font-size: 26px; }
+
+  .spark { position: relative; margin-top: 16px; height: 56px; }
+  .spark svg { display: block; width: 100%; height: 56px; }
+  .spark-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-subtle); font-size: 12px; margin-top: 6px; }
+  .tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); padding: 4px 8px; font-size: 12px; pointer-events: none; white-space: nowrap; z-index: 2; }
+  .tip[hidden] { display: none; }
+  .tip .d { color: var(--text-muted); }
+
+  .tablebox { overflow: auto; max-height: 560px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 500; color: var(--text-muted); font-size: 12px; padding: 6px 10px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); white-space: nowrap; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .num { text-align: right; white-space: nowrap; }
+  .muted { color: var(--text-muted); font-size: 13px; }
+  .bad { color: var(--bad); }
+  .good { color: var(--good); }
+  .warn { color: var(--warn); }
+  .bar { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .bar i { display: block; height: 8px; border-radius: 4px; background: var(--bar-muted); }
+  .search { font: inherit; font-size: 14px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-page); color: var(--text-main); width: min(100%, 340px); margin-bottom: 12px; }
+  .flag { font-size: 13px; color: var(--text-muted); margin: 12px 0 0; }
+  .flag:empty { display: none; }
+  .skel { min-height: 220px; background: linear-gradient(90deg, var(--surface) 0%, var(--surface-raised) 50%, var(--surface) 100%); background-size: 200% 100%; }
+  @media (prefers-reduced-motion: no-preference) { .skel { animation: shimmer 1.4s linear infinite; } }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+  .failed { display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); font-size: 13px; min-height: 120px; }
+  .failed::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--bad); }
+  footer { color: var(--text-subtle); font-size: 12px; }
+  footer a { color: inherit; }
+  @media (max-width: 640px) { .hide-narrow { display: none; } h1 { font-size: 28px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1>atla.in observability</h1>
+      <p class="take" id="takeaway">Loading the latest snapshot…</p>
+      <p class="snap" id="snap"></p>
+    </div>
+    <div style="display:flex;gap:8px"><a class="theme" href="./" style="text-decoration:none">3D view</a><button class="theme" id="theme" type="button" aria-label="Switch colour theme">Light theme</button></div>
+  </header>
+
+  <div class="warnbox" id="unavailable" hidden></div>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" data-tab="edge" aria-selected="false">Traffic &amp; edge</button>
+    <button class="tab" role="tab" data-tab="experience" aria-selected="false">User experience</button>
+    <button class="tab" role="tab" data-tab="ai" aria-selected="false">Gateway &amp; AI</button>
+    <button class="tab" role="tab" data-tab="all" aria-selected="false">All metrics</button>
+  </nav>
+
+  <section class="page" id="overview">
+    <div class="grid" id="site-cards">
+      <div class="card skel"></div><div class="card skel"></div><div class="card skel"></div>
+    </div>
+  </section>
+
+  <section class="page" id="edge" hidden>
+    <div class="card">
+      <h2>Traffic and errors by site</h2>
+      <p class="note">Requests are every file fetched, bots and firewall blocks included (gate.atla.in counts model API calls). Error rates are request-weighted; 4xx includes firewall blocks and bots asking for missing paths.</p>
+      <div class="tablebox">
+        <table id="edge-table">
+          <thead><tr>
+            <th>Site</th><th class="num">Requests 24h</th><th class="num">Requests 7d</th><th class="num">5xx rate 7d</th><th class="num">4xx rate 7d</th>
+            <th class="num">WAF blocked 7d</th><th class="num">Share blocked</th><th class="num hide-narrow">Data served 7d</th><th class="num hide-narrow">ALB p90 24h</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="flag" id="edge-flag"></p>
+    </div>
+  </section>
+
+  <section class="page" id="experience" hidden>
+    <div class="card">
+      <h2>Real-user experience, last 7 days</h2>
+      <p class="note">CloudWatch RUM, real browsers only, 75th percentile. Good is LCP ≤ 2.5 s (main content shows), CLS ≤ 0.1 (layout doesn't jump) and INP ≤ 200 ms (page responds to input). Red is over the limit.</p>
+      <div class="tablebox">
+        <table id="rum-table">
+          <thead><tr>
+            <th>Site</th><th class="num">Page views</th><th class="num">LCP p75</th><th class="num">CLS p75</th><th class="num">INP p75</th><th class="num">JS errors</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="flag">Blank cells: too few real visits in the window for RUM to report.</p>
+    </div>
+  </section>
+
+  <section class="page" id="ai" hidden>
+    <div class="card">
+      <h2>gate.atla.in gateway</h2>
+      <p class="note">From the gateway's audit log via /v1/stats. Spend is tokens × the gateway's price table; each provider's billing is the real charge.</p>
+      <div class="tiles" id="gate-tiles"></div>
+    </div>
+    <div class="card">
+      <h2>gita.atla.in on Amazon Bedrock</h2>
+      <p class="note">CloudWatch AWS/Bedrock in ap-south-1. Cost is tokens × on-demand list prices.</p>
+      <div class="tiles" id="gita-tiles"></div>
+    </div>
+    <div class="page">
+      <div class="card">
+        <h3>Models through the gateway</h3>
+        <p class="note">Last 7 days, every tenant.</p>
+        <div class="tablebox">
+          <table id="gw-table">
+            <thead><tr><th>Model</th><th class="num">Calls</th><th class="num">Tokens</th><th class="num">Spend</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Bedrock models</h3>
+        <p class="note">Last 7 days, every model with activity.</p>
+        <div class="tablebox">
+          <table id="bedrock-table">
+            <thead><tr><th>Model</th><th>Role</th><th class="num">Calls</th><th class="num hide-narrow">Input tokens</th><th class="num hide-narrow">Output tokens</th><th class="num">p90</th><th class="num">Cost</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="all" hidden>
+    <div class="card">
+      <h2>Every metric</h2>
+      <p class="note">Everything in the current snapshot, with where each number comes from.</p>
+      <input class="search" id="search" type="search" placeholder="Filter by site, metric or source" aria-label="Filter metrics">
+      <div class="tablebox">
+        <table id="all-table">
+          <thead><tr><th>Site</th><th>Metric</th><th class="num">Value</th><th>Window</th><th class="hide-narrow">Source</th><th class="hide-narrow">Note</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Snapshot collected every 15 minutes from Grafana Synthetic Monitoring, CloudWatch (CloudFront, WAF, RUM, ALB, Bedrock) and gate.atla.in/v1/stats, published as <a href="status.json">status.json</a>. Source: <a href="https://github.com/pranavatla/obs.atla.in">github.com/pranavatla/obs.atla.in</a>.
+  </footer>
+</div>
+
+<script>
+  const SITE_ORDER = ["atla.in", "gita.atla.in", "gate.atla.in", "obs.atla.in", "games.atla.in", "aif.atla.in"];
+  const orderSites = (sites) => sites.map((s, i) => [s, i]).sort(([a, i], [b, j]) => ((SITE_ORDER.indexOf(a.domain) + 1 || 999) - (SITE_ORDER.indexOf(b.domain) + 1 || 999)) || i - j).map(([s]) => s);
+
+  const LIMITS = { lcp_p75_7d: 2500, cls_p75_7d: 0.1, inp_p75_7d: 200 };
+  const STALE_MINUTES = 45;
+  const $ = (sel) => document.querySelector(sel);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const nf = (opts) => new Intl.NumberFormat("en", opts);
+  const int = nf({ maximumFractionDigits: 0 });
+  const compact = nf({ notation: "compact", maximumFractionDigits: 1 });
+  const dec = (d) => nf({ minimumFractionDigits: 0, maximumFractionDigits: d });
+  const fmt = (v, unit) => {
+    if (v == null || Number.isNaN(+v)) return "—";
+    v = +v;
+    switch (unit) {
+      case "percent": return dec(1).format(v) + "%";
+      case "ms": return v >= 1000 ? dec(2).format(v / 1000) + " s" : (v < 10 ? dec(1).format(v) : int.format(v)) + " ms";
+      case "bytes": {
+        const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0;
+        while (v >= 1000 && i < u.length - 1) { v /= 1000; i++; }
+        return dec(v < 10 ? 1 : 0).format(v) + " " + u[i];
+      }
+      case "usd": return "$" + nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+      case "score": return nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+      default: return v >= 10000 ? compact.format(v) : int.format(v);
+    }
+  };
+  const IST = { timeZone: "Asia/Kolkata", hour12: false };
+  const istFull = new Intl.DateTimeFormat("en-IN", { ...IST, day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const istHour = new Intl.DateTimeFormat("en-IN", { ...IST, hour: "2-digit", minute: "2-digit" });
+  const ago = (ms) => { const m = Math.round(ms / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + " h ago"; };
+
+  // Theme
+  const themeBtn = $("#theme");
+  const syncTheme = () => { themeBtn.textContent = document.documentElement.dataset.theme === "dark" ? "Light theme" : "Dark theme"; };
+  themeBtn.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("obs-theme", next); } catch (e) {}
+    syncTheme();
+  });
+  syncTheme();
+
+  // Tabs
+  const tabs = [...document.querySelectorAll(".tab")];
+  let current = "overview";
+  let snapshot = null;
+  const show = (name, push) => {
+    if (!tabs.some((t) => t.dataset.tab === name)) return;
+    current = name;
+    tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === name)));
+    document.querySelectorAll(".page").forEach((p) => { p.hidden = p.id !== name; });
+    if (push) history.replaceState(null, "", name === "overview" ? location.pathname : "#" + name);
+    if (snapshot && name === "overview") renderOverview(snapshot);
+  };
+  tabs.forEach((t) => t.addEventListener("click", () => show(t.dataset.tab, true)));
+  if (location.hash) show(location.hash.slice(1), false);
+
+  // Helpers over the snapshot
+  const metricOf = (site, key) => (site.metrics || []).find((m) => m.key === key);
+  const valueOf = (site, key) => { const m = metricOf(site, key); return m ? m.value : null; };
+  const overLimit = (key, v) => LIMITS[key] != null && v != null && v > LIMITS[key];
+
+  const stat = (site, key, label) => {
+    const m = metricOf(site, key);
+    const box = el("div", "stat");
+    box.append(el("div", "stat-l", label || (m ? m.label : key)));
+    const v = el("div", "stat-v", m ? fmt(m.value, m.unit) : "—");
+    if (m && overLimit(key, m.value)) v.classList.add("bad");
+    box.append(v);
+    if (m) box.append(el("div", "stat-w", m.window === "24h" ? "Last 24 hours" : "Last 7 days"));
+    return box;
+  };
+
+  const SVG = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs) => { const e = document.createElementNS(SVG, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+  // Hourly requests: bucket i covers the hour ending at windowEnd - (23 - i) h
+  const spark = (box, values, windowEnd) => {
+    box.replaceChildren();
+    const W = Math.max(box.clientWidth, 120), H = 56, n = values.length;
+    const max = Math.max(...values, 1);
+    const step = W / n, bw = Math.max(1, step * 0.72);
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": "Requests per hour, last 24 hours" });
+    svg.append(svgEl("line", { x1: 0, x2: W, y1: H - 0.5, y2: H - 0.5, stroke: "var(--grid)" }));
+    const bars = values.map((v, i) => {
+      const h = Math.max(v > 0 ? 1.5 : 0, (v / max) * (H - 4));
+      const r = svgEl("rect", { x: i * step + (step - bw) / 2, y: H - h, width: bw, height: h, rx: Math.min(2, bw / 2), fill: "var(--accent)" });
+      svg.append(r);
+      return r;
+    });
+    const tip = el("div", "tip"); tip.hidden = true;
+    const hourEnd = (i) => new Date(windowEnd.getTime() - (n - 1 - i) * 3600e3);
+    svg.addEventListener("pointermove", (ev) => {
+      const rect = svg.getBoundingClientRect();
+      const i = Math.max(0, Math.min(n - 1, Math.floor(((ev.clientX - rect.left) / rect.width) * n)));
+      bars.forEach((b, j) => b.setAttribute("fill-opacity", j === i ? "1" : "0.45"));
+      const end = hourEnd(i), start = new Date(end.getTime() - 3600e3);
+      tip.replaceChildren(el("div", "d", istHour.format(start) + "–" + istHour.format(end) + " IST"), el("div", null, int.format(values[i]) + " requests"));
+      tip.hidden = false;
+      const px = ((i + 0.5) / n) * rect.width;
+      tip.style.left = Math.min(Math.max(px, 80), rect.width - 80) + "px";
+    });
+    svg.addEventListener("pointerleave", () => { tip.hidden = true; bars.forEach((b) => b.setAttribute("fill-opacity", "1")); });
+    box.append(svg, tip);
+    return { max, first: new Date(hourEnd(0).getTime() - 3600e3), last: hourEnd(n - 1) };
+  };
+
+  function renderHeader(s) {
+    const sites = s.sites;
+    const up = sites.filter((x) => x.status === "up").length;
+    const uptimes = sites.map((x) => valueOf(x, "uptime_7d")).filter((v) => v != null);
+    const over = sites.reduce((n, x) => n + Object.keys(LIMITS).filter((k) => overLimit(k, valueOf(x, k))).length, 0);
+    const t = $("#takeaway");
+    t.replaceChildren();
+    const b = (text, cls) => { const e = el("b", cls, text); return e; };
+    t.append(b(up + " of " + sites.length, up === sites.length ? "" : "bad"), " sites up · lowest 7-day uptime ", b(uptimes.length ? fmt(Math.min(...uptimes), "percent") : "—"), " · ", b(String(over), over ? "bad" : ""), over === 1 ? " web-vital reading over its good limit" : " web-vital readings over their good limit");
+
+    const gen = new Date(s.generated_at);
+    const age = Date.now() - gen.getTime();
+    const snap = $("#snap");
+    snap.replaceChildren(el("span", null, "Snapshot " + istFull.format(gen) + " IST (" + ago(age) + ")"));
+    const pill = el("span", "pill " + (age > STALE_MINUTES * 60e3 ? "stale" : "fresh"), age > STALE_MINUTES * 60e3 ? "Stale" : "Fresh");
+    snap.append(pill);
+
+    const un = s.unavailable_sources || [];
+    const box = $("#unavailable");
+    box.hidden = !un.length;
+    if (un.length) {
+      const ul = el("ul");
+      un.forEach((u) => ul.append(el("li", null, u)));
+      box.replaceChildren(el("div", null, "Some sources didn't answer this run, so their metrics are left out rather than guessed:"), ul);
+    }
+  }
+
+  function renderOverview(s) {
+    const box = $("#site-cards");
+    box.replaceChildren();
+    const end = new Date((s.windows && s.windows["24h"] && s.windows["24h"].end) || s.generated_at);
+    orderSites(s.sites).forEach((site) => {
+      const card = el("div", "card");
+      card.id = "site-" + site.domain.replace(/\./g, "-");
+      const top = el("div", "site-top");
+      const link = el("a", null, site.domain); link.href = "https://" + site.domain; link.rel = "noopener";
+      const h = el("h3"); h.append(link);
+      top.append(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")), h, el("span", "status", site.status === "up" ? "Up" : site.status === "down" ? "Down" : "No check data"));
+      card.append(top, el("p", "note", site.description || site.name || ""));
+      const stats = el("div", "stats");
+      stats.append(stat(site, "uptime_7d", "Uptime"), stat(site, "check_duration_24h", "Check time"), stat(site, "requests_24h", site.domain === "gate.atla.in" ? "API calls" : "Requests"));
+      card.append(stats);
+      // The gateway publishes 24-hour totals only, so its "hourly" series is one bucket: no chart.
+      const values = site.domain === "gate.atla.in" ? null : site.series && site.series.requests_hourly_24h;
+      if (values && values.length) {
+        const sp = el("div", "spark");
+        card.append(sp);
+        box.append(card);
+        const info = spark(sp, values.map(Number), end);
+        const cap = el("div", "spark-cap");
+        cap.append(el("span", null, (site.domain === "gate.atla.in" ? "API calls" : "Requests") + " per hour from " + istHour.format(info.first)), el("span", null, "peak " + int.format(info.max) + " · to " + istHour.format(info.last) + " IST"));
+        card.append(cap);
+      } else {
+        if (site.domain === "gate.atla.in") card.append(el("p", "flag", "The gateway reports 24-hour totals, not hourly counts. Model calls and spend are under Gateway & AI."));
+        box.append(card);
+      }
+    });
+  }
+
+  const fillRows = (tableId, rows, cells) => {
+    const tbody = document.querySelector("#" + tableId + " tbody");
+    tbody.replaceChildren();
+    rows.forEach((r) => {
+      const tr = el("tr");
+      cells(r).forEach(([text, cls]) => {
+        const td = el("td", cls || "");
+        if (text instanceof Node) td.append(text); else td.textContent = text;
+        tr.append(td);
+      });
+      tbody.append(tr);
+    });
+  };
+
+  function renderEdge(s) {
+    const sites = orderSites(s.sites);
+    const cell = (site, key, unit, extra) => {
+      const v = valueOf(site, key);
+      let cls = "num" + (extra || "");
+      if (key === "error_5xx_rate_7d" && v > 0) cls += " bad";
+      if (key === "error_4xx_rate_7d" && v > 100) cls += " warn";
+      return [fmt(v, unit), cls];
+    };
+    fillRows("edge-table", sites, (x) => [
+      [x.domain], cell(x, "requests_24h", "count"), cell(x, "requests_7d", "count"), cell(x, "error_5xx_rate_7d", "percent"), cell(x, "error_4xx_rate_7d", "percent"),
+      cell(x, "waf_blocked_7d", "count"), cell(x, "waf_blocked_share_7d", "percent"), cell(x, "bytes_7d", "bytes", " hide-narrow"), cell(x, "response_p90_24h", "ms", " hide-narrow"),
+    ]);
+    const odd = sites.filter((x) => valueOf(x, "error_4xx_rate_7d") > 100).map((x) => x.domain);
+    $("#edge-flag").textContent = odd.length ? "A 4xx rate over 100% (" + odd.join(", ") + ") means the error and request counts don't line up; treat it as a collector bug." : "";
+  }
+
+  function renderRum(s) {
+    fillRows("rum-table", orderSites(s.sites), (x) => {
+      const c = (key, unit) => {
+        const v = valueOf(x, key);
+        let cls = "num";
+        if (LIMITS[key] != null && v != null) cls += overLimit(key, v) ? " bad" : " good";
+        if (key === "js_errors_7d" && v > 0) cls += " bad";
+        return [fmt(v, unit), cls];
+      };
+      return [[x.domain], c("page_views_7d", "count"), c("lcp_p75_7d", "ms"), c("cls_p75_7d", "score"), c("inp_p75_7d", "ms"), c("js_errors_7d", "count")];
+    });
+  }
+
+  function renderAi(s) {
+    const gate = s.sites.find((x) => x.domain === "gate.atla.in");
+    const gita = s.sites.find((x) => x.domain === "gita.atla.in");
+    const gt = $("#gate-tiles"), gi = $("#gita-tiles");
+    if (gate) gt.replaceChildren(...[["requests_7d", "API calls"], ["requests_24h", "API calls"], ["error_5xx_count_7d"], ["gateway_limited_7d"], ["gateway_blocked_7d"], ["gateway_failovers_7d"], ["gateway_cache_hit_rate_7d"], ["gateway_tokens_7d"], ["gateway_cost_7d"], ["gateway_overhead_p50_7d"], ["gateway_latency_p90_7d"]].filter(([k]) => metricOf(gate, k)).map(([k, l]) => stat(gate, k, l)));
+    else gt.replaceChildren(el("div", "failed", "No gateway data in this snapshot"));
+    if (gita) gi.replaceChildren(...["llm_calls_7d", "llm_tokens_7d", "llm_latency_p90_7d", "bedrock_cost_7d", "response_p90_24h"].filter((k) => metricOf(gita, k)).map((k) => stat(gita, k)));
+
+    const gw = (s.gateway && s.gateway.models_7d) || [];
+    const maxCost = Math.max(...gw.map((m) => +m.cost_usd || 0), 0.000001);
+    fillRows("gw-table", gw, (m) => {
+      const wrap = el("div", "bar"); const bar = el("i"); bar.style.width = Math.round(((+m.cost_usd || 0) / maxCost) * 48) + "px";
+      wrap.append(bar, el("span", null, fmt(m.cost_usd, "usd")));
+      return [[m.model], [fmt(m.calls, "count"), "num"], [fmt(m.tokens, "count"), "num"], [wrap, "num"]];
+    });
+    if (!gw.length) fillRows("gw-table", [0], () => [["No gateway model data in this snapshot", "muted"]]);
+    const bed = s.ai_models || [];
+    fillRows("bedrock-table", bed, (m) => [
+      [m.model_id], [m.role || ""], [fmt(m.calls_7d, "count"), "num"], [fmt(m.input_tokens_7d, "count"), "num hide-narrow"], [fmt(m.output_tokens_7d, "count"), "num hide-narrow"],
+      [fmt(m.latency_p90_ms_7d, "ms"), "num"], [fmt(m.cost_usd_7d, "usd"), "num"],
+    ]);
+  }
+
+  const search = $("#search");
+  function renderAll(s) {
+    const q = search.value.trim().toLowerCase();
+    const rows = [];
+    orderSites(s.sites).forEach((site) => (site.metrics || []).forEach((m) => rows.push({ domain: site.domain, ...m })));
+    fillRows("all-table", rows.filter((m) => !q || [m.domain, m.label, m.key, m.source, m.note].join(" ").toLowerCase().includes(q)), (m) => [
+      [m.domain], [m.label], [fmt(m.value, m.unit), "num" + (overLimit(m.key, m.value) ? " bad" : "")], [m.window, "muted"], [m.source || "", "muted hide-narrow"], [m.note || "", "muted hide-narrow"],
+    ]);
+  }
+  search.addEventListener("input", () => snapshot && renderAll(snapshot));
+
+  function render(s) {
+    renderHeader(s);
+    if (current === "overview") renderOverview(s);
+    renderEdge(s); renderRum(s); renderAi(s); renderAll(s);
+  }
+
+  let lastWidth = window.innerWidth;
+  window.addEventListener("resize", () => {
+    if (snapshot && current === "overview" && Math.abs(window.innerWidth - lastWidth) > 40) { lastWidth = window.innerWidth; renderOverview(snapshot); }
+  });
+
+  function load() {
+    fetch("status.json", { cache: "no-cache" })
+      .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then((s) => { snapshot = s; render(s); })
+      .catch(() => {
+        if (snapshot) return;
+        $("#takeaway").textContent = "The status snapshot didn't load. Try again in a minute.";
+        $("#site-cards").replaceChildren(el("div", "card failed", "Failed to load status.json"));
+      });
+  }
+  load();
+  setInterval(load, 5 * 60e3);
+  setInterval(() => snapshot && renderHeader(snapshot), 60e3);
+</script>
+</body>
+</html>

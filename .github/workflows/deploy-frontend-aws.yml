@@ -29,7 +29,7 @@ jobs:
       - name: Stage public files
         run: |
           mkdir -p site
-          cp index.html site/
+          cp index.html classic.html site/
 
       - name: Sync frontend to S3
         run: |
