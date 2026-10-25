@@ -105,6 +105,7 @@
   .lbl small { color: var(--text-muted); font-size: 11px; }
   .lbl.sel { border-color: var(--accent); }
   .lbl.model { font-size: 11px; padding: 3px 7px; }
+  .lbl.idle { color: var(--text-muted); border-style: dashed; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-subtle); flex: none; display: inline-block; }
   .dot.up { background: var(--good); }
   .dot.down { background: var(--bad); }
@@ -193,7 +194,7 @@
   <span><i style="background: var(--good)"></i>Beacon: up</span>
   <span><i style="background: var(--warn)"></i>Over a real-user limit or erroring</span>
   <span><i style="background: var(--bad)"></i>Down</span>
-  <span><i style="background: var(--shield)"></i>Orbs = models via the gateway</span>
+  <span><i style="background: var(--shield)"></i>Orbs = gateway providers, grey = idle this week</span>
   <span><i style="background: var(--warn); border-radius: 1px; transform: rotate(45deg)"></i>Diamonds = Bedrock called directly</span>
   <span class="hint">Drag to orbit, scroll to zoom, click anything for its numbers.</span>
 </div>
@@ -254,6 +255,31 @@
   const metricOf = (site, key) => (site.metrics || []).find((m) => m.key === key);
   const valueOf = (site, key) => { const m = metricOf(site, key); return m ? m.value : null; };
   const overLimit = (key, v) => LIMITS[key] != null && v != null && v > LIMITS[key];
+  // The gateway's providers. Newer gateway releases publish the full list (idle ones included);
+  // for older snapshots, fall back to the providers named in gate.atla.in's description plus any with traffic.
+  const PROVIDER_NAMES = { anthropic: "Anthropic", openai: "OpenAI", gemini: "Google Gemini", bedrock: "Amazon Bedrock" };
+  const gatewayProviders = (s) => {
+    const used = ((s.gateway && s.gateway.models_7d) || []).filter((m) => m.model.includes("/"));
+    const usage = (name) => used.filter((m) => m.model.split("/")[0] === name);
+    const listed = s.gateway && s.gateway.providers;
+    if (listed && listed.length) {
+      return listed.map((p) => {
+        const names = new Set([...(p.catalog_models || []), ...usage(p.provider).map((m) => m.model)]);
+        const models = [...names].map((model) => { const u = used.find((m) => m.model === model); return { model, calls: u ? +u.calls : 0, tokens: u ? +u.tokens : 0, cost_usd: u ? +u.cost_usd : 0 }; });
+        models.sort((a, b) => b.calls - a.calls || a.model.localeCompare(b.model));
+        return { provider: p.provider, calls_7d: +p.calls_7d || 0, tokens_7d: +p.tokens_7d || 0, cost_usd_7d: +p.cost_usd_7d || 0, models, fromGateway: true };
+      });
+    }
+    const gate = (s.sites || []).find((x) => x.domain === GATE);
+    const desc = (gate && gate.description) || "";
+    const names = Object.keys(PROVIDER_NAMES).filter((k) => desc.includes(PROVIDER_NAMES[k].replace("Google ", "")) || usage(k).length);
+    used.forEach((m) => { const k = m.model.split("/")[0]; if (!names.includes(k)) names.push(k); });
+    return names.map((k) => {
+      const u = usage(k);
+      const models = u.map((m) => ({ model: m.model, calls: +m.calls || 0, tokens: +m.tokens || 0, cost_usd: +m.cost_usd || 0 }));
+      return { provider: k, calls_7d: models.reduce((n, m) => n + m.calls, 0), tokens_7d: models.reduce((n, m) => n + m.tokens, 0), cost_usd_7d: models.reduce((n, m) => n + m.cost_usd, 0), models, fromGateway: false };
+    });
+  };
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const narrow = () => innerWidth <= 720;
 
@@ -566,24 +592,46 @@
         buildFlow(tg.position.clone().setY(tg.userData.top), portalIn, valueOf(gateSite, "requests_7d"), accent, world, 4);
       });
 
-      // Model providers float above the gateway; each is a clickable orb
-      const models = (s.gateway && s.gateway.models_7d) || [];
-      const real = models.filter((m) => m.model !== "cache");
-      real.forEach((m, i) => {
-        const a = (i / Math.max(real.length, 1)) * Math.PI * 2 + Math.PI / 4;
-        const p = new THREE.Vector3(Math.cos(a) * 5, gateG.userData.top + 5.5, Math.sin(a) * 5);
-        const ref = { kind: "model", id: m.model };
-        const r = 0.45 + Math.min(0.6, Math.log10(1 + (+m.calls || 0)) * 0.2);
-        const orb = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 2), new THREE.MeshStandardMaterial({ color: css("--shield"), emissive: css("--shield"), emissiveIntensity: 0.35, roughness: 0.4, flatShading: true }));
+      // Every provider the gateway can route to floats above it, busy or idle. Each orb is sized by
+      // its 7-day calls; small moons around it are its catalog models (bright = used this week).
+      const provs = gatewayProviders(s);
+      provs.forEach((pv, i) => {
+        const a = (i / Math.max(provs.length, 1)) * Math.PI * 2 + Math.PI / 4;
+        const p = new THREE.Vector3(Math.cos(a) * 5.6, gateG.userData.top + 5.2, Math.sin(a) * 5.6);
+        const ref = { kind: "provider", id: pv.provider };
+        const idle = !(pv.calls_7d > 0);
+        const r = idle ? 0.5 : 0.6 + Math.min(0.6, Math.log10(1 + pv.calls_7d) * 0.22);
+        const tint = css(idle ? "--text-subtle" : "--shield");
+        const orb = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 2), new THREE.MeshStandardMaterial({ color: tint, emissive: tint, emissiveIntensity: idle ? 0.05 : 0.35, roughness: 0.4, flatShading: true, transparent: idle, opacity: idle ? 0.55 : 1 }));
         orb.position.copy(p);
         orb.userData.ref = ref;
         orb.userData.spin = true;
         world.add(orb);
         pickables.push(orb);
-        buildFlow(gateTop, p.clone().add(new THREE.Vector3(0, -r, 0)), m.calls, new THREE.Color(css("--shield")), world, 1.5);
-        const [provider, ...rest] = m.model.split("/");
-        const lbl = makeLabel(ref, rest.join("/") || provider, provider + " · " + fmt(m.calls, "count") + " calls · 7 d", null, "model");
-        lbl.position.copy(p).add(new THREE.Vector3(0, r + 0.5, 0));
+        if (idle) {
+          // Wired but quiet: a faint dashed link, no traffic particles
+          const mid = gateTop.clone().add(p).multiplyScalar(0.5); mid.y = Math.max(gateTop.y, p.y) + 1.5;
+          const pts = new THREE.QuadraticBezierCurve3(gateTop, mid, p.clone().add(new THREE.Vector3(0, -r, 0))).getPoints(40);
+          const dash = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: tint, dashSize: 0.25, gapSize: 0.2, transparent: true, opacity: 0.6 }));
+          dash.computeLineDistances();
+          world.add(dash);
+        } else {
+          buildFlow(gateTop, p.clone().add(new THREE.Vector3(0, -r, 0)), pv.calls_7d, new THREE.Color(tint), world, 1.5);
+        }
+        // Moons: one per catalog model
+        const usedSet = new Set(pv.models.filter((m) => m.calls > 0).map((m) => m.model));
+        pv.models.forEach((m, j) => {
+          const moon = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8), new THREE.MeshBasicMaterial({ color: css(usedSet.has(m.model) ? "--accent" : "--text-subtle") }));
+          const ang = (j / pv.models.length) * Math.PI * 2;
+          moon.userData.orbit = { center: p, radius: r + 0.45, angle: ang, speed: 0.6 };
+          moon.position.set(p.x + Math.cos(ang) * (r + 0.45), p.y, p.z + Math.sin(ang) * (r + 0.45));
+          moon.userData.ref = ref;
+          world.add(moon);
+          pickables.push(moon);
+        });
+        const line = idle ? "no calls in 7 d" : fmt(pv.calls_7d, "count") + " calls · 7 d";
+        const lbl = makeLabel(ref, PROVIDER_NAMES[pv.provider] || pv.provider, line + (pv.models.length ? " · " + pv.models.length + (pv.models.length === 1 ? " model" : " models") : ""), null, "model" + (idle ? " idle" : ""));
+        lbl.position.copy(p).add(new THREE.Vector3(0, r + 0.6, 0));
         world.add(lbl);
       });
     }
@@ -786,16 +834,23 @@
     if (rest.length) body.append(section("Other metrics", rest.map((m) => metricTile(site, m.key))));
   }
 
-  function renderModelPanel(id, s) {
-    const m = ((s.gateway && s.gateway.models_7d) || []).find((x) => x.model === id);
-    if (!m) return false;
-    const [provider, ...rest] = m.model.split("/");
-    $("#p-title").textContent = rest.join("/") || provider;
-    $("#p-sub").textContent = "Called through gate.atla.in · provider " + provider;
+  function renderProviderPanel(id, s) {
+    const pv = gatewayProviders(s).find((x) => x.provider === id);
+    if (!pv) return false;
+    const idle = !(pv.calls_7d > 0);
+    $("#p-title").textContent = PROVIDER_NAMES[pv.provider] || pv.provider;
+    $("#p-sub").textContent = "Provider behind gate.atla.in · " + (idle ? "wired and available, no successful calls in the last 7 days" : "served traffic in the last 7 days");
     const body = $("#p-body");
     body.replaceChildren();
-    const total = ((s.gateway && s.gateway.models_7d) || []).reduce((n, x) => n + (+x.calls || 0), 0);
-    body.append(section("Last 7 days", [statTile("Calls", fmt(m.calls, "count"), "Every tenant"), statTile("Tokens", fmt(m.tokens, "count"), "Input + output"), statTile("Spend", fmt(m.cost_usd, "usd"), "Gateway price table"), statTile("Share of calls", total ? fmt((m.calls / total) * 100, "percent") : "—", "Of gateway traffic")]));
+    const total = gatewayProviders(s).reduce((n, x) => n + (x.calls_7d || 0), 0);
+    body.append(section("Last 7 days", [statTile("Calls", fmt(pv.calls_7d, "count"), "Successful, every tenant"), statTile("Tokens", fmt(pv.tokens_7d, "count"), "Input + output"), statTile("Spend", fmt(pv.cost_usd_7d, "usd"), "Gateway price table"), statTile("Share of calls", total ? fmt((pv.calls_7d / total) * 100, "percent") : "—", "Of gateway traffic")]));
+    if (pv.models.length) {
+      const sec = el("section", "sec");
+      sec.append(el("h3", null, "Models in the gateway catalog"));
+      sec.append(table([["Model"], ["Calls", "num"], ["Tokens", "num"], ["Spend", "num"]], pv.models.map((m) => [[m.model.split("/").slice(1).join("/")], [fmt(m.calls, "count"), "num"], [fmt(m.tokens, "count"), "num"], [fmt(m.cost_usd, "usd"), "num"]])));
+      body.append(sec);
+    }
+    if (!pv.fromGateway) body.append(el("p", "flag", "This snapshot predates the gateway's provider list, so models only show once they've had traffic."));
     if (s.gateway && s.gateway.source) body.append(el("p", "src", "Source: " + s.gateway.source));
     return true;
   }
@@ -818,7 +873,7 @@
     if (selected.kind === "site") {
       const site = (snapshot.sites || []).find((x) => x.domain === selected.id);
       if (site) { renderSitePanel(site, snapshot); ok = true; }
-    } else if (selected.kind === "model") ok = renderModelPanel(selected.id, snapshot);
+    } else if (selected.kind === "provider") ok = renderProviderPanel(selected.id, snapshot);
     else if (selected.kind === "bedrock") ok = renderBedrockPanel(selected.id, snapshot);
     if (!ok) { closePanel(); return; }
     panel.classList.add("open");
@@ -942,6 +997,7 @@
       beacons.forEach((b) => { const s = 2.2 + Math.sin(time * (b.fast ? 6 : 2) + b.phase) * (b.fast ? 0.7 : 0.3); b.glow.scale.setScalar(s); });
       if (world) world.traverse((o) => {
         if (o.userData && o.userData.spin) { o.rotation.y += dt * 0.6; o.rotation.x += dt * 0.25; }
+        if (o.userData && o.userData.orbit) { const ob = o.userData.orbit; ob.angle += dt * ob.speed; o.position.set(ob.center.x + Math.cos(ob.angle) * ob.radius, ob.center.y + Math.sin(ob.angle * 2) * 0.15, ob.center.z + Math.sin(ob.angle) * ob.radius); }
         if (o.userData && o.userData.shieldSpin) o.userData.shieldSpin.rotation.y += dt * 0.05;
         if (o.userData && o.userData.portal) o.userData.portal.material.opacity = 0.2 + Math.sin(time * 2.2) * 0.08;
       });

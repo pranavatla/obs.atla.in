@@ -173,6 +173,8 @@ class SnapshotTest(unittest.TestCase):
         self.assertEqual(value(rec, "gateway_tokens_7d"), 10000)
         self.assertEqual(rec["series"]["requests_hourly_24h"][-1], 17.0)
         self.assertEqual(len(data["gateway"]["models_7d"]), 2)
+        # Older gateway releases have no provider list; the page then falls back to models_7d
+        self.assertIsNone(data["gateway"]["providers"])
         self.assertEqual(data["unavailable_sources"], [])
 
     def test_gateway_failure_is_reported_not_guessed(self):

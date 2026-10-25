@@ -307,7 +307,10 @@ def gateway_metrics(stats, url):
 def gateway_summary(cfg, stats):
     """Model mix and windows for the gateway card; the site record carries the totals."""
     return {"domain": cfg["domain"], "generated_at": stats["generated_at"], "windows": stats["windows"],
-            "models_7d": stats["models_7d"], "source": f"gate.atla.in audit log, aggregated at {cfg['gateway_stats']}"}
+            "models_7d": stats["models_7d"],
+            # Every provider the gateway can route to, idle ones included (gateway releases from Oct 2026)
+            "providers": stats.get("providers"),
+            "source": f"gate.atla.in audit log, aggregated at {cfg['gateway_stats']}"}
 
 
 # Regions searched for Bedrock activity; models are discovered, not assumed.
