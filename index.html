@@ -14,7 +14,15 @@
     document.documentElement.dataset.theme = t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
   } catch (e) {}
 </script>
+<link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face {
+    font-family: "Inter";
+    src: url("assets/fonts/inter.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+  }
   :root {
     color-scheme: dark;
 
@@ -43,8 +51,7 @@
     --arch-private: #b48cf6;
     --arch-group: #2dd4bf;
 
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --radius: 12px;
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -90,11 +97,11 @@
   .hud { position: fixed; top: 20px; left: 24px; right: 24px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; pointer-events: none; z-index: 2; }
   .hud > * { pointer-events: auto; }
   .brief { max-width: 560px; background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; }
-  h1 { font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  h1 { font-family: var(--sans); font-weight: 600; font-size: 28px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
   .take { margin: 6px 0 0; font-size: 15px; }
   .take b { font-weight: 600; }
   .snap { margin: 6px 0 0; color: var(--text-muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 13px; }
   .pill.fresh { color: var(--good); }
   .pill.stale { color: var(--warn); }
   .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
@@ -106,17 +113,17 @@
   .warnbox[hidden] { display: none; }
   .warnbox ul { margin: 4px 0 0; padding-left: 18px; }
 
-  .legend { position: fixed; left: 24px; bottom: 20px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px 14px; max-width: 560px; color: var(--text-muted); font-size: 12px; background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+  .legend { position: fixed; left: 24px; bottom: 20px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px 14px; max-width: 560px; color: var(--text-muted); font-size: 13px; background: color-mix(in srgb, var(--surface) 82%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
   .legend .hint { color: var(--text-subtle); }
 
   /* Floating labels above each object; they are real buttons, so Tab reaches every site */
-  .lbl { pointer-events: auto; cursor: pointer; font: inherit; font-size: 12px; line-height: 1.25; color: var(--text-main); background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; text-align: left; white-space: nowrap; transform: translateY(-6px); }
+  .lbl { pointer-events: auto; cursor: pointer; font: inherit; font-size: 13px; line-height: 1.25; color: var(--text-main); background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; text-align: left; white-space: nowrap; transform: translateY(-6px); }
   .lbl b { font-weight: 600; display: flex; align-items: center; gap: 6px; }
-  .lbl small { color: var(--text-muted); font-size: 11px; }
+  .lbl small { color: var(--text-muted); font-size: 13px; }
   .lbl.sel { border-color: var(--accent); }
-  .lbl.model { font-size: 11px; padding: 3px 7px; }
+  .lbl.model { font-size: 13px; padding: 3px 7px; }
   .lbl.idle { color: var(--text-muted); border-style: dashed; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-subtle); flex: none; display: inline-block; }
   .dot.up { background: var(--good); }
@@ -135,9 +142,9 @@
   .sec h3 { font-size: 13px; font-weight: 600; margin: 0 0 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
   .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .stat { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-width: 0; }
-  .stat-l { color: var(--text-muted); font-size: 12px; }
-  .stat-v { font-family: var(--serif); font-size: 22px; line-height: 1.2; }
-  .stat-w { color: var(--text-subtle); font-size: 11px; }
+  .stat-l { color: var(--text-muted); font-size: 13px; }
+  .stat-v { font-family: var(--sans); font-weight: 600; font-size: 22px; line-height: 1.2; }
+  .stat-w { color: var(--text-subtle); font-size: 13px; }
   .bad { color: var(--bad); }
   .good { color: var(--good); }
   .warn { color: var(--warn); }
@@ -146,17 +153,17 @@
 
   .spark { position: relative; height: 64px; }
   .spark svg { display: block; width: 100%; height: 64px; }
-  .spark-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-subtle); font-size: 12px; margin-top: 6px; }
-  .tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; }
+  .spark-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-subtle); font-size: 13px; margin-top: 6px; }
+  .tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); padding: 4px 8px; font-size: 13px; white-space: nowrap; pointer-events: none; }
   .tip[hidden] { display: none; }
   .tip .d { color: var(--text-muted); }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-weight: 500; color: var(--text-muted); font-size: 12px; padding: 5px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { text-align: left; font-weight: 500; color: var(--text-muted); font-size: 13px; padding: 5px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
   td { padding: 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
   tr:last-child td { border-bottom: 0; }
   .num { text-align: right; white-space: nowrap; }
-  .src { color: var(--text-subtle); font-size: 12px; }
+  .src { color: var(--text-subtle); font-size: 13px; }
 
   .fallback { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; color: var(--text-muted); }
   .fallback a { color: var(--accent); }
@@ -172,7 +179,7 @@
   .arch-sum { margin: 0; font-size: 14px; color: var(--text-main); }
   .arch { margin: 0; background: var(--bg-page); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px 12px; }
   .arch svg { display: block; width: 100%; height: auto; font-family: var(--sans); }
-  .arch figcaption { color: var(--text-subtle); font-size: 12px; margin: 8px 4px 0; }
+  .arch figcaption { color: var(--text-subtle); font-size: 13px; margin: 8px 4px 0; }
   .arch-detail { margin: 8px 4px 0; font-size: 13px; color: var(--text-main); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
   .arch .a-box { fill: none; stroke-width: 1.4; stroke-dasharray: 7 5; }
   .arch .a-box.b-cloud, .arch .a-box.b-cluster { stroke-dasharray: none; stroke-width: 1.8; }
@@ -207,7 +214,7 @@
   @media (prefers-reduced-motion: no-preference) { .arch .a-edge.main { stroke-dasharray: 7 4; animation: archflow 1.1s linear infinite; } }
   @keyframes archflow { to { stroke-dashoffset: -11; } }
   .lane { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center; }
-  .lane li { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--surface-raised); border: 1px solid var(--border); }
+  .lane li { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--surface-raised); border: 1px solid var(--border); }
   .lane li:not(:last-child)::after { content: "→"; margin-left: 8px; color: var(--accent); }
   .sec h3 a { color: inherit; text-transform: none; letter-spacing: 0; }
 
@@ -215,7 +222,7 @@
     .hud { top: 12px; left: 12px; right: 12px; flex-direction: column; gap: 8px; }
     .brief { padding: 10px 14px; max-width: none; width: 100%; }
     h1 { font-size: 22px; }
-    .take { font-size: 13px; }
+    .take { font-size: 14px; }
     .controls { justify-content: flex-start; }
     .legend { display: none; }
     .panel.wide { width: 100%; max-height: 86vh; }

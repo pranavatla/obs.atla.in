@@ -30,6 +30,7 @@ jobs:
         run: |
           mkdir -p site
           cp index.html classic.html site/
+          cp -R assets site/
 
       - name: Sync frontend to S3
         run: |
