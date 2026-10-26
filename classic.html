@@ -146,7 +146,29 @@
   footer { color: var(--text-subtle); font-size: 13px; }
   footer a { color: inherit; }
   @media (max-width: 640px) { .hide-narrow { display: none; } h1 { font-size: 28px; } }
+  .card-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .archbtn { display: inline-flex; align-items: center; gap: 6px; background: none; color: var(--text-main); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+  .archbtn:hover { border-color: var(--accent); }
+  .archbtn:focus-visible, .dlg-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .archbtn svg { width: 15px; height: 15px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  dialog.archdlg { width: min(940px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-main); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45); overflow: hidden; }
+  dialog.archdlg[open] { display: flex; flex-direction: column; }
+  dialog.archdlg::backdrop { background: rgba(10, 10, 8, 0.6); }
+  .dlg-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--border); }
+  .dlg-head h2 { margin: 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .dlg-head p { margin: 4px 0 0; color: var(--text-muted); font-size: 13px; }
+  .dlg-close { margin-left: auto; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-raised); color: var(--text-main); font-size: 18px; line-height: 1; cursor: pointer; }
+  .dlg-body { overflow: auto; padding: 16px 20px 20px; }
+  @media (max-width: 640px) {
+    dialog.archdlg { width: 100vw; max-width: 100vw; max-height: 92vh; margin: auto 0 0; border-radius: 16px 16px 0 0; }
+    .dlg-head { padding: 14px 16px 10px; }
+    .dlg-body { padding: 12px 12px 20px; }
+  }
 </style>
+<link rel="stylesheet" href="assets/arch.css">
+<!-- Loaded before the page script runs, so every card knows whether it has a diagram -->
+<script src="assets/arch.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -256,6 +278,17 @@
       </div>
     </div>
   </section>
+
+  <dialog class="archdlg" id="arch-dlg" aria-labelledby="arch-title">
+    <div class="dlg-head">
+      <div>
+        <h2 id="arch-title"></h2>
+        <p>Architecture, drawn from the site's repo</p>
+      </div>
+      <button class="dlg-close" id="arch-close" type="button" aria-label="Close architecture">×</button>
+    </div>
+    <div class="dlg-body"><div class="arch-view" id="arch-body"></div></div>
+  </dialog>
 
   <footer>
     Snapshot collected every 15 minutes from Grafana Synthetic Monitoring, CloudWatch (CloudFront, WAF, RUM, ALB, Bedrock) and gate.atla.in/v1/stats, published as <a href="status.json">status.json</a>. Source: <a href="https://github.com/pranavatla/obs.atla.in">github.com/pranavatla/obs.atla.in</a>.
@@ -398,6 +431,26 @@
     }
   }
 
+  // Architecture dialog: the same diagrams as the 3D view, from assets/arch.js
+  const dlg = $("#arch-dlg");
+  let archSite = null, archWidth = 0;
+  const drawArch = () => {
+    const body = $("#arch-body");
+    archWidth = body.clientWidth;
+    window.renderArchitecture(archSite.domain, body);
+  };
+  function openArch(site) {
+    archSite = site;
+    const t = $("#arch-title");
+    t.replaceChildren(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")), site.domain);
+    dlg.showModal();
+    dlg.querySelector(".dlg-body").scrollTop = 0;
+    drawArch();   // after showModal, so the diagram is sized to the dialog's real width
+  }
+  $("#arch-close").addEventListener("click", () => dlg.close());
+  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });   // click on the backdrop
+  window.addEventListener("resize", () => { if (dlg.open && Math.abs($("#arch-body").clientWidth - archWidth) > 30) drawArch(); });
+
   function renderOverview(s) {
     const box = $("#site-cards");
     box.replaceChildren();
@@ -413,6 +466,17 @@
       const stats = el("div", "stats");
       stats.append(stat(site, "uptime_7d", "Uptime"), stat(site, "check_duration_24h", "Check time"), stat(site, "requests_24h", site.domain === "gate.atla.in" ? "API calls" : "Requests"));
       card.append(stats);
+      const foot = el("div", "card-foot");
+      if (window.hasArchitecture && window.hasArchitecture(site.domain)) {
+        const btn = el("button", "archbtn");
+        btn.type = "button";
+        btn.setAttribute("aria-haspopup", "dialog");
+        btn.setAttribute("aria-label", "Show the architecture of " + site.domain);
+        btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v5H4zM14 4h6v5h-6zM9 15h6v5H9z"/><path d="M7 9v3h10V9M12 12v3"/></svg>';
+        btn.append("Architecture");
+        btn.addEventListener("click", () => openArch(site));
+        foot.append(btn);
+      }
       // The gateway publishes 24-hour totals only, so its "hourly" series is one bucket: no chart.
       const values = site.domain === "gate.atla.in" ? null : site.series && site.series.requests_hourly_24h;
       if (values && values.length) {
@@ -427,6 +491,7 @@
         if (site.domain === "gate.atla.in") card.append(el("p", "flag", "The gateway reports 24-hour totals, not hourly counts. Model calls and spend are under Gateway & AI."));
         box.append(card);
       }
+      if (foot.childElementCount) card.append(foot);
     });
   }
 

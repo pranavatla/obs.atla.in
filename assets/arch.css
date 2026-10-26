@@ -1,0 +1,63 @@
+/* Architecture diagram styles, shared by index.html and classic.html. Colours come from each page's
+   theme tokens (--surface, --text-main, …); the diagram's own boundary colours are defined here. */
+:root {
+  --arch-flow: #4cc9f0;
+  --arch-cloud: #f08c2e;
+  --arch-vpc: #3fb950;
+  --arch-public: #6ea8fe;
+  --arch-private: #b48cf6;
+  --arch-group: #2dd4bf;
+}
+:root[data-theme="light"] {
+  --arch-flow: #0b7fa8;
+  --arch-cloud: #c45a00;
+  --arch-vpc: #2a7d33;
+  --arch-public: #2f6fb3;
+  --arch-private: #7048b8;
+  --arch-group: #0f8f80;
+}
+.arch-sum { margin: 0; font-size: 14px; color: var(--text-main); }
+.arch { margin: 0; background: var(--bg-page); border: 1px solid var(--border); border-radius: 12px; padding: 10px 8px 12px; }
+.arch svg { display: block; width: 100%; height: auto; font-family: var(--sans); }
+.arch figcaption { color: var(--text-subtle); font-size: 13px; margin: 8px 4px 0; }
+.arch-detail { margin: 8px 4px 0; font-size: 13px; color: var(--text-main); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.arch .a-box { fill: none; stroke-width: 1.4; stroke-dasharray: 7 5; }
+.arch .a-box.b-cloud, .arch .a-box.b-cluster { stroke-dasharray: none; stroke-width: 1.8; }
+.arch .b-cloud { stroke: var(--arch-cloud); fill: var(--arch-cloud); }
+.arch .b-vpc { stroke: var(--arch-vpc); fill: var(--arch-vpc); }
+.arch .b-public { stroke: var(--arch-public); fill: var(--arch-public); }
+.arch .b-private { stroke: var(--arch-private); fill: var(--arch-private); }
+.arch .b-cluster { stroke: var(--arch-cloud); fill: var(--arch-cloud); }
+.arch .b-group { stroke: var(--arch-group); fill: var(--arch-group); }
+.arch .b-serverless { stroke: var(--arch-private); fill: var(--arch-private); }
+.arch .b-planned, .arch .b-ext { stroke: var(--text-subtle); fill: var(--text-subtle); }
+.arch .a-box { fill: none; }
+.arch .a-cut { fill: var(--bg-page); }
+.arch .a-blabel { font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em; stroke: none; }
+.arch .a-head { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; fill: var(--arch-vpc); }
+.arch .a-note { font-size: 11.5px; font-style: italic; fill: var(--text-muted); }
+.arch .a-edge { fill: none; stroke: var(--text-subtle); stroke-width: 1.3; }
+.arch .a-edge.main { stroke: var(--arch-flow); stroke-width: 2; }
+.arch .a-ahm { fill: var(--arch-flow); }
+.arch .a-ahs { fill: var(--text-subtle); }
+.arch .a-pill { fill: var(--bg-page); stroke: var(--border); }
+.arch .a-pill.main { stroke: var(--arch-flow); }
+.arch .a-plabel { font-size: 10.5px; fill: var(--text-muted); }
+.arch .a-tile { cursor: pointer; outline: none; }
+.arch .a-tbox { fill: var(--surface); stroke: var(--border); stroke-width: 1; transition: stroke 0.2s; }
+.arch .a-tile.ext .a-tbox { stroke-dasharray: 4 3; }
+.arch .a-tile:hover .a-tbox, .arch .a-tile.on .a-tbox, .arch .a-tile:focus-visible .a-tbox { stroke: var(--arch-flow); stroke-width: 1.8; }
+.arch .a-icon path { fill: none; stroke: #ffffff; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.arch .a-ttl { font-size: 12px; font-weight: 600; fill: var(--text-main); }
+.arch .a-ttl.sm { font-size: 10.5px; }
+.arch .a-sub { font-size: 10px; fill: var(--text-muted); }
+@media (prefers-reduced-motion: no-preference) { .arch .a-edge.main { stroke-dasharray: 7 4; animation: archflow 1.1s linear infinite; } }
+@keyframes archflow { to { stroke-dashoffset: -11; } }
+.lane { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center; }
+.lane li { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--surface-raised); border: 1px solid var(--border); }
+.lane li:not(:last-child)::after { content: "→"; margin-left: 8px; color: var(--accent); }
+.sec h3 a { color: inherit; text-transform: none; letter-spacing: 0; }
+.arch-view { display: flex; flex-direction: column; gap: 18px; }
+.arch-view .sec h3 { font-size: 13px; font-weight: 600; margin: 0 0 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.arch-view .src { color: var(--text-subtle); font-size: 12px; margin: 8px 0 0; }
+.arch-view .muted { color: var(--text-muted); font-size: 13px; margin: 0; }
