@@ -147,7 +147,12 @@
   footer { color: var(--text-subtle); font-size: 13px; }
   footer a { color: inherit; }
   @media (max-width: 640px) { .hide-narrow { display: none; } h1 { font-size: 28px; } }
-  .card-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .card-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+  .visit { flex: none; display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; padding: 3px 8px 3px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--accent); font-size: 12px; font-weight: 500; text-decoration: none; }
+  .visit:hover { border-color: var(--accent); }
+  .visit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .visit svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s var(--ease-out); }
+  .visit:hover svg { transform: translate(2px, -2px); }
   .archbtn { display: inline-flex; align-items: center; gap: 6px; background: none; color: var(--text-main); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; }
   .archbtn:hover { border-color: var(--accent); }
   .archbtn:focus-visible, .dlg-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -464,6 +469,15 @@
       const link = el("a", null, site.domain); link.href = "https://" + site.domain; link.rel = "noopener";
       const h = el("h3"); h.append(link);
       top.append(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")), h, el("span", "status", site.status === "up" ? "Up" : site.status === "down" ? "Down" : "No check data"));
+      // Visit the live site in a new tab, top-right of the card beside its status
+      const visit = el("a", "visit");
+      visit.href = "https://" + site.domain;
+      visit.target = "_blank";
+      visit.rel = "noopener noreferrer";
+      visit.setAttribute("aria-label", "Visit " + site.domain + " (opens in a new tab)");
+      visit.append("Visit");
+      visit.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16L16 8M9 8h7v7"/></svg>');
+      top.append(visit);
       card.append(top, el("p", "note", site.description || site.name || ""));
       const stats = el("div", "stats");
       stats.append(stat(site, "uptime_7d", "Uptime"), stat(site, "check_duration_24h", "Check time"), stat(site, "requests_24h", site.domain === "gate.atla.in" ? "API calls" : "Requests"));
