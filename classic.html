@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>atla.in observability · table view</title>
-<meta name="description" content="Uptime, traffic, errors, real-user experience and AI usage for every atla.in site, measured every 15 minutes.">
-<meta property="og:title" content="atla.in observability">
-<meta property="og:description" content="Uptime, traffic, errors, real-user experience and AI usage for every atla.in site, measured every 15 minutes.">
+<title>atla.in · Observability &amp; Architecture · Table view</title>
+<meta name="description" content="Explore the infrastructure, service connections, operational health, and AI usage behind every atla.in site. Architecture diagrams alongside uptime, traffic, errors, performance, and cost metrics.">
+<meta property="og:title" content="atla.in · Observability &amp; Architecture">
+<meta property="og:description" content="Explore the infrastructure, service connections, operational health, and AI usage behind every atla.in site. Architecture diagrams alongside uptime, traffic, errors, performance, and cost metrics.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1915'/%3E%3Cpath d='M7 21l5-6 4 4 9-9' stroke='%23e08a6b' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <script>
   try {
@@ -74,6 +74,7 @@
 
   header.head { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: space-between; }
   h1 { font-family: var(--sans); font-weight: 600; font-size: 34px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  .intro { margin: 8px 0 0; color: var(--text-muted); font-size: 13px; line-height: 1.45; }
   .take { margin: 6px 0 0; font-size: 16px; }
   .take b { font-weight: 600; }
   .snap { margin: 6px 0 0; color: var(--text-muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -174,7 +175,8 @@
 <div class="wrap">
   <header class="head">
     <div>
-      <h1>atla.in observability</h1>
+      <h1>atla.in · Observability &amp; Architecture</h1>
+      <p class="intro">Explore how each site is built, connected, and performing.</p>
       <p class="take" id="takeaway">Loading the latest snapshot…</p>
       <p class="snap" id="snap"></p>
     </div>
