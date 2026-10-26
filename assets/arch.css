@@ -61,3 +61,6 @@
 .arch-view .sec h3 { font-size: 13px; font-weight: 600; margin: 0 0 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .arch-view .src { color: var(--text-subtle); font-size: 12px; margin: 8px 0 0; }
 .arch-view .muted { color: var(--text-muted); font-size: 13px; margin: 0; }
+
+/* The map's pause control also pauses its architecture flow. */
+html[data-motion="off"] .arch .a-edge.main { animation: none; }
