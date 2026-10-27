@@ -281,6 +281,12 @@
   .lbl b { font-weight: 500; }
   .lbl small { display: none; }
   .lbl.model { font-size: 10px; padding: 2px 4px; min-height: 18px; max-width: 144px; }
+  .lbl.provider-group { max-width: 136px; }
+  .lbl.provider-group b { font-size: 10px; font-weight: 500; }
+  .lbl.provider-group small { display: block; font-size: 9px; line-height: 1.3; white-space: normal; overflow-wrap: anywhere; margin-top: 1px; }
+  #label-leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+  #label-leaders line { stroke: var(--text-subtle); stroke-width: 0.7; opacity: 0.55; }
+  #labels { z-index: 2; }
   .lbl .label-select { min-height: 22px; padding: 2px 4px; }
   .lbl .open-site { width: 24px; min-height: 24px; }
   .lbl .open-site svg { width: 11px; height: 11px; }
@@ -361,7 +367,7 @@
 </div>
 
 <main class="map-region" aria-label="Infrastructure map"><div id="stage" aria-hidden="true"></div>
-<div id="labels"></div><div class="fallback" id="fallback" hidden>
+<svg id="label-leaders" aria-hidden="true"></svg><div id="labels"></div><div class="fallback" id="fallback" hidden>
   <p>This browser can't draw the 3D view (WebGL is off or unavailable).<br>Every number is on the <a href="classic.html">table view</a>.</p>
 </div>
 
@@ -598,6 +604,7 @@
       if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose());
     });
     scene.remove(world);
+    $("#label-leaders").replaceChildren();
     world = null; pickables = []; flows = []; beacons = []; labelsBy = new Map();
   };
 
@@ -641,10 +648,12 @@
     const name = id.split("/").pop().replace(/^(global|us|eu|apac)\./, "").replace(/^(amazon|anthropic)\./, "");
     if (/^nova-2-lite/.test(name)) return "Nova 2 Lite";
     if (/^titan-embed-text-v2/.test(name)) return "Titan Embed v2";
-    return name.replace(/-v\d+:\d+$/, "");
+    const claude = name.match(/^claude-(sonnet|haiku|opus)-(\d+)-(\d+)/);
+    if (claude) return claude[1][0].toUpperCase() + claude[1].slice(1) + " " + claude[2] + "." + claude[3];
+    return name.replace(/-\d{8}$/, "").replace(/-v\d+:\d+$/, "").replace(/^text-embedding-/, "Embed ").replace(/^gpt-/, "GPT-").replace(/^gemini-/, "Gemini ");
   };
   const makeLabel = (ref, title, line, dotCls, extraCls, labelKey = "") => {
-    const isSite = ref.kind === "site";
+    const isSite = ref.kind === "site" && !(extraCls || "").includes("model");
     const b = el(isSite ? "div" : "button", "lbl" + (isSite ? " site-label" : "") + (extraCls ? " " + extraCls : ""));
     const control = isSite ? el("button", "label-select") : b;
     control.type = "button";
@@ -863,19 +872,17 @@
           moon.userData.ref = ref;
           world.add(moon);
           pickables.push(moon);
-          // Attach the compact name to its moon so it follows the model as it orbits.
-          const modelLabel = makeLabel(ref, modelName(m.model), m.model, null, "model satellite", m.model);
-          modelLabel.position.set(0, 0.45, 0);
-          moon.add(modelLabel);
         });
         const line = idle ? "no calls in 7 d" : fmt(pv.calls_7d, "count") + " calls · 7 d";
-        const lbl = makeLabel(ref, PROVIDER_NAMES[pv.provider] || pv.provider, line + (pv.models.length ? " · " + pv.models.length + (pv.models.length === 1 ? " model" : " models") : ""), null, "model" + (idle ? " idle" : ""));
+        const models = [...new Set(pv.models.map(m => modelName(m.model)))].join(" · ");
+        const lbl = makeLabel(ref, PROVIDER_NAMES[pv.provider] || pv.provider, models || line, null, "model provider-group" + (idle ? " idle" : ""));
         lbl.position.copy(p).add(new THREE.Vector3(0, r + 0.6, 0));
         world.add(lbl);
       });
     }
 
-    // Bedrock models used directly by a site float beside that site
+    // Keep each direct model interactive, but name the site's direct-model group once.
+    const directGroups = new Map();
     (s.ai_models || []).forEach((m, i) => {
       (m.used_by || []).forEach((domain) => {
         const sg = built.get(domain);
@@ -891,12 +898,19 @@
         world.add(cube);
         pickables.push(cube);
         buildFlow(sg.position.clone().setY(sg.userData.top - 0.6), p, m.calls_7d, new THREE.Color(css("--warn")), world, 1.2);
-        const lbl = makeLabel(ref, modelName(m.model_id), m.model_id + " · " + (m.role || "model"), null, "model", domain);
-        lbl.position.copy(p).add(new THREE.Vector3(0, 1.1, 0));
-        world.add(lbl);
+        if (!directGroups.has(domain)) directGroups.set(domain, { names: new Set(), position: p.clone(), count: 0 });
+        const group = directGroups.get(domain);
+        group.names.add(modelName(m.model_id));
+        group.position.y = Math.max(group.position.y, p.y);
+        group.count++;
       });
     });
 
+    directGroups.forEach((group, domain) => {
+      const lbl = makeLabel({ kind: "site", id: domain }, "Direct Bedrock", [...group.names].join(" · "), null, "model provider-group", "direct-bedrock");
+      lbl.position.copy(group.position).add(new THREE.Vector3(0, 1.1, 0));
+      world.add(lbl);
+    });
     world.userData.built = built;
     scene.add(world);
     if (selected) markSelected();
@@ -1335,15 +1349,36 @@
   /* ---------- Animation loop ---------- */
   let last = performance.now(), time = 0;
   const ease = (t) => 1 - Math.pow(1 - t, 3);
-  // CSS2D projects labels beyond the viewport when a tower is near the edge.
-  // Read all bounds together, then apply independent translations without moving the anchors.
+  // Place nearby captions without covering one another; retain their projected anchors.
   const labelOffsets = new WeakMap();
+  const labelLines = new WeakMap();
   function fitLabels() {
     const bounds = stage.getBoundingClientRect();
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(v, Math.max(lo, hi)));
+    const placed = [];
     const updates = [...labelsBy.values()].map((b) => {
       const r = b.getBoundingClientRect(), prev = labelOffsets.get(b) || [0, 0];
       const left = r.left - prev[0], top = r.top - prev[1];
-      return [b, Math.max(bounds.left + 8 - left, Math.min(0, bounds.right - 8 - left - r.width)), Math.max(bounds.top + 8 - top, Math.min(0, bounds.bottom - 8 - top - r.height))];
+      if (!r.width || !r.height) return [b, 0, 0, null];
+      const bx = clamp(left, bounds.left + 8, bounds.right - 8 - r.width);
+      const by = clamp(top, bounds.top + 8, bounds.bottom - 8 - r.height);
+      const candidates = [];
+      const step = r.height + 4;
+      const rows = Math.ceil((bounds.bottom - bounds.top) / step);
+      for (let row = 0; row <= rows; row++) {
+        for (const direction of (row ? [-1, 1] : [0])) {
+          for (const col of [0, -1, 1]) {
+            const x = clamp(bx + col * (r.width + 4), bounds.left + 8, bounds.right - 8 - r.width);
+            const y = clamp(by + direction * row * step, bounds.top + 8, bounds.bottom - 8 - r.height);
+            const rect = { x, y, w: r.width, h: r.height };
+            const overlap = placed.reduce((sum, p) => sum + Math.max(0, Math.min(x + r.width + 3, p.x + p.w + 3) - Math.max(x, p.x)) * Math.max(0, Math.min(y + r.height + 3, p.y + p.h + 3) - Math.max(y, p.y)), 0);
+            candidates.push({ ...rect, score: overlap * 1e6 + (x - left) ** 2 + (y - top) ** 2 });
+          }
+        }
+      }
+      const best = candidates.reduce((a, c) => c.score < a.score ? c : a);
+      placed.push(best);
+      return [b, best.x - left, best.y - top, { left, top, ...best }];
     });
     updates.forEach(([b, x, y]) => {
       const prev = labelOffsets.get(b);
@@ -1351,6 +1386,23 @@
         b.style.translate = `${x}px ${y}px`;
         labelOffsets.set(b, [x, y]);
       }
+    });
+    return updates;
+  }
+  function drawLabelLeaders(updates) {
+    const svg = $("#label-leaders"), bounds = stage.getBoundingClientRect();
+    updates.forEach(([b, dx, dy, p]) => {
+      let line = labelLines.get(b);
+      if (!line) {
+        line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        svg.append(line); labelLines.set(b, line);
+      }
+      const moved = p && Math.hypot(dx, dy) > 6;
+      line.style.display = moved ? "" : "none";
+      if (!moved) return;
+      const ax = p.left + p.w / 2, ay = p.top + p.h / 2;
+      const ex = Math.max(p.x, Math.min(ax, p.x + p.w)), ey = Math.max(p.y, Math.min(ay, p.y + p.h));
+      for (const [key, value] of Object.entries({ x1: ax - bounds.left, y1: ay - bounds.top, x2: ex - bounds.left, y2: ey - bounds.top })) line.setAttribute(key, value);
     });
   }
   function frame() {
@@ -1379,7 +1431,7 @@
     controls.update();
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
-    fitLabels();
+    drawLabelLeaders(fitLabels());
   }
 
   addEventListener("resize", () => {
