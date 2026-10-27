@@ -280,9 +280,9 @@
   .lbl { font-size: 11px; padding: 2px 4px; border-radius: 4px; min-height: 22px; border-color: var(--border); }
   .lbl b { font-weight: 500; }
   .lbl small { display: none; }
-  .lbl.model { font-size: 10px; padding: 2px 4px; min-height: 18px; max-width: 144px; }
+  .lbl.model { font-size: 12px; padding: 2px 4px; min-height: 18px; max-width: 144px; }
   .lbl.provider-group { max-width: 100px; }
-  .lbl.provider-group b { font-size: 10px; font-weight: 500; }
+  .lbl.provider-group b { font-size: 12px; font-weight: 500; }
   .lbl.provider-group small { display: none; }
   .lbl .label-select { min-height: 22px; padding: 2px 4px; }
   .lbl .open-site { width: 24px; min-height: 24px; }
@@ -302,7 +302,13 @@
   .ptab[aria-selected="true"] { border-bottom-color: var(--accent); background: transparent; color: var(--text-main); }
   .close { background: transparent; border-radius: 6px; }
   @media (hover: hover) and (pointer: fine) { .estate-row:hover .estate-name { text-decoration: underline; text-underline-offset: 6px; } .controls .btn:hover { color: var(--text-main); } }
-  @media (min-width: 721px) and (max-width: 1100px) { .map-region { left: 392px; top: 188px; } .estate { width: 288px; top: 188px; } .panel { top: 188px; } }
+  /* Tablet: the map takes a landscape band across the top and the sites list runs beneath it.
+     Beside the list, the map was a tall narrow box and the scene sat small in its middle. */
+  @media (min-width: 721px) and (max-width: 1100px) {
+    .map-region { left: 80px; right: 24px; top: 188px; bottom: auto; height: 432px; }
+    .estate { left: 80px; right: 24px; top: 644px; bottom: 84px; width: auto; }
+    .panel { top: 188px; }
+  }
   @media (max-width: 720px) {
     html, body { height: auto; }
     body { overflow: auto; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
@@ -321,7 +327,7 @@
     .estate-meta, .estate-status { font-size: 15px; }
     .legend { position: relative; inset: auto; margin: 24px 16px 0; max-width: none; display: block; }
     .lbl { max-width: 124px; min-height: 22px; padding: 2px 4px; font-size: 11px; }
-    .lbl.model { font-size: 10px; max-width: 130px; min-height: 18px; }
+    .lbl.model { font-size: 12px; max-width: 130px; min-height: 18px; }
     .panel { top: auto; bottom: calc(64px + env(safe-area-inset-bottom)); max-height: 76dvh; border-radius: 6px 6px 0 0; z-index: 6; }
     .panel.wide { max-height: 82dvh; }
     .panel-head { padding: 16px; }
