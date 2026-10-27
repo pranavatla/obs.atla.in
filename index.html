@@ -248,9 +248,9 @@
   .controls .btn span { display: none; }
   .controls .btn[aria-pressed="true"] { color: var(--text-main); }
   #theme { margin-top: auto; }
-  .map-region { isolation: isolate; z-index: 0; position: fixed; inset: 164px 24px 24px 440px; background: var(--surface); border-radius: 6px; overflow: hidden; }
+  .map-region { isolation: isolate; z-index: 0; position: fixed; inset: 184px 24px 24px 440px; background: var(--surface); border-radius: 6px; overflow: hidden; }
   #stage, #labels { position: absolute; inset: 0; }
-  .estate { position: fixed; left: 80px; top: 164px; bottom: 24px; width: 336px; overflow: auto; scrollbar-width: thin; padding-right: 4px; }
+  .estate { position: fixed; left: 80px; top: 184px; bottom: 24px; width: 336px; overflow: auto; scrollbar-width: thin; padding-right: 4px; }
   .estate-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 8px; gap: 8px; }
   .estate-head h2 { font-size: 20px; font-weight: 500; margin: 0; }
   .estate-head > span { font-size: 15px; color: var(--text-muted); }
@@ -306,7 +306,7 @@
   .lbl b { gap: 4px; }
   .lbl .dot { width: 5px; height: 5px; }
   .lbl.sel { border-color: transparent; border-bottom-color: var(--accent); }
-  .panel { border-radius: 6px; border-color: var(--border); top: 164px; bottom: 24px; }
+  .panel { border-radius: 6px; border-color: var(--border); top: 184px; bottom: 24px; }
   .panel-head { padding: 20px 20px 12px; }
   .panel-head h2 { font-size: 18px; }
   .panel-head .sub { line-height: 1.6; }
@@ -318,7 +318,7 @@
   .ptab[aria-selected="true"] { border-bottom-color: var(--accent); background: transparent; color: var(--text-main); }
   .close { background: transparent; border-radius: 6px; }
   @media (hover: hover) and (pointer: fine) { .estate-row:hover .estate-name { text-decoration: underline; text-underline-offset: 6px; } .controls .btn:hover { color: var(--text-main); } }
-  @media (min-width: 721px) and (max-width: 1100px) { .map-region { left: 392px; top: 188px; } .estate { width: 288px; top: 188px; } .panel { top: 188px; } }
+  @media (min-width: 721px) and (max-width: 1100px) { .map-region { left: 392px; top: 204px; } .estate { width: 288px; top: 204px; } .panel { top: 204px; } }
   @media (max-width: 720px) {
     html, body { height: auto; }
     body { overflow: auto; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
@@ -352,6 +352,38 @@
 
   }
 
+  /* Header: eyebrow with live state, then title, tagline and stat chips; one clear lead, grouped by spacing */
+  .eyebrow-row { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; min-height: 18px; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .snap { margin: 0; padding-left: 12px; border-left: 1px solid var(--border); display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--text-subtle); }
+  .snap .state { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+  .snap .state.fresh { color: var(--good); }
+  .snap .state.stale { color: var(--warn); }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 22%, transparent); }
+  h1 { font-size: 32px; line-height: 1.1; letter-spacing: -0.022em; }
+  .intro { margin: 6px 0 0; font-size: 15px; color: var(--text-muted); }
+  .take { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+  .stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-muted); white-space: nowrap; }
+  .stat-chip b { color: var(--text-main); font-size: 14px; font-weight: 600; }
+  .stat-chip.bad { border-color: color-mix(in srgb, var(--bad) 40%, var(--border)); }
+  .stat-chip.bad b { color: var(--bad); }
+  .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+  .stat-chip.bad .chip-dot { background: var(--bad); }
+  /* A single, quiet entrance per page load: rows rise 6px in a 40ms stagger */
+  @media (prefers-reduced-motion: no-preference) {
+    .brief > * { animation: hud-rise 320ms cubic-bezier(0.23, 1, 0.32, 1) both; }
+    .brief > :nth-child(2) { animation-delay: 40ms; }
+    .brief > :nth-child(3) { animation-delay: 80ms; }
+    .brief > :nth-child(4) { animation-delay: 120ms; }
+  }
+  @keyframes hud-rise { from { opacity: 0; transform: translateY(6px); } }
+  @media (max-width: 720px) {
+    .eyebrow-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .snap { padding-left: 0; border-left: 0; }
+    h1 { font-size: 26px; }
+    .take { margin-top: 12px; }
+  }
+
   /* Intro video: a captioned card on the page itself, like gate.atla.in's hero video.
      Pressing play grows the card into a large player in place (FLIP), so the 1080p diagrams are readable. */
   :root { --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1); }
@@ -381,8 +413,8 @@
   @media (min-width: 721px) { body:has(.panel.open) .explainer:not(.theater) { visibility: hidden; } }
   /* Tablets: the card takes the top of the map column and the map sits below it */
   @media (min-width: 721px) and (max-width: 1100px) {
-    .explainer:not(.theater) { top: 188px; left: 392px; right: 24px; width: auto; }
-    body:has(.explainer:not([hidden])) .map-region { top: calc(188px + (100vw - 416px) * 9 / 16 + 18px); }
+    .explainer:not(.theater) { top: 204px; left: 392px; right: 24px; width: auto; }
+    body:has(.explainer:not([hidden])) .map-region { top: calc(204px + (100vw - 416px) * 9 / 16 + 18px); }
   }
   @media (max-width: 720px) {
     .explainer { position: relative; top: auto; right: auto; width: auto; margin: 0 16px 24px; }
@@ -406,10 +438,10 @@
 <body>
 <div class="hud">
   <div class="brief">
-    <h1>atla.in · Observability &amp; Architecture</h1>
+    <p class="eyebrow-row"><span class="eyebrow">atla.in</span><span class="snap" id="snap"></span></p>
+    <h1>Observability &amp; Architecture</h1>
     <p class="intro">Explore how each site is built, connected, and performing.</p>
     <p class="take" id="takeaway">Loading the latest snapshot…</p>
-    <p class="snap" id="snap"></p>
     <div class="warnbox" id="unavailable" hidden></div>
   </div>
   <nav class="controls" aria-label="Map controls"><a class="brand-mark" href="/" aria-label="atla.in observability"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-7 5 4 7-10"/><path d="M3 21h18"/></svg></a>
@@ -1125,16 +1157,26 @@
     const up = sites.filter((x) => x.status === "up").length;
     const uptimes = sites.map((x) => valueOf(x, "uptime_7d")).filter((v) => v != null);
     const over = sites.reduce((n, x) => n + Object.keys(LIMITS).filter((k) => overLimit(k, valueOf(x, k))).length, 0);
-    const t = $("#takeaway");
-    t.replaceChildren();
-    const b = (text, cls) => el("b", cls, text);
-    t.append(b(up + " of " + sites.length, up === sites.length ? "" : "bad"), " sites up · lowest 7-day uptime ", b(uptimes.length ? fmt(Math.min(...uptimes), "percent") : "—"), " · ", b(String(over), over ? "bad" : ""), " real-user limits exceeded");
+    // Three stat chips: the number leads, the label explains, and anything wrong turns red
+    const chip = (value, label, bad, dot) => {
+      const c = el("span", "stat-chip" + (bad ? " bad" : ""));
+      if (dot) c.append(el("i", "chip-dot"));
+      c.append(el("b", null, value), el("span", null, label));
+      return c;
+    };
+    $("#takeaway").replaceChildren(
+      chip(up + " of " + sites.length, "sites up", up !== sites.length, true),
+      chip(uptimes.length ? fmt(Math.min(...uptimes), "percent") : "—", "lowest 7-day uptime", false),
+      chip(String(over), over === 1 ? "real-user limit exceeded" : "real-user limits exceeded", over > 0),
+    );
 
     const gen = new Date(s.generated_at);
     const age = Date.now() - gen.getTime();
     const snap = $("#snap");
-    snap.replaceChildren(el("span", null, "Snapshot " + istFull.format(gen) + " IST (" + ago(age) + ")"));
-    snap.append(el("span", "pill " + (age > STALE_MINUTES * 60e3 ? "stale" : "fresh"), age > STALE_MINUTES * 60e3 ? "Stale" : "Fresh"));
+    const stale = age > STALE_MINUTES * 60e3;
+    const state = el("span", "state " + (stale ? "stale" : "fresh"));
+    state.append(el("i", "live-dot"), stale ? "Stale" : "Fresh");
+    snap.replaceChildren(state, el("span", null, "Snapshot " + istFull.format(gen) + " IST · " + ago(age)));
 
     const un = s.unavailable_sources || [];
     const box = $("#unavailable");
