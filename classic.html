@@ -264,6 +264,33 @@
   .flash { animation: flash 1.2s var(--ease-out); }
   @keyframes flash { from { box-shadow: inset 0 0 0 2px var(--accent); } to { box-shadow: inset 0 0 0 0 transparent; } }
   @media (prefers-reduced-motion: reduce) { #site-cards .card.max, .site-top .collapse { transition: none; } @starting-style { #site-cards .card.max { opacity: 1; transform: none; } } .flash { animation: none; } }
+  /* Desktop: the exact frame of the 3D view. Header and sidebar never move; only the right column scrolls. */
+  @media (min-width: 721px) {
+    html, body { height: 100%; }
+    body { overflow: hidden; }
+    .wrap { max-width: none; height: 100dvh; margin: 0; padding: 24px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 24px; }
+    .layout { height: 100%; min-height: 0; align-items: stretch; }
+    .side { position: static; height: 100%; max-height: none; overflow: hidden; }
+    .side .estate { flex: 1 1 auto; min-height: 0; overflow: auto; scrollbar-width: thin; }
+    .content { height: 100%; min-height: 0; overflow: auto; scrollbar-width: thin; padding-right: 4px; }
+    .content > * { flex: none; }
+    #site-cards .card { scroll-margin-top: 0; }
+  }
+  /* Tiles: three per row (two rows of three sites), compacted to fit beside the sidebar. */
+  @media (min-width: 1400px) {
+    #site-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    #site-cards .card:not(.max) { padding: 20px; }
+    #site-cards .card:not(.max) .stats { gap: 8px; }
+    #site-cards .card:not(.max) .stat-l { font-size: 14px; }
+    #site-cards .card:not(.max) .stat-v { font-size: 21px; }
+    #site-cards .card:not(.max) .stat-w { font-size: 12px; white-space: nowrap; }
+    #site-cards .card:not(.max) .gateway-summary { font-size: 14px; }
+    #site-cards .card:not(.max) .gateway-summary b { font-size: 21px; }
+    #site-cards .card:not(.max) .gateway-summary > span { white-space: nowrap; }
+    #site-cards .card:not(.max) .spark-cap { font-size: 13px; }
+    #site-cards .card:not(.max) .site-top h3 { font-size: 19px; }
+  }
+  @media (min-width: 721px) and (max-width: 1399px) { #site-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
 </style>
 <link rel="stylesheet" href="assets/arch.css">
 <link rel="stylesheet" href="assets/header.css">
@@ -407,6 +434,9 @@
     </div>
   </section>
 
+  <footer>
+    Snapshot collected every 15 minutes from Grafana Synthetic Monitoring, CloudWatch (CloudFront, WAF, RUM, ALB, Bedrock) and gate.atla.in/v1/stats, published as <a href="status.json">status.json</a>. Source: <a href="https://github.com/pranavatla/obs.atla.in">github.com/pranavatla/obs.atla.in</a>.
+  </footer>
   </div>
   </div>
 
@@ -429,9 +459,6 @@
     <div class="dlg-body"><div class="arch-view" id="arch-body"></div></div>
   </dialog>
 
-  <footer>
-    Snapshot collected every 15 minutes from Grafana Synthetic Monitoring, CloudWatch (CloudFront, WAF, RUM, ALB, Bedrock) and gate.atla.in/v1/stats, published as <a href="status.json">status.json</a>. Source: <a href="https://github.com/pranavatla/obs.atla.in">github.com/pranavatla/obs.atla.in</a>.
-  </footer>
 </div>
 
 <script>
@@ -866,7 +893,9 @@
     if (current !== "overview") show("overview", true); else if (snapshot) renderOverview(snapshot);
     const card = maxSite && document.getElementById("site-" + maxSite.replace(/\./g, "-"));
     if (card) {
-      card.scrollIntoView({ block: "start", behavior: smooth() });
+      // The maximized tile is always first; on desktop that means the top of the right column, tabs in view.
+      if (innerWidth > 720) $(".content").scrollTo({ top: 0, behavior: smooth() });
+      else card.scrollIntoView({ block: "start", behavior: smooth() });
       if (focusCard) card.querySelector(".collapse")?.focus({ preventScroll: true });
     }
   }

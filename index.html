@@ -1574,7 +1574,7 @@
     const title = $(".appbar h1").getBoundingClientRect().width;
     root.setProperty("--rail-w", Math.round(Math.max(288, title)) + "px");
     root.setProperty("--content-top", Math.ceil($(".appbar").getBoundingClientRect().bottom + 24) + "px");
-    root.setProperty("--estate-top", Math.ceil($("#explainer-play").getBoundingClientRect().bottom + 24) + "px");
+    root.setProperty("--estate-top", Math.round($("#explainer-play").getBoundingClientRect().bottom + 24) + "px");
   };
   new ResizeObserver(positionEstate).observe($(".brief"));
   new ResizeObserver(positionEstate).observe($(".appbar"));

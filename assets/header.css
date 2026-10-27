@@ -1,6 +1,6 @@
 /* Shared page header for the 3D view (index.html) and the table view (classic.html).
    Title on the left, view controls centred, live health on the right; one hairline underneath. */
-.appbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "title nav health"; align-items: center; gap: 16px 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); pointer-events: auto; }
+.appbar { font-size: 16px; line-height: 1.45; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: "title nav health"; align-items: center; gap: 16px 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); pointer-events: auto; }
 
 .appbar-title { grid-area: title; justify-self: start; min-width: 0; }
 .appbar h1 { width: max-content; max-width: 100%; margin: 0; font-family: var(--sans); font-size: 32px; font-weight: 650; line-height: 1.08; letter-spacing: -0.03em; color: var(--text-main); }
