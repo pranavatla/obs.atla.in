@@ -271,7 +271,23 @@
   .lbl.site-label { display: flex; align-items: center; padding: 0 2px 0 0; }
   .label-select { color: inherit; background: none; border: 0; padding: 6px 8px; font: inherit; text-align: left; cursor: pointer; min-width: 0; min-height: 32px; touch-action: manipulation; }
   @media (hover: hover) and (pointer: fine) { .open-site:hover { color: var(--accent); background: var(--surface-raised); } }
-  .providers-heading { margin-top: 24px; }
+  /* Two distinct boxes: Sites (status, green) and AI usage (spend, accent-tinted) */
+  .estate-box { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 0 16px; }
+  .estate-box + .estate-box { margin-top: 16px; }
+  .estate-box .estate-head { margin: 0; padding: 14px 0 12px; border-bottom: 1px solid var(--border); align-items: center; }
+  .estate-box .estate-head h2 { display: flex; align-items: center; gap: 10px; font-size: 18px; }
+  .estate-box .estate-head > span { font-size: 13px; }
+  .box-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; flex: none; }
+  .box-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .box-sites .box-icon { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+  .box-ai { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+  .box-ai .box-icon { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+  .box-ai .estate-head { border-bottom-color: color-mix(in srgb, var(--accent) 25%, var(--border)); }
+  .box-ai .estate-row { border-bottom-color: color-mix(in srgb, var(--accent) 18%, var(--border)); }
+  .estate-box .estate-row:last-child { border-bottom: 0; }
+  .estate-sub { margin: 0; padding: 14px 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-subtle); }
+  .estate-sub[hidden] { display: none; }
+  #estate-direct { padding-bottom: 2px; }
   .estate-note { margin: 20px 0 8px; font-size: 15px; color: var(--text-muted); line-height: 1.6; }
   .source-link { font-size: 15px; color: var(--text-muted); }
   .legend { font-size: 13px; left: auto; right: 36px; bottom: 36px; display: block; max-width: 360px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
@@ -345,15 +361,16 @@
   .explainer[hidden] { display: none; }
   .explainer-media { position: relative; }
   .explainer video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--bg-page); }
-  .explainer-play { position: absolute; inset: 0; display: grid; place-items: center; padding: 22% 0 0; border: 0; cursor: pointer; color: inherit; font: inherit; background: linear-gradient(180deg, rgba(19, 18, 23, 0) 55%, rgba(19, 18, 23, 0.55) 100%); -webkit-tap-highlight-color: transparent; }
+  .explainer-play { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; cursor: pointer; color: inherit; font: inherit; background: linear-gradient(180deg, rgba(19, 18, 23, 0) 55%, rgba(19, 18, 23, 0.55) 100%); -webkit-tap-highlight-color: transparent; }
   .explainer.playing .explainer-play { display: none; }
   .play-disc { display: grid; place-items: center; width: clamp(56px, 6vw, 80px); height: clamp(56px, 6vw, 80px); border-radius: 50%; background: rgba(255, 255, 255, 0.94); color: #131217; box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.55); transition: transform 160ms var(--ease-out-strong); }
   .play-disc svg { width: 40%; height: 40%; margin-left: 6%; }
   .play-chip { position: absolute; left: 12px; bottom: 12px; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: rgba(19, 18, 23, 0.82); color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.08); font-variant-numeric: tabular-nums; }
+  .play-chip:empty { display: none; }
   @media (hover: hover) and (pointer: fine) { .explainer-play:hover .play-disc { transform: scale(1.05); } }
   .explainer-play:active .play-disc { transform: scale(0.97); }
   .explainer-play:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
-  .explainer .close { position: absolute; z-index: 1; top: 10px; right: 10px; width: 36px; height: 36px; min-height: 36px; font-size: 16px; border: 0; border-radius: 50%; background: rgba(19, 18, 23, 0.7); color: var(--text-main); }
+  .explainer .close { position: absolute; z-index: 1; top: 10px; right: 10px; width: 36px; height: 36px; min-height: 36px; font-size: 16px; border: 0; border-radius: 50%; background: rgba(19, 18, 23, 0.7); color: #fff; }
   @media (hover: hover) and (pointer: fine) { .explainer .close:hover { background: rgba(19, 18, 23, 0.92); } }
   .explainer.theater .close { top: 14px; right: 14px; }
   /* Theatre: the same element, fixed and centred; JS sets its box and animates from the card */
@@ -407,7 +424,7 @@
 <figure class="explainer" id="explainer" aria-label="What this site does">
   <div class="explainer-media">
     <video id="intro-video" src="assets/intro.mp4" poster="assets/intro.jpg" playsinline preload="metadata" aria-label="What obs.atla.in is for"></video>
-    <button class="explainer-play" id="explainer-play" type="button" aria-label="Play: what this site does, 42 seconds"><span class="play-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg></span><span class="play-chip">0:42</span></button>
+    <button class="explainer-play" id="explainer-play" type="button" aria-label="Play: what this site does, 42 seconds"><span class="play-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg></span><span class="play-chip"></span></button>
     <button class="close" id="explainer-hide" type="button" aria-label="Hide intro video">×</button>
   </div>
 </figure>
@@ -419,7 +436,19 @@
 </div>
 
 </main>
-<aside class="estate" aria-labelledby="estate-title"><div class="estate-head"><h2 id="estate-title">Sites</h2><span>Uptime · 7 d</span></div><div id="estate-sites"></div><div class="estate-head providers-heading"><h2>AI usage</h2><span>Calls · 7 d</span></div><div id="estate-providers"></div><p class="estate-note">Measured, never simulated. Select a site for its metrics and architecture.</p><a class="source-link" href="status.json">View source snapshot ↗</a></aside>
+<aside class="estate" aria-label="Sites and AI usage">
+  <section class="estate-box box-sites" aria-labelledby="estate-title">
+    <div class="estate-head"><h2 id="estate-title"><span class="box-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg></span>Sites</h2><span>Uptime · 7 d</span></div>
+    <div id="estate-sites"></div>
+  </section>
+  <section class="estate-box box-ai" aria-labelledby="ai-title">
+    <div class="estate-head"><h2 id="ai-title"><span class="box-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg></span>AI usage</h2><span>Calls · 7 d</span></div>
+    <p class="estate-sub">Through gate.atla.in</p>
+    <div id="estate-providers"></div>
+    <p class="estate-sub" id="direct-sub">Direct to Amazon Bedrock</p>
+    <div id="estate-direct"></div>
+  </section>
+<p class="estate-note">Measured, never simulated. Select a site for its metrics and architecture.</p><a class="source-link" href="status.json">View source snapshot ↗</a></aside>
 
 <details class="legend"><summary>Map key</summary><div class="legend-items" aria-label="How to read the map">
   <span><i style="background: var(--tower)"></i>Height = 24 h requests (log scale)</span>
@@ -592,7 +621,7 @@
     resumeAt = t > 1 ? t : 0;
     introVideo.load();
     const left = Math.max(0, Math.round((introVideo.duration || 42.5) - resumeAt));
-    chip.textContent = resumeAt ? `Resume · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")} left` : "0:42";
+    chip.textContent = resumeAt ? `Resume · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")} left` : "";
   };
   introVideo.addEventListener("loadedmetadata", () => { if (resumeAt && explainer.classList.contains("playing")) introVideo.currentTime = resumeAt; });
   const closeTheater = () => {
@@ -1053,7 +1082,7 @@
 
   /* ---------- Header ---------- */
   function renderEstate(s) {
-    const sites = $("#estate-sites"), providers = $("#estate-providers");
+    const sites = $("#estate-sites"), providers = $("#estate-providers"), direct = $("#estate-direct");
     const makeRow = (ref, title, detail, value, status) => {
       const b = el("div", "estate-row");
       b.dataset.ref = ref.kind + ":" + ref.id;
@@ -1085,7 +1114,10 @@
     providers.replaceChildren(...gatewayProviders(s).map(p => makeRow(
       { kind: "provider", id: p.provider }, PROVIDER_NAMES[p.provider] || p.provider,
       p.models.length + (p.models.length === 1 ? " model" : " models"), fmt(p.calls_7d, "count"), p.calls_7d > 0 ? "Used this week" : "Idle this week"
-    )), ...(s.ai_models || []).map(m => makeRow({ kind: "bedrock", id: m.model_id }, m.model_id.replace(/^global\./, "").replace(/^amazon\./, ""), "Direct Bedrock · " + (m.role || "Model"), fmt(m.calls_7d, "count"), m.region || "")));
+    )));
+    const directModels = s.ai_models || [];
+    $("#direct-sub").hidden = !directModels.length;
+    direct.replaceChildren(...directModels.map(m => makeRow({ kind: "bedrock", id: m.model_id }, m.model_id.replace(/^global\./, "").replace(/^amazon\./, ""), m.role || "Model", fmt(m.calls_7d, "count"), m.region || "")));
   }
 
   function renderHeader(s) {
