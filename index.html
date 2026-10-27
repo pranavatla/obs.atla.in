@@ -144,8 +144,9 @@
   .muted { color: var(--text-muted); font-size: 13px; }
   .flag { font-size: 13px; color: var(--text-muted); margin: 8px 0 0; }
 
-  .spark { position: relative; height: 64px; }
+  .spark { position: relative; height: 64px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
   .spark svg { display: block; width: 100%; height: 64px; }
+  .spark-scale { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; color: var(--text-subtle); font-size: 13px; line-height: 1; }
   .spark-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-subtle); font-size: 12px; margin-top: 6px; }
   .tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px;  padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; }
   .tip[hidden] { display: none; }
@@ -1179,13 +1180,19 @@
   // Hourly requests: bucket i covers the hour ending at windowEnd - (23 - i) h
   const spark = (box, values, windowEnd) => {
     box.replaceChildren();
-    const W = Math.max(box.clientWidth, 120), H = 64, n = values.length;
-    const max = Math.max(...values, 1);
+    const max = Math.max(...values, 0);
+    const magnitude = 10 ** Math.floor(Math.log10(max || 1));
+    const ceiling = [1, 2, 5, 10].find((v) => v * magnitude >= (max || 1)) * magnitude;
+    const scale = el("div", "spark-scale");
+    scale.setAttribute("aria-hidden", "true");
+    scale.append(el("span", null, compact.format(ceiling)), el("span", null, "0"));
+    box.append(scale);
+    const W = Math.max(box.clientWidth - scale.offsetWidth - 10, 80), H = 64, n = values.length;
     const step = W / n, bw = Math.max(1, step * 0.72);
-    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": "Requests per hour, last 24 hours" });
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": "Requests per hour, last 24 hours. Scale 0 to " + int.format(ceiling) + "; peak " + int.format(max) + " requests." });
     svg.append(svgEl("line", { x1: 0, x2: W, y1: H - 0.5, y2: H - 0.5, stroke: "var(--grid)" }));
     const bars = values.map((v, i) => {
-      const h = Math.max(v > 0 ? 1.5 : 0, (v / max) * (H - 4));
+      const h = Math.max(v > 0 ? 1.5 : 0, (v / ceiling) * (H - 4));
       const r = svgEl("rect", { x: i * step + (step - bw) / 2, y: H - h, width: bw, height: h, rx: Math.min(2, bw / 2), fill: "var(--accent)" });
       svg.append(r);
       return r;
@@ -1204,8 +1211,8 @@
       const end = hourEnd(i), start = new Date(end.getTime() - 3600e3);
       tip.replaceChildren(el("div", "d", istHour.format(start) + "–" + istHour.format(end) + " IST"), el("div", null, int.format(values[i]) + " requests"));
       tip.hidden = false;
-      const px = ((i + 0.5) / n) * rect.width;
-      tip.style.left = Math.min(Math.max(px, 70), rect.width - 70) + "px";
+      const px = rect.left - box.getBoundingClientRect().left + ((i + 0.5) / n) * rect.width;
+      tip.style.left = Math.min(Math.max(px, 85), box.clientWidth - 85) + "px";
     };
     const hideHour = () => { tip.hidden = true; bars.forEach((b) => b.setAttribute("fill-opacity", "1")); };
     svg.addEventListener("pointermove", (ev) => {

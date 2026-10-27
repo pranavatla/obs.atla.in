@@ -72,3 +72,33 @@ assert.equal(amount(.195679) + amount(.078135), amount(.273814));
 assert.equal(format(13808,'count'),'13,808');
 assert.equal(format(null,'count'),'—');
 console.log('AI tab keeps nested content visible; displayed costs reconcile; counts and missing values remain honest');
+
+// A chart's display scale must not invent a peak, even for an idle site's all-zero series.
+const node = (tag, attrs = {}) => ({
+  tag, attrs, children: [], clientWidth: 360, offsetWidth: 30,
+  setAttribute(k, v) { this.attrs[k] = v; },
+  append(...children) { this.children.push(...children); },
+  replaceChildren(...children) { this.children = children; },
+  addEventListener() {},
+});
+for (const [page, endMarker, maxHeight] of [[classic, '  function renderHeader', 52], [html, '  const statTile =', 60]]) {
+const sparkSource = page.slice(page.indexOf('  const spark ='), page.indexOf(endMarker));
+const drawSpark = vm.runInNewContext(sparkSource + '\nspark', {
+  el: tag => node(tag), svgEl: node,
+  int: new Intl.NumberFormat('en'), compact: new Intl.NumberFormat('en', {notation: 'compact'}),
+});
+for (const values of [[0, 0, 0], [0, 3, 7], [1, 100, 1234]]) {
+  const box = node('div');
+  const result = drawSpark(box, values, new Date('2026-10-27T12:00:00Z'));
+  assert.equal(result.max, Math.max(...values));
+  const svg = box.children.find(n => n.tag === 'svg');
+  const bars = svg.children.filter(n => n.tag === 'rect');
+  assert.equal(bars.length, values.length);
+  bars.forEach((bar, i) => {
+    assert.ok(bar.attrs.height >= 0 && bar.attrs.height <= maxHeight);
+    assert.equal(bar.attrs.height === 0, values[i] === 0);
+  });
+  assert.ok(svg.attrs['aria-label'].includes('peak ' + new Intl.NumberFormat('en').format(result.max)));
+}
+}
+console.log('Hourly chart scales preserve zero, small and spiky request series without inventing peaks');
