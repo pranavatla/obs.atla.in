@@ -277,10 +277,15 @@
   .legend { font-size: 13px; left: auto; right: 36px; bottom: 36px; display: block; max-width: 360px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
   .legend summary { min-height: 24px; cursor: pointer; color: var(--text-main); }
   .legend-items { display: grid; gap: 8px; padding-top: 12px; }
-  .lbl { font-size: 13px; padding: 6px 8px; border-radius: 4px; min-height: 30px; border-color: transparent; }
+  .lbl { font-size: 11px; padding: 2px 4px; border-radius: 4px; min-height: 22px; border-color: var(--border); }
   .lbl b { font-weight: 500; }
   .lbl small { display: none; }
-  .lbl.model { font-size: 13px; padding: 6px 8px; }
+  .lbl.model { font-size: 10px; padding: 2px 4px; min-height: 18px; max-width: 144px; }
+  .lbl .label-select { min-height: 22px; padding: 2px 4px; }
+  .lbl .open-site { width: 24px; min-height: 24px; }
+  .lbl .open-site svg { width: 11px; height: 11px; }
+  .lbl b { gap: 4px; }
+  .lbl .dot { width: 5px; height: 5px; }
   .lbl.sel { border-color: transparent; border-bottom-color: var(--accent); }
   .panel { border-radius: 6px; border-color: var(--border); top: 164px; bottom: 24px; }
   .panel-head { padding: 20px 20px 12px; }
@@ -295,7 +300,6 @@
   .close { background: transparent; border-radius: 6px; }
   @media (hover: hover) and (pointer: fine) { .estate-row:hover .estate-name { text-decoration: underline; text-underline-offset: 6px; } .controls .btn:hover { color: var(--text-main); } }
   @media (min-width: 721px) and (max-width: 1100px) { .map-region { left: 392px; top: 188px; } .estate { width: 288px; top: 188px; } .panel { top: 188px; } }
-  @media (min-width: 721px) and (max-width: 1100px) { .lbl.model { display: none; } }
   @media (max-width: 720px) {
     html, body { height: auto; }
     body { overflow: auto; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
@@ -313,10 +317,8 @@
     .estate-row { min-height: 72px; padding: 12px 0; }
     .estate-meta, .estate-status { font-size: 15px; }
     .legend { position: relative; inset: auto; margin: 24px 16px 0; max-width: none; display: block; }
-    .lbl { max-width: 132px; min-height: 32px; padding: 4px 6px; font-size: 12px; }
-    .lbl.model { font-size: 11px; max-width: 112px; }
-    /* Keep every site identifiable on the map; model names remain in the AI list. */
-    .lbl.model { display: none; }
+    .lbl { max-width: 124px; min-height: 22px; padding: 2px 4px; font-size: 11px; }
+    .lbl.model { font-size: 10px; max-width: 130px; min-height: 18px; }
     .panel { top: auto; bottom: calc(64px + env(safe-area-inset-bottom)); max-height: 76dvh; border-radius: 6px 6px 0 0; z-index: 6; }
     .panel.wide { max-height: 82dvh; }
     .panel-head { padding: 16px; }
@@ -635,11 +637,18 @@
     a.addEventListener("pointerdown", e => e.stopPropagation());
     return a;
   };
-  const makeLabel = (ref, title, line, dotCls, extraCls) => {
+  const modelName = (id) => {
+    const name = id.split("/").pop().replace(/^(global|us|eu|apac)\./, "").replace(/^(amazon|anthropic)\./, "");
+    if (/^nova-2-lite/.test(name)) return "Nova 2 Lite";
+    if (/^titan-embed-text-v2/.test(name)) return "Titan Embed v2";
+    return name.replace(/-v\d+:\d+$/, "");
+  };
+  const makeLabel = (ref, title, line, dotCls, extraCls, labelKey = "") => {
     const isSite = ref.kind === "site";
     const b = el(isSite ? "div" : "button", "lbl" + (isSite ? " site-label" : "") + (extraCls ? " " + extraCls : ""));
     const control = isSite ? el("button", "label-select") : b;
     control.type = "button";
+    control.title = title + (line ? " · " + line : "");
     const t = el("b");
     if (dotCls != null) t.append(el("span", "dot " + dotCls));
     t.append(title);
@@ -652,7 +661,7 @@
     control.setAttribute("aria-label", title + (line ? ", " + line : "") + ". Show details");
     control.addEventListener("click", (e) => { e.stopPropagation(); select(ref, true, e.detail === 0); });
     if (isSite) b.append(control, openSiteLink(ref.id));
-    labelsBy.set(ref.kind + ":" + ref.id, b);
+    labelsBy.set(ref.kind + ":" + ref.id + (labelKey ? ":" + labelKey : ""), b);
     return new CSS2DObject(b);
   };
 
@@ -854,6 +863,10 @@
           moon.userData.ref = ref;
           world.add(moon);
           pickables.push(moon);
+          // Attach the compact name to its moon so it follows the model as it orbits.
+          const modelLabel = makeLabel(ref, modelName(m.model), m.model, null, "model satellite", m.model);
+          modelLabel.position.set(0, 0.45, 0);
+          moon.add(modelLabel);
         });
         const line = idle ? "no calls in 7 d" : fmt(pv.calls_7d, "count") + " calls · 7 d";
         const lbl = makeLabel(ref, PROVIDER_NAMES[pv.provider] || pv.provider, line + (pv.models.length ? " · " + pv.models.length + (pv.models.length === 1 ? " model" : " models") : ""), null, "model" + (idle ? " idle" : ""));
@@ -878,7 +891,7 @@
         world.add(cube);
         pickables.push(cube);
         buildFlow(sg.position.clone().setY(sg.userData.top - 0.6), p, m.calls_7d, new THREE.Color(css("--warn")), world, 1.2);
-        const lbl = makeLabel(ref, m.model_id.replace(/^global\./, ""), "Bedrock · " + (m.role || "model"), null, "model");
+        const lbl = makeLabel(ref, modelName(m.model_id), m.model_id + " · " + (m.role || "model"), null, "model", domain);
         lbl.position.copy(p).add(new THREE.Vector3(0, 1.1, 0));
         world.add(lbl);
       });
@@ -1226,7 +1239,7 @@
       b.querySelector(".estate-name").setAttribute("aria-expanded", String(active));
     });
     labelsBy.forEach((b, key) => {
-      const active = !!selected && key === selected.kind + ":" + selected.id;
+      const active = !!selected && b.dataset.ref === selected.kind + ":" + selected.id;
       b.classList.toggle("sel", active);
       (b.querySelector(".label-select") || b).setAttribute("aria-expanded", String(active));
     });
@@ -1260,7 +1273,7 @@
     }
   }
   function closePanel() {
-    const returnTo = selected && ([...document.querySelectorAll(".estate-row")].find(b => b.dataset.ref === selected.kind + ":" + selected.id) || labelsBy.get(selected.kind + ":" + selected.id));
+    const returnTo = selected && ([...document.querySelectorAll(".estate-row")].find(b => b.dataset.ref === selected.kind + ":" + selected.id) || (labelsBy.get(selected.kind + ":" + selected.id) || [...labelsBy.values()].find(b => b.dataset.ref === selected.kind + ":" + selected.id)));
     const restore = panel.contains(document.activeElement);
     flight = null;
     panel.inert = true;
@@ -1391,7 +1404,7 @@
     const activeRef = document.activeElement?.dataset.ref;
     buildWorld(s);
     markSelected();
-    if (activeRef) { const label = labelsBy.get(activeRef); (label?.querySelector(".label-select") || label)?.focus({ preventScroll: true }); }
+    if (activeRef) { const label = labelsBy.get(activeRef) || [...labelsBy.values()].find(b => b.dataset.ref === activeRef); (label?.querySelector(".label-select") || label)?.focus({ preventScroll: true }); }
   }
   function render(s) {
     renderHeader(s);
