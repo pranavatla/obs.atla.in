@@ -824,7 +824,8 @@
       const gateTop = gateG.position.clone().setY(gateG.userData.top);
       // Tenants: the gateway's description lists who calls models through it
       const gateSite = sites.find((x) => x.domain === GATE);
-      const tenants = sites.filter((x) => x.domain !== GATE && gateSite && (gateSite.description || "").includes(x.domain));
+      // A site is linked when the gateway names it or its own architecture lists the gateway as an outside service
+      const tenants = sites.filter((x) => x.domain !== GATE && gateSite && ((gateSite.description || "").includes(x.domain) || (window.architectureReaches && window.architectureReaches(x.domain, GATE))));
       tenants.forEach((t) => {
         const tg = built.get(t.domain);
         // Tenant traffic lands in the portal, so it reads as passing through the gate

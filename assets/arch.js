@@ -398,6 +398,13 @@
     host.append(w);
   }
 
+  // True when a site's architecture lists `target` among the outside services it calls or reads.
+  window.architectureReaches = (domain, target) => {
+    const ext = ARCH[domain] && ARCH[domain].external;
+    if (!ext) return false;
+    const tiles = [...(ext.tiles || []), ...(ext.rows || []).flat()];
+    return tiles.some((t) => t && t.t === target);
+  };
   window.renderArchitecture = renderArchitecture;
   window.hasArchitecture = (domain) => Object.prototype.hasOwnProperty.call(ARCH, domain);
 })();
