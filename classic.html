@@ -122,8 +122,9 @@
   .tiles .stat { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
   .tiles .stat-v { font-size: 34px; }
 
-  .spark { position: relative; margin-top: 24px; height: 88px; }
+  .spark { position: relative; margin-top: 24px; height: 88px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
   .spark svg { display: block; width: 100%; height: 88px; }
+  .spark-scale { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; color: var(--text-subtle); font-size: 15px; line-height: 1; }
   .spark-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-subtle); font-size: 15px; margin-top: 10px; }
   .tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 16px; pointer-events: none; white-space: nowrap; z-index: 2; }
   .tip[hidden] { display: none; }
@@ -225,13 +226,16 @@
     .dlg-body { padding: 12px 12px 20px; }
   }
   .visit, .archbtn, .dlg-close { min-height: 44px; touch-action: manipulation; }
+  .visit, .archbtn, .dlg-close { transition: transform 120ms cubic-bezier(.23, 1, .32, 1); }
+  .visit:active, .archbtn:active, .dlg-close:active { transform: scale(.97); }
+  .visit:active:focus-visible, .archbtn:active:focus-visible, .dlg-close:active:focus-visible { transform: none; transition: none; }
   .dlg-close { width: 44px; }
   .archbtn { border-radius: 6px; }
   .card-foot { margin-top: auto; padding-top: 14px; }
   .archdlg .arch-sum { font-size: 18px; }
   .archdlg .arch-detail, .archdlg .arch figcaption, .archdlg .arch-view .src, .archdlg .arch-view .muted, .archdlg .lane li { font-size: 16px; }
   .archdlg .arch-view .sec h3 { font-size: 18px; }
-  @media (prefers-reduced-motion: reduce) { .visit svg { transition: none; transform: none !important; } }
+  @media (prefers-reduced-motion: reduce) { .visit, .archbtn, .dlg-close, .visit svg { transition: none; transform: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/arch.css">
 <!-- Loaded before the page script runs, so every card knows whether it has a diagram -->
@@ -459,13 +463,19 @@
   // Hourly requests: bucket i covers the hour ending at windowEnd - (23 - i) h
   const spark = (box, values, windowEnd) => {
     box.replaceChildren();
-    const W = Math.max(box.clientWidth, 120), H = 56, n = values.length;
-    const max = Math.max(...values, 1);
+    const max = Math.max(...values, 0);
+    const magnitude = 10 ** Math.floor(Math.log10(max || 1));
+    const ceiling = [1, 2, 5, 10].find((v) => v * magnitude >= (max || 1)) * magnitude;
+    const scale = el("div", "spark-scale");
+    scale.setAttribute("aria-hidden", "true");
+    scale.append(el("span", null, compact.format(ceiling)), el("span", null, "0"));
+    box.append(scale);
+    const W = Math.max(box.clientWidth - scale.offsetWidth - 10, 80), H = 56, n = values.length;
     const step = W / n, bw = Math.max(1, step * 0.72);
-    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": "Requests per hour, last 24 hours" });
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": "Requests per hour, last 24 hours. Scale 0 to " + int.format(ceiling) + "; peak " + int.format(max) + " requests." });
     svg.append(svgEl("line", { x1: 0, x2: W, y1: H - 0.5, y2: H - 0.5, stroke: "var(--grid)" }));
     const bars = values.map((v, i) => {
-      const h = Math.max(v > 0 ? 1.5 : 0, (v / max) * (H - 4));
+      const h = Math.max(v > 0 ? 1.5 : 0, (v / ceiling) * (H - 4));
       const r = svgEl("rect", { x: i * step + (step - bw) / 2, y: H - h, width: bw, height: h, rx: Math.min(2, bw / 2), fill: "var(--accent)" });
       svg.append(r);
       return r;
@@ -484,8 +494,8 @@
       const end = hourEnd(i), start = new Date(end.getTime() - 3600e3);
       tip.replaceChildren(el("div", "d", istHour.format(start) + "–" + istHour.format(end) + " IST"), el("div", null, int.format(values[i]) + " requests"));
       tip.hidden = false;
-      const px = ((i + 0.5) / n) * rect.width;
-      tip.style.left = Math.min(Math.max(px, 70), rect.width - 70) + "px";
+      const px = rect.left - box.getBoundingClientRect().left + ((i + 0.5) / n) * rect.width;
+      tip.style.left = Math.min(Math.max(px, 85), box.clientWidth - 85) + "px";
     };
     const hideHour = () => { tip.hidden = true; bars.forEach((b) => b.setAttribute("fill-opacity", "1")); };
     svg.addEventListener("pointermove", (ev) => {
@@ -535,6 +545,7 @@
   // Architecture dialog: the same diagrams as the 3D view, from assets/arch.js
   const dlg = $("#arch-dlg");
   let archSite = null, archWidth = 0;
+  let archTrigger = null, backdropPress = false;
   const drawArch = () => {
     const body = $("#arch-body");
     archWidth = body.clientWidth;
@@ -542,6 +553,7 @@
   };
   function openArch(site) {
     archSite = site;
+    archTrigger = document.activeElement;
     const t = $("#arch-title");
     t.replaceChildren(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")), site.domain);
     dlg.showModal();
@@ -549,7 +561,22 @@
     drawArch();   // after showModal, so the diagram is sized to the dialog's real width
   }
   $("#arch-close").addEventListener("click", () => dlg.close());
-  dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });   // click on the backdrop
+  const outsideDialog = (e) => {
+    const r = dlg.getBoundingClientRect();
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+  };
+  dlg.addEventListener("pointerdown", (e) => { backdropPress = e.target === dlg && outsideDialog(e); });
+  dlg.addEventListener("click", (e) => {
+    if (backdropPress && e.target === dlg && outsideDialog(e)) dlg.close();
+    backdropPress = false;
+  });
+  dlg.addEventListener("close", () => {
+    // A snapshot refresh can replace the original card while its dialog is open.
+    const fallback = archSite && document.getElementById("site-" + archSite.domain.replace(/\./g, "-"))?.querySelector(".archbtn");
+    (archTrigger?.isConnected ? archTrigger : fallback)?.focus();
+    archTrigger = null;
+    backdropPress = false;
+  });
   window.addEventListener("resize", () => { if (dlg.open && Math.abs($("#arch-body").clientWidth - archWidth) > 30) drawArch(); });
 
   function renderOverview(s) {

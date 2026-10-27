@@ -262,8 +262,10 @@
     const NS = "http://www.w3.org/2000/svg";
     const mk = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
     const fig = el("figure", "arch");
-    const detail = el("p", "arch-detail", "Bright arrows show live request or data flow. Grey arrows show DNS, configuration, attachment, or control flow. Responses return over the same connection.");
-    const svg = mk("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": domain + " architecture: " + spec.summary });
+    const detail = el("p", "arch-detail", "Select a service to read its details.");
+    detail.setAttribute("role", "status");
+    detail.setAttribute("aria-atomic", "true");
+    const svg = mk("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "group", "aria-label": domain + " architecture: " + spec.summary });
     const uid = domain.replace(/\W/g, "");
     const defs = mk("defs");
     [["m", "a-ahm"], ["s", "a-ahs"]].forEach(([k, cls]) => {
@@ -340,8 +342,8 @@
     // Service tiles
     const fit = (s, w, px) => { const n = Math.floor(w / px); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
     tiles.forEach(({ x, y, w, h, tile: t }) => {
-      const g = mk("g", { class: "a-tile" + (t.c === "ext" ? " ext" : ""), tabindex: "0" });
       const full = [t.t, t.s].filter(Boolean).join(" · ");
+      const g = mk("g", { class: "a-tile" + (t.c === "ext" ? " ext" : ""), tabindex: "0", role: "button", "aria-label": full, "aria-pressed": "false" });
       g.append(mk("title", {}, full));
       g.append(mk("rect", { x, y, width: w, height: h, rx: 8, class: "a-tbox" }));
       const isz = wide ? 30 : 26;
@@ -359,7 +361,12 @@
         g.append(mk("text", { x: x + w / 2, y: iy + isz + 15, "text-anchor": "middle", class: "a-ttl" + (wide ? "" : " sm") }, fit(t.t, w - 6, wide ? 7 : 5.7)));
         if (t.s && wide) g.append(mk("text", { x: x + w / 2, y: iy + isz + 28, "text-anchor": "middle", class: "a-sub" }, fit(t.s, w - 10, 5.5)));
       }
-      const show = () => { detail.textContent = full; svg.querySelectorAll(".a-tile.on").forEach((n) => n.classList.remove("on")); g.classList.add("on"); };
+      const show = () => {
+        detail.textContent = full;
+        svg.querySelectorAll(".a-tile.on").forEach((n) => { n.classList.remove("on"); n.setAttribute("aria-pressed", "false"); });
+        g.classList.add("on");
+        g.setAttribute("aria-pressed", "true");
+      };
       g.addEventListener("click", show);
       g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(); } });
       svg.append(g);

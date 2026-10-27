@@ -44,7 +44,8 @@
 .arch .a-pill.main { stroke: var(--arch-flow); }
 .arch .a-plabel { font-size: 11px; fill: var(--text-muted); }
 .arch .a-tile { cursor: pointer; outline: none; }
-.arch .a-tbox { fill: var(--surface); stroke: var(--border); stroke-width: 1; transition: stroke 0.2s; }
+.arch .a-tbox { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
+.arch .a-tile:active .a-tbox { fill: var(--surface-raised); }
 .arch .a-tile.ext .a-tbox { stroke-dasharray: 4 3; }
 .arch .a-tile.on .a-tbox, .arch .a-tile:focus-visible .a-tbox { stroke: var(--arch-flow); stroke-width: 1.8; }
 @media (hover: hover) and (pointer: fine) { .arch .a-tile:hover .a-tbox { stroke: var(--arch-flow); stroke-width: 1.8; } }
