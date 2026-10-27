@@ -396,51 +396,53 @@
     .estate-reading { justify-content: center; }
   }
 
-  /* Intro video: a captioned card on the page itself, like gate.atla.in's hero video.
-     Pressing play grows the card into a large player in place (FLIP), so the 1080p diagrams are readable. */
-  :root { --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1); }
-  .explainer { position: fixed; z-index: 4; top: 24px; left: 440px; width: 400px; margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; transition: opacity 160ms var(--ease-out-strong), transform 160ms var(--ease-out-strong); }
-  .explainer.leaving { opacity: 0; transform: translateY(-4px) scale(0.98); transition-duration: 150ms; }
-  .explainer[hidden] { display: none; }
-  .explainer-media { position: relative; }
-  .explainer video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--bg-page); }
-  .explainer-play { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; cursor: pointer; color: inherit; font: inherit; background: transparent; -webkit-tap-highlight-color: transparent; }
-  .explainer.playing .explainer-play { display: none; }
-  .play-disc { display: grid; place-items: center; width: clamp(48px, 5vw, 64px); height: clamp(48px, 5vw, 64px); border-radius: 50%; background: #ffffff; color: #131217; transition: transform 160ms var(--ease-out-strong); }
-  .play-disc svg { width: 40%; height: 40%; margin-left: 6%; }
-  .play-chip { position: absolute; left: 12px; bottom: 12px; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: rgba(19, 18, 23, 0.82); color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.08); font-variant-numeric: tabular-nums; }
-  .play-chip:empty { display: none; }
-  @media (hover: hover) and (pointer: fine) { .explainer-play:hover .play-disc { transform: scale(1.05); } }
-  .explainer-play:active .play-disc { transform: scale(0.97); }
-  .explainer-play:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
-  .explainer .close { position: absolute; z-index: 1; top: 8px; right: 8px; width: 44px; height: 44px; min-height: 44px; font-size: 18px; border: 0; border-radius: 6px; background: #131217; color: #fff; }
-  @media (hover: hover) and (pointer: fine) { .explainer .close:hover { background: rgba(19, 18, 23, 0.92); } }
-  .explainer.theater .close { top: 14px; right: 14px; }
-  /* Theatre: the same element, fixed and centred; JS sets its box and animates from the card */
-  .explainer.theater { z-index: 8; right: auto; bottom: auto; border-color: var(--border); box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8); transition: none; }
-  .explainer-scrim { position: fixed; inset: 0; z-index: 7; background: rgba(10, 10, 12, 0.76); opacity: 0; transition: opacity 180ms ease-out; }
-  .explainer-scrim.on { opacity: 1; transition-duration: 260ms; }
-  .explainer-scrim[hidden] { display: none; }
-  /* The header and video use the same two columns as the list and map below. */
-  @media (min-width: 1101px) {
-    .hud .brief { max-width: 336px; }
-    .take { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-    .estate, .map-region, .panel { top: 273px; }
-    body:has(.explainer[hidden]) .estate, body:has(.explainer[hidden]) .map-region, body:has(.explainer[hidden]) .panel { top: 232px; }
-  }
-  @media (min-width: 721px) { body:has(.panel.open) .explainer:not(.theater) { visibility: hidden; } }
-  /* Tablets: the card takes the top of the map column and the map sits below it */
+  /* A small watch card belongs to the introduction; the film gets its own centred stage. */
+  .hud .brief { display: grid; grid-template-columns: 336px minmax(0, 1fr); gap: 24px; max-width: none; }
+  .brief-intro, .brief-health { min-width: 0; }
+  .brief-health { padding-top: 4px; }
+  .brief-health .take { margin-top: 0; gap: 24px 36px; }
+  .brief-health .snap { margin-top: 16px; }
+  .watch-card { display: flex; align-items: center; gap: 12px; width: 100%; margin: 14px 0 0; padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-main); font: inherit; text-align: left; cursor: pointer; touch-action: manipulation; transition: transform 120ms var(--ease-out), border-color 140ms ease; }
+  .watch-thumb { position: relative; display: block; width: 92px; height: 52px; flex: none; overflow: hidden; border-radius: 3px; background: #131217; }
+  .watch-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .watch-play { position: absolute; inset: 0; display: grid; place-items: center; }
+  .watch-play svg { width: 28px; height: 28px; padding: 7px; border-radius: 50%; background: #ffffff; color: #131217; }
+  .watch-copy { display: grid; gap: 3px; }
+  .watch-copy strong { font-size: 15px; font-weight: 500; }
+  .watch-copy small { font-size: 12px; color: var(--text-muted); }
+  .watch-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .watch-card:active { transform: scale(.985); }
+  @media (hover: hover) and (pointer: fine) { .watch-card:hover { border-color: var(--text-subtle); } }
+  dialog.explainer { width: min(1120px, calc(100vw - 64px), calc((100dvh - 128px) * 16 / 9)); max-width: none; max-height: calc(100dvh - 32px); margin: auto; padding: 0; color: var(--text-main); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 24px 80px rgba(0, 0, 0, .35); }
+  dialog.explainer[open] { opacity: 1; transform: none; transition: opacity 180ms var(--ease-out), transform 220ms var(--ease-out); }
+  @starting-style { dialog.explainer[open] { opacity: 0; transform: translateY(8px) scale(.99); } }
+  dialog.explainer::backdrop { background: rgba(0, 0, 0, .8); }
+  .player-head { display: flex; align-items: center; gap: 16px; min-height: 60px; padding: 8px 12px 8px 20px; }
+  .player-head h2 { margin: 0; font-size: 16px; font-weight: 500; }
+  .player-head .close { margin-left: auto; }
+  .explainer video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000000; }
   @media (min-width: 721px) and (max-width: 1100px) {
-    .explainer:not(.theater) { top: 208px; left: 392px; right: 24px; width: auto; }
-    body:has(.explainer:not([hidden])) .map-region { top: calc(208px + (100vw - 416px) * 9 / 16 + 18px); }
+    .hud .brief { grid-template-columns: 288px minmax(0, 1fr); }
+    .brief-intro h1 { font-size: 26px; }
+    .brief-health .take { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   }
   @media (max-width: 720px) {
-    .explainer { position: relative; top: auto; left: auto; right: auto; width: auto; margin: 0 16px; order: 4; flex: none; }
+    .hud .brief { display: flex; flex-direction: column; gap: 0; }
+    .brief-intro { display: contents; }
+    .brief-intro h1 { order: 0; }
+    .brief-intro .intro { order: 1; }
+    .brief-health { order: 2; width: 100%; padding: 0; }
+    .brief-health .take { margin-top: 16px; }
+    .watch-card { order: 3; margin-top: 16px; }
+    dialog.explainer { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+    .player-head { padding-left: 16px; }
   }
+  html[data-input="keyboard"] .watch-card, html[data-input="keyboard"] dialog.explainer { transition: none; }
+  html[data-input="keyboard"] .watch-card:active { transform: none; }
   @media (prefers-reduced-motion: reduce) {
-    @starting-style { .explainer { transform: none; } }
-    .explainer.leaving { transform: none; }
-    .play-disc { transition: none; }
+    .watch-card, dialog.explainer[open] { transition: none; }
+    .watch-card:active { transform: none; }
+    @starting-style { dialog.explainer[open] { opacity: 1; transform: none; } }
   }
 
 </style>
@@ -456,11 +458,19 @@
 <body>
 <div class="hud">
   <div class="brief">
+    <div class="brief-intro">
     <h1>atla.in · Observability</h1>
     <p class="intro">Site health, AI usage and architecture.</p>
+    <button class="watch-card" id="explainer-play" type="button" aria-haspopup="dialog" aria-controls="explainer" aria-label="Watch Inside atla.in, a 42-second tour">
+      <span class="watch-thumb"><img src="assets/intro.jpg" alt="" width="92" height="52"><span class="watch-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></span>
+      <span class="watch-copy"><strong>Inside atla.in</strong><small id="watch-caption">Watch the 42-second tour</small></span>
+    </button>
+    </div>
+    <div class="brief-health">
     <p class="take" id="takeaway">Loading the latest snapshot…</p>
     <p class="snap" id="snap"></p>
     <div class="warnbox" id="unavailable" hidden></div>
+    </div>
   </div>
   <nav class="controls" aria-label="Map controls"><a class="brand-mark" href="/" aria-label="atla.in observability"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-7 5 4 7-10"/><path d="M3 21h18"/></svg></a>
     <button class="btn" id="motion" type="button" aria-pressed="true">Pause motion</button>
@@ -471,14 +481,13 @@
   </nav>
 </div>
 
-<figure class="explainer" id="explainer" aria-label="What this site does">
-  <div class="explainer-media">
-    <video id="intro-video" src="assets/intro.mp4" poster="assets/intro.jpg" playsinline preload="metadata" aria-label="What obs.atla.in is for"></video>
-    <button class="explainer-play" id="explainer-play" type="button" aria-label="Play: what this site does, 42 seconds"><span class="play-disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg></span><span class="play-chip"></span></button>
-    <button class="close" id="explainer-hide" type="button" aria-label="Hide intro video">×</button>
+<dialog class="explainer" id="explainer" aria-labelledby="player-title">
+  <div class="player-head">
+    <h2 id="player-title">Inside atla.in</h2>
+    <button class="close" id="explainer-hide" type="button" aria-label="Close video">×</button>
   </div>
-</figure>
-<div class="explainer-scrim" id="explainer-scrim" hidden></div>
+  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro.jpg" controls playsinline preload="none" aria-label="What obs.atla.in is for"></video>
+</dialog>
 
 <main class="map-region" aria-label="Infrastructure map"><div id="stage" aria-hidden="true"></div>
 <div id="labels"></div><div class="fallback" id="fallback" hidden>
@@ -619,111 +628,43 @@
   railIcon("#tour", '<path d="M3 10l9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>', "Reset view");
   railIcon("#intro-open", '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>', "Intro video");
 
-  /* ---------- Intro video: on the page by default; hiding it is remembered, and the rail brings it back ---------- */
-  // Play grows the card into a centred player (FLIP from where it sits); closing shrinks it back, faster than it opened.
-  const explainer = $("#explainer"), introVideo = $("#intro-video"), scrim = $("#explainer-scrim"), hideBtn = $("#explainer-hide");
-  let theater = false;
+  /* ---------- Intro film: a quiet watch card opens a native modal player ---------- */
+  const explainer = $("#explainer"), introVideo = $("#intro-video");
   let playerReturnFocus = null;
-  let playerBackground = [];
-  const setExplainer = (show) => {
-    explainer.hidden = !show;
-    try { localStorage.setItem("obs-intro-hidden", show ? "0" : "1"); } catch (e) {}
-    if (!panel.classList.contains("open")) setViewShift(false);
-  };
-  try { explainer.hidden = localStorage.getItem("obs-intro-hidden") === "1"; } catch (e) {}
-  const theaterBox = () => {
-    const cap = 2;
-    const w = Math.min(1280, innerWidth - 96, (innerHeight - 96 - cap) * 16 / 9);
-    const h = w * 9 / 16 + cap;
-    return { left: (innerWidth - w) / 2, top: (innerHeight - h) / 2, width: w };
-  };
-  const placeTheater = () => { const b = theaterBox(); Object.assign(explainer.style, { left: b.left + "px", top: b.top + "px", width: b.width + "px" }); };
-  // Measure, change layout, then play the difference back as a transform: only transform runs per frame.
-  const flip = (change, duration) => {
-    explainer.getAnimations().forEach((a) => a.cancel());
-    const first = explainer.getBoundingClientRect();
-    change();
-    if (reduceMotion || document.documentElement.dataset.input === "keyboard") return;
-    const last = explainer.getBoundingClientRect();
-    const k = first.width / last.width;
-    explainer.animate([
-      { transformOrigin: "0 0", transform: `translate(${first.left - last.left}px, ${first.top - last.top}px) scale(${k})` },
-      { transformOrigin: "0 0", transform: "none" },
-    ], { duration, easing: "cubic-bezier(0.77, 0, 0.175, 1)" });
-  };
-  const openTheater = () => {
-    if (theater) return;
+  const openPlayer = () => {
+    if (explainer.open) return;
     playerReturnFocus = document.activeElement;
-    explainer.classList.add("playing");
-    introVideo.controls = true;
-    introVideo.muted = false;
-    if (resumeAt && introVideo.readyState >= 1) introVideo.currentTime = resumeAt;
+    explainer.showModal();
+    if (renderer) renderer.setAnimationLoop(null);
     introVideo.play().catch(() => {});
-    if (narrow()) return;   // phones play inline; the card is already full width
-    theater = true;
-    playerBackground = [...document.querySelectorAll(".hud, .map-region, .estate, .legend, #panel")].map(node => [node, node.inert]);
-    playerBackground.forEach(([node]) => { node.inert = true; });
-    explainer.setAttribute("role", "dialog");
-    explainer.setAttribute("aria-modal", "true");
-    scrim.hidden = false;
-    requestAnimationFrame(() => scrim.classList.add("on"));
-    flip(() => { explainer.classList.add("theater"); placeTheater(); }, 260);
-    hideBtn.setAttribute("aria-label", "Close the player");
-    hideBtn.focus({ preventScroll: true });
+    $("#explainer-hide").focus({ preventScroll: true });
   };
-  // Back on the card, show the poster again and offer to resume where the viewer left off
-  let resumeAt = 0;
-  const chip = explainer.querySelector(".play-chip");
-  const restCard = () => {
-    const t = introVideo.ended ? 0 : introVideo.currentTime;
-    resumeAt = t > 1 ? t : 0;
-    introVideo.load();
-    const left = Math.max(0, Math.round((introVideo.duration || 42.5) - resumeAt));
-    chip.textContent = resumeAt ? `Resume · ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")} left` : "";
+  const closePlayer = () => {
+    if (explainer.open) explainer.close();
   };
-  introVideo.addEventListener("loadedmetadata", () => { if (resumeAt && explainer.classList.contains("playing")) introVideo.currentTime = resumeAt; });
-  const closeTheater = () => {
+  explainer.addEventListener("close", () => {
     introVideo.pause();
-    introVideo.controls = false;
-    restCard();
-    explainer.classList.remove("playing");
-    if (!theater) return;
-    theater = false;
-    playerBackground.forEach(([node, wasInert]) => { node.inert = wasInert; });
-    playerBackground = [];
-    explainer.removeAttribute("role");
-    explainer.removeAttribute("aria-modal");
-    scrim.classList.remove("on");
-    setTimeout(() => { if (!theater) scrim.hidden = true; }, 180);
-    flip(() => { explainer.classList.remove("theater"); explainer.style.left = explainer.style.top = explainer.style.width = ""; }, 180);
-    hideBtn.setAttribute("aria-label", "Hide intro video");
+    last = performance.now();
+    if (renderer && !document.hidden) renderer.setAnimationLoop(frame);
+    const resume = !introVideo.ended && introVideo.currentTime > 1;
+    $("#watch-caption").textContent = resume ? "Resume the tour" : "Watch the 42-second tour";
     (playerReturnFocus?.isConnected ? playerReturnFocus : $("#explainer-play")).focus({ preventScroll: true });
+  });
+  $("#explainer-play").addEventListener("click", openPlayer);
+  $("#intro-open").addEventListener("click", openPlayer);
+  $("#explainer-hide").addEventListener("click", closePlayer);
+  // Close only an actual backdrop press, never a drag that began on the video controls.
+  let playerBackdropPress = false;
+  const outsidePlayer = (e) => {
+    const r = explainer.getBoundingClientRect();
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
   };
-  $("#explainer-play").addEventListener("click", openTheater);
-  scrim.addEventListener("click", closeTheater);
-  introVideo.addEventListener("ended", closeTheater);
+  explainer.addEventListener("pointerdown", (e) => { playerBackdropPress = outsidePlayer(e); });
+  explainer.addEventListener("click", (e) => { if (playerBackdropPress && outsidePlayer(e)) closePlayer(); playerBackdropPress = false; });
   addEventListener("keydown", (e) => {
-    if (!theater) return;
-    if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); closeTheater(); }
-    if (e.key === "Tab") {
-      // The native video controls are one tab stop; cycle them with the close button.
-      if (e.shiftKey && document.activeElement === introVideo) { e.preventDefault(); hideBtn.focus(); }
-      else if (!e.shiftKey && document.activeElement === hideBtn) { e.preventDefault(); introVideo.focus(); }
-    }
+    if (!explainer.open || e.key !== "Escape") return;
+    e.preventDefault(); e.stopImmediatePropagation(); closePlayer();
   }, true);
-  addEventListener("resize", () => { if (theater) { if (narrow()) closeTheater(); else placeTheater(); } });
-  hideBtn.addEventListener("click", () => {
-    if (theater) { closeTheater(); return; }
-    introVideo.pause();
-    const done = () => { explainer.classList.remove("leaving"); setExplainer(false); };
-    if (reduceMotion || document.documentElement.dataset.input === "keyboard") { done(); } else { explainer.classList.add("leaving"); setTimeout(done, 150); }
-    $("#intro-open").focus({ preventScroll: true });
-  });
-  $("#intro-open").addEventListener("click", () => {
-    setExplainer(true);
-    explainer.scrollIntoView({ block: "nearest", behavior: "instant" });
-    openTheater();
-  });
   const tableLink = document.querySelector('.controls a[href="classic.html"]');
   tableLink.setAttribute("aria-label", "Table view"); tableLink.setAttribute("title", "Table view");
   tableLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M10 4v16"/></svg><span>Table</span>';
@@ -1509,12 +1450,6 @@
   // With the side panel open, shift the picture left so the selection sits in the visible part
   const setViewShift = (on) => {
     if (on && !narrow()) camera.setViewOffset(sceneSize().width, sceneSize().height, Math.min(panel.offsetWidth / 2, sceneSize().width * 0.3), 0, sceneSize().width, sceneSize().height);
-    else if (on && narrow()) camera.clearViewOffset();
-    // The intro card overlaps the map's top-right on wide screens: nudge the scene left and down, clear of it
-    else if (!explainer.hidden && innerWidth > 1100) {
-      const overlap = Math.max(0, explainer.getBoundingClientRect().bottom - stage.getBoundingClientRect().top);
-      camera.setViewOffset(sceneSize().width, sceneSize().height, explainer.offsetWidth * 0.18, -overlap * 0.45, sceneSize().width, sceneSize().height);
-    }
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   };
@@ -1659,7 +1594,7 @@
     labelRenderer.setSize(sceneSize().width, sceneSize().height);
   };
   addEventListener("resize", resizeScene);
-  // Hiding the video also changes the map's size on tablets without a window resize.
+  // Keep the canvas in sync with any responsive changes to its region.
   new ResizeObserver(resizeScene).observe(stage);
 
   themeBtn.addEventListener("click", () => {
@@ -1702,7 +1637,7 @@
     renderer.setAnimationLoop(frame);
     document.addEventListener("visibilitychange", () => {
       last = performance.now();
-      renderer.setAnimationLoop(document.hidden ? null : frame);
+      renderer.setAnimationLoop(document.hidden || explainer.open ? null : frame);
     });
   }
   load();
