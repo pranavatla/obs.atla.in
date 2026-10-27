@@ -44,12 +44,15 @@
 .appbar .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
 /* Narrower desktops: secondary controls drop to icons (each keeps its label as a tooltip and accessible name). */
-@media (max-width: 1360px) { .appbar h1 { font-size: 30px; } }
 /* Tablet: title and health share the first row, controls get their own centred row. */
 @media (max-width: 1100px) {
   .appbar { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title health" "nav nav"; }
   .appbar .controls { justify-self: center; }
-  .appbar h1 { font-size: 28px; }
+}
+/* Narrow tablet: the full-size title keeps its own row; health sits under it, controls centred below. */
+@media (max-width: 960px) {
+  .appbar { grid-template-columns: minmax(0, 1fr); grid-template-areas: "title" "health" "nav"; }
+  .appbar-health { justify-self: start; }
 }
 /* Phone: everything stacks, controls span the width with labels under icons. */
 @media (max-width: 720px) {

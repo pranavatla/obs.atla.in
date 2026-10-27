@@ -236,9 +236,38 @@
   .archdlg .arch-detail, .archdlg .arch figcaption, .archdlg .arch-view .src, .archdlg .arch-view .muted, .archdlg .lane li { font-size: 16px; }
   .archdlg .arch-view .sec h3 { font-size: 18px; }
   @media (prefers-reduced-motion: reduce) { .visit, .archbtn, .dlg-close, .visit svg { transition: none; transform: none !important; } }
+  /* Same frame as the 3D view: the header across the top, then the sidebar column (as wide as the
+     title, --rail-w measured in JS) beside the tabs and tiles. */
+  .wrap { gap: 24px; }
+  .layout { display: grid; grid-template-columns: var(--rail-w, 336px) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .side { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 24px; max-height: calc(100dvh - 48px); overflow: auto; scrollbar-width: thin; }
+  .side .estate { padding-right: 4px; }
+  .content { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+  .side > * { flex: none; }
+  #site-cards .card { scroll-margin-top: 24px; }
+  @media (max-width: 720px) {
+    .layout { display: flex; flex-direction: column; gap: 32px; }
+    .side { position: static; max-height: none; overflow: visible; padding: 0; }
+    .side .estate { padding-right: 0; }
+  }
+
+  /* A site picked in the sidebar takes the whole first row: wider chart, infrastructure open, diagram inline. */
+  #site-cards .card.max { grid-column: 1 / -1; order: -1; box-shadow: inset 0 0 0 1px var(--accent); transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out); }
+  @starting-style { #site-cards .card.max { opacity: 0; transform: translateY(6px) scale(.995); } }
+  .site-top .collapse { margin-left: 12px; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: 6px; background: none; color: var(--text-main); font: inherit; font-size: 14px; cursor: pointer; touch-action: manipulation; transition: transform 120ms cubic-bezier(.23, 1, .32, 1); }
+  .site-top .collapse svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .site-top .collapse:active { transform: scale(.97); }
+  .site-top .collapse:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { .site-top .collapse:hover { background: var(--surface-raised); } }
+  .card-arch { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .card-arch h4 { margin: 0 0 12px; font-size: 16px; font-weight: 500; color: var(--text-muted); }
+  .flash { animation: flash 1.2s var(--ease-out); }
+  @keyframes flash { from { box-shadow: inset 0 0 0 2px var(--accent); } to { box-shadow: inset 0 0 0 0 transparent; } }
+  @media (prefers-reduced-motion: reduce) { #site-cards .card.max, .site-top .collapse { transition: none; } @starting-style { #site-cards .card.max { opacity: 1; transform: none; } } .flash { animation: none; } }
 </style>
 <link rel="stylesheet" href="assets/arch.css">
 <link rel="stylesheet" href="assets/header.css">
+<link rel="stylesheet" href="assets/sidebar.css">
 <!-- Loaded before the page script runs, so every card knows whether it has a diagram -->
 <script src="assets/arch.js"></script>
 </head>
@@ -251,7 +280,6 @@
     </div>
     <nav class="controls" aria-label="View controls">
       <a class="btn primary" href="./" title="3D view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg><span>3D view</span></a>
-      <a class="btn" href="./#intro" title="Intro video" aria-label="Intro video"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Video</span></a>
     </nav>
     <div class="appbar-health">
       <p class="take" id="takeaway">Loading the latest snapshot…</p>
@@ -260,6 +288,27 @@
     </div>
   </header>
 
+  <div class="layout">
+  <div class="side">
+    <button class="watch-card" id="explainer-play" type="button" aria-haspopup="dialog" aria-controls="explainer" aria-label="Play the obs.atla.in overview">
+      <span class="watch-thumb"><img src="assets/intro.jpg" alt="" width="640" height="360"><span class="watch-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></span>
+      <span class="watch-copy"><strong>Inside obs.atla.in</strong><small id="watch-caption">Watch overview</small></span>
+    </button>
+<aside class="estate" aria-label="Sites and AI usage">
+  <section class="estate-box box-sites" aria-labelledby="estate-title">
+    <div class="estate-head"><h2 id="estate-title"><span class="box-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg></span>Sites</h2><span>Uptime · 7 d</span></div>
+    <div id="estate-sites"></div>
+  </section>
+  <section class="estate-box box-ai" aria-labelledby="ai-title">
+    <div class="estate-head"><h2 id="ai-title"><span class="box-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg></span>AI usage</h2><span>Calls · 7 d</span></div>
+    <p class="estate-sub">Through gate.atla.in</p>
+    <div id="estate-providers"></div>
+    <p class="estate-sub" id="direct-sub">Direct to Amazon Bedrock</p>
+    <div id="estate-direct"></div>
+  </section>
+<p class="estate-note">Measured, never simulated. Select a site to expand its tile.</p><a class="source-link" href="status.json">View source snapshot ↗</a></aside>
+  </div>
+  <div class="content">
   <div class="warnbox" id="unavailable" hidden></div>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
@@ -358,6 +407,17 @@
     </div>
   </section>
 
+  </div>
+  </div>
+
+<dialog class="explainer" id="explainer" aria-labelledby="player-title">
+  <div class="player-head">
+    <h2 id="player-title">Inside obs.atla.in</h2>
+    <button class="close" id="explainer-hide" type="button" aria-label="Close video">×</button>
+  </div>
+  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro.jpg" controls playsinline preload="none" aria-label="What obs.atla.in is for"></video>
+</dialog>
+
   <dialog class="archdlg" id="arch-dlg" aria-labelledby="arch-title">
     <div class="dlg-head">
       <div>
@@ -428,7 +488,7 @@
     if (!tabs.some((t) => t.dataset.tab === name)) return;
     current = name;
     tabs.forEach((t) => { t.setAttribute("aria-selected", String(t.dataset.tab === name)); t.tabIndex = t.dataset.tab === name ? 0 : -1; });
-    document.querySelectorAll(".wrap > section.page").forEach((p) => { p.hidden = p.id !== name; });
+    document.querySelectorAll(".content > section.page").forEach((p) => { p.hidden = p.id !== name; });
     if (push) history.replaceState(null, "", name === "overview" ? location.pathname : "#" + name);
     if (snapshot && name === "overview") renderOverview(snapshot);
   };
@@ -596,12 +656,25 @@
     box.replaceChildren();
     const end = new Date((s.windows && s.windows["24h"] && s.windows["24h"].end) || s.generated_at);
     orderSites(s.sites).forEach((site) => {
-      const card = el("div", "card");
+      const isMax = site.domain === maxSite;
+      const card = el("div", "card" + (isMax ? " max" : ""));
       card.id = "site-" + site.domain.replace(/\./g, "-");
       const top = el("div", "site-top");
       const link = el("a", null, site.domain); link.href = "https://" + site.domain; link.rel = "noopener";
       const h = el("h3"); h.append(link);
       top.append(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")), h, el("span", "status", site.status === "up" ? "Up" : site.status === "down" ? "Down" : "No check data"));
+      if (isMax) {
+        const shrink = el("button", "collapse");
+        shrink.type = "button";
+        shrink.setAttribute("aria-label", "Collapse the " + site.domain + " tile");
+        shrink.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>';
+        shrink.append("Collapse");
+        shrink.addEventListener("click", () => {
+          maximizeSite(site.domain);
+          [...document.querySelectorAll(".estate-row")].find((r) => r.dataset.ref === "site:" + site.domain)?.querySelector(".estate-name").focus({ preventScroll: true });
+        });
+        top.append(shrink);
+      }
       // Open the live site separately from the metric and architecture controls.
       const visit = el("a", "visit");
       visit.href = "https://" + site.domain;
@@ -612,6 +685,7 @@
       h.append(visit);
       const info = el("details", "site-info");
       info.append(el("summary", null, "Infrastructure"), el("p", "note", site.description || site.name || ""));
+      if (isMax) info.open = true;
       card.append(top, info);
       const stats = el("div", "stats");
       stats.append(stat(site, "uptime_7d", "Uptime"), stat(site, "check_duration_24h", "Check time"), stat(site, "requests_24h", site.domain === "gate.atla.in" ? "API calls" : "Requests"));
@@ -645,6 +719,15 @@
           const link = el("a", "gateway-link", "View model calls and spend →"); link.href = "#ai"; card.append(link);
         }
         box.append(card);
+      }
+      if (isMax && window.hasArchitecture && window.hasArchitecture(site.domain)) {
+        // The diagram is drawn in the tile itself, so the architecture button would only repeat it.
+        foot.replaceChildren();
+        const arch = el("div", "card-arch");
+        const view = el("div", "arch-view");
+        arch.append(el("h4", null, "Architecture, drawn from the site's repo"), view);
+        card.append(arch);
+        window.renderArchitecture(site.domain, view);
       }
       if (foot.childElementCount) card.append(foot);
     });
@@ -733,8 +816,139 @@
   }
   search.addEventListener("input", () => snapshot && renderAll(snapshot));
 
+  // ---------- Sidebar: the same video card, Sites and AI usage boxes as the 3D view ----------
+  const GATE = "gate.atla.in";
+  const PROVIDER_NAMES = { anthropic: "Anthropic", openai: "OpenAI", gemini: "Google Gemini", bedrock: "Amazon Bedrock" };
+  const gatewayProviders = (s) => {
+    const used = ((s.gateway && s.gateway.models_7d) || []).filter((m) => m.model.includes("/"));
+    const usage = (name) => used.filter((m) => m.model.split("/")[0] === name);
+    const listed = s.gateway && s.gateway.providers;
+    if (listed && listed.length) {
+      return listed.map((p) => {
+        const names = new Set([...(p.catalog_models || []), ...usage(p.provider).map((m) => m.model)]);
+        const models = [...names].map((model) => { const u = used.find((m) => m.model === model); return { model, calls: u ? +u.calls : 0, tokens: u ? +u.tokens : 0, cost_usd: u ? +u.cost_usd : 0 }; });
+        models.sort((a, b) => b.calls - a.calls || a.model.localeCompare(b.model));
+        return { provider: p.provider, calls_7d: +p.calls_7d || 0, tokens_7d: +p.tokens_7d || 0, cost_usd_7d: +p.cost_usd_7d || 0, models, fromGateway: true };
+      });
+    }
+    const gate = (s.sites || []).find((x) => x.domain === GATE);
+    const desc = (gate && gate.description) || "";
+    const names = Object.keys(PROVIDER_NAMES).filter((k) => desc.includes(PROVIDER_NAMES[k].replace("Google ", "")) || usage(k).length);
+    used.forEach((m) => { const k = m.model.split("/")[0]; if (!names.includes(k)) names.push(k); });
+    return names.map((k) => {
+      const u = usage(k);
+      const models = u.map((m) => ({ model: m.model, calls: +m.calls || 0, tokens: +m.tokens || 0, cost_usd: +m.cost_usd || 0 }));
+      return { provider: k, calls_7d: models.reduce((n, m) => n + m.calls, 0), tokens_7d: models.reduce((n, m) => n + m.tokens, 0), cost_usd_7d: models.reduce((n, m) => n + m.cost_usd, 0), models, fromGateway: false };
+    });
+  };
+  const openSiteLink = (domain) => {
+    const a = el("a", "open-site");
+    a.href = "https://" + domain;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.title = "Open " + domain;
+    a.setAttribute("aria-label", "Open " + domain + " in a new tab");
+    a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3L10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>';
+    a.addEventListener("click", e => e.stopPropagation());
+    a.addEventListener("pointerdown", e => e.stopPropagation());
+    return a;
+  };
+  let maxSite = null;   // the site whose tile is maximized, from a sidebar click
+  const smooth = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+  const markSelected = () => document.querySelectorAll(".estate-row").forEach((r) => {
+    const on = r.dataset.ref === "site:" + maxSite;
+    r.dataset.selected = String(on);
+    r.querySelector(".estate-name").setAttribute("aria-expanded", String(on));
+  });
+  function maximizeSite(domain, focusCard) {
+    maxSite = maxSite === domain ? null : domain;
+    markSelected();
+    if (current !== "overview") show("overview", true); else if (snapshot) renderOverview(snapshot);
+    const card = maxSite && document.getElementById("site-" + maxSite.replace(/\./g, "-"));
+    if (card) {
+      card.scrollIntoView({ block: "start", behavior: smooth() });
+      if (focusCard) card.querySelector(".collapse")?.focus({ preventScroll: true });
+    }
+  }
+  function revealAi(tableId) {
+    show("ai", true);
+    const box = document.getElementById(tableId)?.closest(".card");
+    if (!box) return;
+    box.scrollIntoView({ block: "start", behavior: smooth() });
+    box.classList.remove("flash"); void box.offsetWidth; box.classList.add("flash");
+  }
+  function renderEstate(s) {
+    const makeRow = (ref, title, detail, value, status, onPick) => {
+      const b = el("div", "estate-row");
+      b.dataset.ref = ref.kind + ":" + ref.id;
+      b.dataset.selected = String(ref.kind === "site" && ref.id === maxSite);
+      const identity = el("span", "estate-identity");
+      const nameLine = el("span", "estate-name-line");
+      const name = el("button", "estate-name", title);
+      name.type = "button";
+      if (ref.kind === "site") { name.setAttribute("aria-expanded", b.dataset.selected); name.setAttribute("aria-label", title + ". Expand its tile"); }
+      nameLine.append(name);
+      if (ref.kind === "site") nameLine.append(openSiteLink(ref.id));
+      identity.append(nameLine, el("span", "estate-meta", detail));
+      const reading = el("span", "estate-reading");
+      reading.append(el("span", "estate-value", value), el("span", "estate-status", status));
+      b.append(identity, reading);
+      b.addEventListener("click", (e) => onPick(e.detail === 0));
+      return b;
+    };
+    $("#estate-sites").replaceChildren(...orderSites(s.sites || []).map((site) => makeRow(
+      { kind: "site", id: site.domain }, site.domain,
+      fmt(valueOf(site, "requests_24h"), "count") + (site.domain === GATE ? " API calls · 24 h" : " requests · 24 h"),
+      fmt(valueOf(site, "uptime_7d"), "percent"),
+      site.status === "up" ? "Operational" : site.status === "down" ? "Down" : "No check data",
+      (keyboard) => maximizeSite(site.domain, keyboard)
+    )));
+    $("#estate-providers").replaceChildren(...gatewayProviders(s).map((p) => makeRow(
+      { kind: "provider", id: p.provider }, PROVIDER_NAMES[p.provider] || p.provider,
+      p.models.length + (p.models.length === 1 ? " model" : " models"), fmt(p.calls_7d, "count"), p.calls_7d > 0 ? "Used this week" : "Idle this week",
+      () => revealAi("gw-table")
+    )));
+    const directModels = s.ai_models || [];
+    $("#direct-sub").hidden = !directModels.length;
+    $("#estate-direct").replaceChildren(...directModels.map((m) => makeRow(
+      { kind: "bedrock", id: m.model_id }, m.model_id.replace(/^global\./, "").replace(/^amazon\./, ""), m.role || "Model", fmt(m.calls_7d, "count"), m.region || "",
+      () => revealAi("bedrock-table")
+    )));
+  }
+
+  // The sidebar is exactly as wide as the title, as on the 3D view.
+  const sizeRail = () => {
+    const title = $(".appbar h1").getBoundingClientRect().width;
+    document.documentElement.style.setProperty("--rail-w", Math.round(Math.max(288, title)) + "px");
+  };
+  sizeRail();
+  addEventListener("resize", sizeRail);
+  document.fonts?.ready.then(sizeRail);
+
+  // Intro player, shared with the 3D view
+  const explainer = $("#explainer"), introVideo = $("#intro-video");
+  let playerReturnFocus = null, playerBackdropPress = false;
+  const openPlayer = () => {
+    if (explainer.open) return;
+    playerReturnFocus = document.activeElement;
+    explainer.showModal();
+    introVideo.play().catch(() => {});
+    $("#explainer-hide").focus({ preventScroll: true });
+  };
+  explainer.addEventListener("close", () => {
+    introVideo.pause();
+    $("#watch-caption").textContent = !introVideo.ended && introVideo.currentTime > 1 ? "Resume overview" : "Watch overview";
+    (playerReturnFocus?.isConnected ? playerReturnFocus : $("#explainer-play")).focus({ preventScroll: true });
+  });
+  $("#explainer-play").addEventListener("click", openPlayer);
+  $("#explainer-hide").addEventListener("click", () => explainer.close());
+  const outsidePlayer = (e) => { const r = explainer.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
+  explainer.addEventListener("pointerdown", (e) => { playerBackdropPress = outsidePlayer(e); });
+  explainer.addEventListener("click", (e) => { if (playerBackdropPress && outsidePlayer(e)) explainer.close(); playerBackdropPress = false; });
+
   function render(s) {
     renderHeader(s);
+    renderEstate(s);
     if (current === "overview") renderOverview(s);
     renderEdge(s); renderRum(s); renderAi(s); renderAll(s);
   }

@@ -58,7 +58,7 @@ console.log('Pause/resume respects device motion preferences and keeps automatic
 const classic = fs.readFileSync(new URL('../classic.html', import.meta.url), 'utf8');
 const showSource = classic.slice(classic.indexOf('  const show ='), classic.indexOf('  tabs.forEach((t) => t.addEventListener'));
 const sections = [{ id:'overview', hidden:false }, { id:'ai', hidden:true }], nested = {hidden:false};
-const tabState = { current:'overview', snapshot:null, tabs:sections.map(s => ({dataset:{tab:s.id},setAttribute(){}})), document:{querySelectorAll:selector => selector === '.wrap > section.page' ? sections : [...sections,nested]}, history:{replaceState(){}}, location:{pathname:'/classic.html'} };
+const tabState = { current:'overview', snapshot:null, tabs:sections.map(s => ({dataset:{tab:s.id},setAttribute(){}})), document:{querySelectorAll:selector => selector === '.content > section.page' ? sections : [...sections,nested]}, history:{replaceState(){}}, location:{pathname:'/classic.html'} };
 vm.runInNewContext(showSource + '\nshow("ai", true)',tabState);
 assert.equal(sections[0].hidden,true);
 assert.equal(sections[1].hidden,false);
