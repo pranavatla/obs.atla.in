@@ -59,14 +59,14 @@
 
   const ARCH = {
     "gate.atla.in": {
-      summary: "One Graviton EC2 host in a public subnet, running Docker Compose. Caddy terminates TLS and proxies to the FastAPI gateway, which keeps its audit log and cache in Postgres and its rate limits in Redis, then calls Bedrock or one of three outside providers.",
+      summary: "Route 53 resolves gate.atla.in to the host's Elastic IP. HTTPS enters the VPC through the internet gateway, passes the host security group, and reaches Caddy on one Graviton EC2 instance. Caddy proxies to the FastAPI gateway, which uses Postgres and Redis before calling Bedrock or an outside model provider.",
       users: [{ id: "tn", i: "api", c: "user", t: "API tenants", s: "gita pods · atla.in Lambda" }, { id: "vis", i: "users", c: "user", t: "Visitors", s: "Landing page + chatbot" }],
       cloud: "AWS Cloud · ap-south-1",
       rows: [
         [{ id: "r53", i: "dns", c: "net", t: "Route 53", s: "A record → Elastic IP" }, { id: "ecr", i: "registry", c: "compute", t: "ECR", s: "gate images, immutable tags" }, { id: "ssm", i: "key", c: "sec", t: "SSM Parameters", s: "/gate/prod secrets" }, { id: "bk", i: "archive", c: "storage", t: "S3 backups", s: "Nightly Postgres dumps + deploy bundle" }, { id: "bed", i: "spark", c: "ai", t: "Bedrock", s: "Nova 2 Lite" }],
         { box: "vpc", label: "VPC gate-vpc · 10.40.0.0/16", short: "VPC · 10.40.0.0/16", rows: [
           { box: "public", label: "Public subnet gate-public-a · AZ-a", short: "Public subnet · AZ-a", rows: [
-            [{ id: "igw", i: "igw", c: "net", t: "Internet GW", s: "gate-igw" }, { id: "eip", i: "pin", c: "net", t: "Elastic IP", s: "gate-host-eip" }, { id: "sg", i: "lock", c: "sec", t: "Security group", s: "In: 443 and 80 only" }],
+            [{ id: "igw", i: "igw", c: "net", t: "Internet GW", s: "gate-igw" }, { id: "eip", i: "pin", c: "net", t: "Elastic IP", s: "gate-host-eip · EC2 association" }, { id: "sg", i: "lock", c: "sec", t: "Security group", s: "Inbound 443 and 80 only" }],
             { box: "host", label: "EC2 t4g.small · AL2023 arm64 · Docker Compose", short: "EC2 t4g.small · Compose", rows: [
               [{ id: "caddy", i: "proxy", c: "net", t: "Caddy 2.11", s: "Let's Encrypt TLS · HSTS · 1 MB limit" }, { id: "gw", i: "gateway", c: "compute", t: "Gateway", s: "FastAPI · keys, limits, policy, failover" }],
               { heading: "Data", tiles: [{ id: "pg", i: "db", c: "data", t: "Postgres 17", s: "pgvector · audit, prices, semantic cache", w: 2 }, { id: "redis", i: "cache", c: "data", t: "Redis 7", s: "Token buckets, memory only", w: 2 }] },
@@ -78,13 +78,13 @@
       ],
       security: [SEC_IAM("Least-privilege host role"), { id: "oidc", i: "branch", c: "sec", t: "GitHub OIDC", s: "Deploy role, main branch only" }, { id: "sm", i: "terminal", c: "sec", t: "Session Manager", s: "No SSH port open" }, { id: "imds", i: "lock", c: "sec", t: "IMDSv2", s: "Tokens required" }, { id: "ebs", i: "archive", c: "sec", t: "EBS encryption", s: "Root volume encrypted" }, { id: "scan", i: "eye", c: "sec", t: "ECR scanning", s: "Scan on push" }, { id: "bud", i: "budget", c: "sec", t: "AWS Budgets", s: "gate-monthly, 80% and 100% alerts" }],
       external: { label: "Outside AWS", tiles: [{ id: "le", i: "cert", c: "ext", t: "Let's Encrypt", s: "Caddy's TLS certificates" }, { id: "ls", i: "pulse", c: "ext", t: "LangSmith", s: "Traces" }, { id: "llm", i: "spark", c: "ext", t: "Anthropic · OpenAI · Gemini", s: "Model APIs over HTTPS", w: 2 }] },
-      edges: [["tn", "r53", "DNS", 1], ["vis", "r53"], ["r53", "igw", "A → EIP", 1], ["igw", "caddy", "HTTPS 443", 1], ["caddy", "gw", "proxy :8000", 1], ["gw", "pg", "audit · cache"], ["gw", "redis", "limits"], ["graf", "pg", "read-only"], ["gw", "bed", "Bedrock", 0, "r"], ["gw", "llm", "providers", 0, "r"]],
+      edges: [["tn", "r53", "DNS"], ["vis", "r53", "DNS"], ["r53", "eip", "A record"], ["tn", "igw", "HTTPS /v1", 1, "l"], ["vis", "igw", "HTTPS", 1, "l"], ["igw", "eip", "1:1 NAT", 1], ["eip", "sg", "host ENI", 1], ["sg", "caddy", "443 / 80", 1], ["caddy", "gw", "proxy :8000", 1], ["ssm", "gw", "env at boot"], ["ecr", "gw", "image pull"], ["gw", "pg", "audit · cache"], ["gw", "redis", "limits"], ["pg", "bk", "nightly dump"], ["graf", "pg", "read-only"], ["gw", "bed", "Bedrock", 0, "r"], ["gw", "llm", "providers", 0, "r"], ["gw", "ls", "traces", 0, "r"], ["caddy", "le", "ACME TLS", 0, "r"]],
       delivery: { repo: "pranavatla/gate", branch: "main", file: "deploy.yml", steps: ["Push to main", "GitHub Actions (arm64)", "OIDC → gate-github-deploy", "Unit tests", "docker build", "ECR (immutable tag)", "S3 deploy bundle", "SSM Run Command", "Health check"] },
       extra: "Infrastructure is Terraform in infra/terraform.",
       watch: "Grafana synthetic check · /v1/stats audit totals · LangSmith traces · nightly evals 03:30 IST",
     },
     "gita.atla.in": {
-      summary: "Internet-facing ALB with a regional WAF in front of an EKS cluster. The AWS Load Balancer Controller builds the ALB from the gita Ingress; the FastAPI pods serve the UI and the answer API, search an in-memory vector cache, embed with Titan on Bedrock and send chat calls through gate.atla.in.",
+      summary: "Route 53 resolves gita.atla.in to an internet-facing ALB protected by a regional WAF. The AWS Load Balancer Controller reconciles the Ingress and ClusterIP Service into an IP target group, so live requests go from the ALB directly to the FastAPI pod on port 8000. The pod searches its local vector index, embeds with Titan on Bedrock, and sends chat calls through gate.atla.in.",
       users: [{ id: "u", i: "users", c: "user", t: "Readers", s: "Ask a question" }],
       cloud: "AWS Cloud · ap-south-1",
       rows: [
@@ -94,7 +94,7 @@
             [{ id: "alb", i: "lb", c: "net", t: "ALB", s: "k8s-gita-gitaapp · internet-facing" }],
           ] },
           { box: "cluster", label: "EKS cluster · gita-rag-cluster", rows: [
-            [{ id: "lbc", i: "k8s", c: "compute", t: "LB Controller", s: "Creates the ALB from the Ingress", col: 1 }],
+            [{ id: "lbc", i: "k8s", c: "compute", t: "LB Controller", s: "Reconciles Ingress into ALB", col: 1 }, { id: "ing", i: "branch", c: "net", t: "Ingress", s: "Host gita.atla.in · path /" }, { id: "svc", i: "proxy", c: "net", t: "ClusterIP Service", s: "Port 80 → targetPort 8000" }],
             { box: "group", label: "Namespace gita · deployment", short: "Namespace gita", rows: [
               [{ id: "pod", i: "pod", c: "compute", t: "FastAPI pods", s: "uvicorn · UI + /answer API" }],
               { heading: "In the pod", tiles: [{ id: "vec", i: "vector", c: "data", t: "Vector cache", s: "Baked into the image, hybrid search + rerank", w: 2 }] },
@@ -105,7 +105,7 @@
       ],
       security: [SEC_WAF("Regional ACL gita-atla-in on the ALB"), SEC_ACM("TLS certificate for the ALB"), SEC_IAM("GitHub OIDC deploy role")],
       external: { label: "Outside this cluster", tiles: [{ id: "gate", i: "gateway", c: "ai", t: "gate.atla.in", s: "Chat → Nova 2 Lite, 3 retries" }] },
-      edges: [["u", "r53", "DNS", 1], ["r53", "alb", "alias", 1], ["alb", "pod", "HTTPS → pods", 1], ["pod", "vec", "search"], ["pod", "bed", "embed", 0, "r"], ["pod", "gate", "chat", 1, "r"], ["waf", "alb", "filters", 0, "l"]],
+      edges: [["u", "r53", "DNS"], ["r53", "alb", "alias"], ["u", "alb", "HTTPS", 1, "l"], ["ing", "lbc", "reconciles"], ["svc", "ing", "backend :80"], ["svc", "pod", "selects :8000"], ["lbc", "alb", "provisions"], ["alb", "pod", "IP target :8000", 1], ["ecr", "pod", "image pull"], ["pod", "vec", "local search"], ["pod", "bed", "Titan embed", 1, "r"], ["pod", "gate", "/v1/chat", 1, "r"], ["waf", "alb", "web ACL", 0, "l"], ["acm", "alb", "TLS cert", 0, "l"]],
       delivery: { repo: "pranavatla/Gita", branch: "main", file: "push-to-ecr.yml", steps: ["Push to main", "GitHub Actions", "OIDC → deploy role", "docker buildx", "ECR image:sha", "kubectl set image", "rollout status"] },
       extra: "rag-evaluation.yml scores answer quality.",
       note: "The repo doesn't record the VPC address range, node group or subnet layout, so they aren't drawn.",
@@ -124,7 +124,7 @@
       ],
       security: [SEC_WAF("Free-plan ACL on CloudFront"), SEC_ACM("TLS certificate for CloudFront"), SEC_IAM("GitHub OIDC deploy role"), { id: "cors", i: "lock", c: "sec", t: "CORS + concurrency", s: "Only atla.in may call; reserved concurrency caps cost" }],
       external: { label: "Outside AWS", tiles: [{ id: "gate", i: "gateway", c: "ai", t: "gate.atla.in", s: "Tenant: atla.in chatbot → Nova 2 Lite" }] },
-      edges: [["u", "r53", "DNS", 1], ["r53", "cf", "alias", 1], ["cf", "s3", "origin", 1], ["u", "fn", "POST chat", 1, "l"], ["fn", "ssm", "reads key"], ["fn", "gate", "Bearer key", 1, "l"]],
+      edges: [["u", "r53", "DNS"], ["r53", "cf", "alias"], ["u", "cf", "HTTPS", 1, "l"], ["cf", "s3", "GET origin", 1], ["u", "fn", "POST /chat", 1, "l"], ["fn", "ssm", "GetParameter"], ["fn", "gate", "POST /v1/chat", 1, "l"], ["waf", "cf", "web ACL"], ["acm", "cf", "TLS cert"], ["iam", "fn", "execution role"]],
       delivery: STATIC_DELIVERY("pranavatla/ai_agent_1", "develop", "deploy role", ["npm ci + next build", "s3 sync out/", "CloudFront invalidation", "Grafana deploy marker"], "deploy-frontend-aws.yml"),
       extra: "The chatbot Lambda is Terraform in pranavatla/gate (examples/atla-chatbot).",
       watch: "Grafana synthetic check every 5 min from 3 probes · CloudWatch RUM · CloudFront and WAF metrics",
@@ -136,7 +136,7 @@
       rows: [
         [{ id: "r53", i: "dns", c: "net", t: "Route 53", s: "obs.atla.in → CloudFront" }, { id: "cf", i: "cdn", c: "net", t: "CloudFront", s: "E2EXL4C10F3QBA · free plan" }, { id: "s3", i: "bucket", c: "storage", t: "S3 · private", s: "index, classic, status.json" }],
         { box: "serverless", label: "Serverless · no VPC", rows: [
-          [{ id: "eb", i: "clock", c: "ops", t: "EventBridge", s: "Schedule rule, rate(15 minutes)" }, { id: "ad", i: "send", c: "ops", t: "API destination", s: "GitHub workflow_dispatch" }],
+          [{ id: "eb", i: "clock", c: "ops", t: "EventBridge rule", s: "rate(15 minutes)" }, { id: "ad", i: "send", c: "ops", t: "API destination", s: "GitHub workflow_dispatch" }, { id: "conn", i: "key", c: "sec", t: "EventBridge connection", s: "Adds GitHub Authorization header" }, { id: "secret", i: "lock", c: "sec", t: "Secrets Manager", s: "Stores the fine-grained token" }],
         ] },
         { heading: "Monitoring", tiles: [{ id: "cw", i: "pulse", c: "ops", t: "CloudWatch", s: "CloudFront · WAF · RUM · ALB · Bedrock" }] },
       ],
@@ -145,7 +145,7 @@
         [{ id: "gh", i: "branch", c: "ext", t: "GitHub Actions", s: "Status collector · Python, boto3" }],
         [{ id: "gr", i: "chart", c: "ext", t: "Grafana Cloud", s: "Synthetic checks" }, { id: "gs", i: "gateway", c: "ai", t: "gate.atla.in", s: "/v1/stats" }, { id: "cdn", i: "code", c: "ext", t: "jsDelivr", s: "three.js 0.186 for this page" }],
       ] },
-      edges: [["u", "r53", "DNS", 1], ["r53", "cf", "alias", 1], ["cf", "s3", "origin", 1], ["eb", "ad", "fires"], ["ad", "gh", "dispatch", 0, "r"], ["gh", "s3", "status.json", 1, "r"], ["gh", "cw", "GetMetricData", 0, "l"], ["gh", "gr", "PromQL"], ["gh", "gs", "GET"]],
+      edges: [["u", "r53", "DNS"], ["r53", "cf", "alias"], ["u", "cf", "HTTPS", 1, "l"], ["cf", "s3", "GET page + status", 1], ["eb", "ad", "scheduled invoke", 1], ["conn", "ad", "authorizes"], ["secret", "conn", "stores token"], ["ad", "gh", "workflow_dispatch", 1, "r"], ["gh", "cw", "GetMetricData", 1, "l"], ["gh", "gr", "PromQL", 1], ["gh", "gs", "GET /v1/stats", 1], ["gh", "s3", "PUT status.json", 1, "r"], ["waf", "cf", "web ACL"], ["acm", "cf", "TLS cert"]],
       delivery: STATIC_DELIVERY("pranavatla/obs.atla.in", "main", "deploy role", ["Stage index + classic", "s3 sync --delete", "CloudFront invalidation"], "deploy-frontend-aws.yml"),
       extra: "status.json is published separately by publish-status.yml, so page deploys never overwrite it.",
       watch: "Grafana synthetic check every 10 min · CloudWatch RUM · CloudFront and WAF metrics",
@@ -160,7 +160,7 @@
         { heading: "Monitoring", tiles: [{ id: "cw", i: "pulse", c: "ops", t: "CloudWatch", s: "CloudFront · WAF · RUM" }] },
       ],
       security: [SEC_WAF("Free-plan ACL on CloudFront"), SEC_ACM("TLS certificate for CloudFront"), SEC_IAM("OIDC role github-deploy-games-atla")],
-      edges: [["u", "r53", "DNS", 1], ["r53", "cf", "alias", 1], ["cf", "s3", "origin", 1]],
+      edges: [["u", "r53", "DNS"], ["r53", "cf", "alias"], ["u", "cf", "HTTPS", 1, "l"], ["cf", "s3", "GET game files", 1], ["waf", "cf", "web ACL"], ["acm", "cf", "TLS cert"]],
       delivery: STATIC_DELIVERY("pranavatla/games.atla", "main", "github-deploy-games-atla", ["s3 cp launcher", "s3 sync each game", "CloudFront invalidation"], "deploy.yml"),
       watch: "Grafana synthetic check every 10 min · CloudWatch RUM · CloudFront and WAF metrics",
     },
@@ -176,8 +176,8 @@
         { heading: "Monitoring", tiles: [{ id: "cw", i: "pulse", c: "ops", t: "CloudWatch RUM", s: "us-east-1" }] },
       ],
       security: [SEC_ACM("TLS certificate for CloudFront"), SEC_IAM("OIDC role github-deploy-aif-c01")],
-      edges: [["u", "r53", "DNS", 1], ["r53", "cf", "alias", 1], ["cf", "s3", "origin", 1], ["apigw", "fn"], ["fn", "ddb"]],
-      delivery: STATIC_DELIVERY("pranavatla/aif-c01", "main", "github-deploy-aif-c01", ["s3 sync each day", "CloudFront invalidation"], "deploy.yml"),
+      edges: [["u", "r53", "DNS"], ["r53", "cf", "alias"], ["u", "cf", "HTTPS", 1, "l"], ["cf", "s3", "GET study files", 1], ["acm", "cf", "TLS cert"], ["apigw", "fn", "planned invoke"], ["fn", "ddb", "planned persistence"]],
+      delivery: STATIC_DELIVERY("pranavatla/aif-c01", "master", "github-deploy-aif-c01", ["s3 sync each day", "CloudFront invalidation"], "deploy.yml"),
       note: "No WAF on this distribution.",
       watch: "Grafana synthetic check every 10 min · CloudWatch RUM (us-east-1) · CloudFront metrics",
     },
@@ -262,7 +262,7 @@
     const NS = "http://www.w3.org/2000/svg";
     const mk = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
     const fig = el("figure", "arch");
-    const detail = el("p", "arch-detail", "Tap a service for its details.");
+    const detail = el("p", "arch-detail", "Bright arrows show live request or data flow. Grey arrows show DNS, configuration, attachment, or control flow. Responses return over the same connection.");
     const svg = mk("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": domain + " architecture: " + spec.summary });
     const uid = domain.replace(/\W/g, "");
     const defs = mk("defs");
@@ -378,7 +378,7 @@
 
     fig.append(svg);
     fig.append(detail);
-    const cap = "Bright arrows are the main request path. Tap a service for its details. Drawn from the " + spec.delivery.repo + " repo." + (spec.note ? " " + spec.note : "");
+    const cap = "Bright arrows are live request or data paths; grey arrows are resolution and control paths. Responses return over the same connection. Tap a service for details. Verified against the " + spec.delivery.repo + " repo." + (spec.note ? " " + spec.note : "");
     fig.append(el("figcaption", null, cap));
     host.append(fig);
 
