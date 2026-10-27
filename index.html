@@ -336,6 +336,25 @@
 
   }
 
+  /* Intro video: a captioned card on the page itself, like gate.atla.in's hero video */
+  .explainer { position: fixed; z-index: 2; top: 180px; right: 40px; width: min(440px, calc(100vw - 520px)); margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .explainer[hidden] { display: none; }
+  .explainer video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--bg-page); }
+  .explainer figcaption { display: flex; align-items: center; gap: 12px; padding: 10px 8px 10px 14px; border-top: 1px solid var(--border); }
+  .explainer figcaption b { font-size: 14px; font-weight: 600; }
+  .explainer figcaption span { font-size: 13px; color: var(--text-muted); }
+  .explainer .close { width: 36px; height: 36px; min-height: 36px; font-size: 16px; }
+  @media (min-width: 721px) { body:has(.panel.open) .explainer { visibility: hidden; } }
+  /* Tablets: the card takes the top of the map column and the map sits below it */
+  @media (min-width: 721px) and (max-width: 1100px) {
+    .explainer { top: 188px; left: 392px; right: 24px; width: auto; }
+    body:has(.explainer:not([hidden])) .map-region { top: calc(188px + (100vw - 416px) * 9 / 16 + 66px); }
+  }
+  @media (max-width: 720px) {
+    .explainer { position: relative; top: auto; right: auto; width: auto; margin: 0 16px 24px; }
+    .explainer figcaption { flex-wrap: wrap; }
+  }
+
 </style>
 <link rel="stylesheet" href="assets/arch.css">
 <script src="assets/arch.js" defer></script>
@@ -359,9 +378,15 @@
     <button class="btn" id="motion" type="button" aria-pressed="true">Pause motion</button>
     <button class="btn" id="tour" type="button">Overview</button>
     <a class="btn" href="classic.html">Table view</a>
+    <button class="btn" id="intro-open" type="button" aria-controls="explainer">Intro video</button>
     <button class="btn" id="theme" type="button" aria-label="Switch colour theme">Light theme</button>
   </nav>
 </div>
+
+<figure class="explainer" id="explainer" aria-labelledby="explainer-title">
+  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro.jpg" controls playsinline preload="metadata" aria-label="What obs.atla.in is for"></video>
+  <figcaption><div><b id="explainer-title">What this page does</b><br><span>A 40-second tour of every metric and site architecture</span></div><button class="close" id="explainer-hide" type="button" aria-label="Hide intro video">×</button></figcaption>
+</figure>
 
 <main class="map-region" aria-label="Infrastructure map"><div id="stage" aria-hidden="true"></div>
 <div id="labels"></div><div class="fallback" id="fallback" hidden>
@@ -488,6 +513,22 @@
     b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">${path}</svg><span>${text}</span>`;
   };
   railIcon("#tour", '<path d="M3 10l9-7 9 7v10H3z"/><path d="M9 20v-7h6v7"/>', "Reset view");
+  railIcon("#intro-open", '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>', "Intro video");
+
+  /* ---------- Intro video: on the page by default; hiding it is remembered, and the rail brings it back ---------- */
+  const explainer = $("#explainer"), introVideo = $("#intro-video");
+  const setExplainer = (show) => {
+    explainer.hidden = !show;
+    try { localStorage.setItem("obs-intro-hidden", show ? "0" : "1"); } catch (e) {}
+    if (!panel.classList.contains("open")) setViewShift(false);
+  };
+  try { explainer.hidden = localStorage.getItem("obs-intro-hidden") === "1"; } catch (e) {}
+  $("#explainer-hide").addEventListener("click", () => { introVideo.pause(); setExplainer(false); $("#intro-open").focus({ preventScroll: true }); });
+  $("#intro-open").addEventListener("click", () => {
+    setExplainer(true);
+    explainer.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
+    introVideo.play().catch(() => {});
+  });
   const tableLink = document.querySelector('.controls a[href="classic.html"]');
   tableLink.setAttribute("aria-label", "Table view"); tableLink.setAttribute("title", "Table view");
   tableLink.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M10 4v16"/></svg><span>Table</span>';
@@ -1259,9 +1300,12 @@
   const setViewShift = (on) => {
     if (on && !narrow()) camera.setViewOffset(sceneSize().width, sceneSize().height, Math.min(panel.offsetWidth / 2, sceneSize().width * 0.3), 0, sceneSize().width, sceneSize().height);
     else if (on && narrow()) camera.clearViewOffset();
+    // The intro card docks over the map's top-right on wide screens, so centre the scene in the space left of it
+    else if (!explainer.hidden && innerWidth > 1100) camera.setViewOffset(sceneSize().width, sceneSize().height, (explainer.offsetWidth + 64) / 2, 0, sceneSize().width, sceneSize().height);
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   };
+  setViewShift(false);
   function select(ref, fly, instant = false) {
     const changed = !selected || selected.kind !== ref.kind || selected.id !== ref.id;
     flight = null;
