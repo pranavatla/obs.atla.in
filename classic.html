@@ -72,7 +72,7 @@
 
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg-page); color: var(--text-main); font-family: var(--sans); font-size: 18px; line-height: 1.5; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
-  .wrap { max-width: 1840px; margin-inline: auto; padding: 40px 40px 72px; display: flex; flex-direction: column; gap: 32px; }
+  .wrap { max-width: 1840px; margin-inline: auto; padding: 24px 24px 72px; display: flex; flex-direction: column; gap: 32px; }
   @media (max-width: 640px) { .wrap { padding: 20px 16px 48px; } }
 
   header.head { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: space-between; }
@@ -238,19 +238,26 @@
   @media (prefers-reduced-motion: reduce) { .visit, .archbtn, .dlg-close, .visit svg { transition: none; transform: none !important; } }
 </style>
 <link rel="stylesheet" href="assets/arch.css">
+<link rel="stylesheet" href="assets/header.css">
 <!-- Loaded before the page script runs, so every card knows whether it has a diagram -->
 <script src="assets/arch.js"></script>
 </head>
 <body>
 <div class="wrap">
-  <header class="head">
-    <div>
-      <h1>obs.atla.in · Observability &amp; Architecture</h1>
-      <p class="intro">Explore how each site is built, connected, and performing.</p>
+  <header class="appbar">
+    <div class="appbar-title">
+      <h1>Observability <span class="amp">&amp;</span> Architecture</h1>
+      <p class="intro">Health, AI usage and AWS architecture of every atla.in site.</p>
+    </div>
+    <nav class="controls" aria-label="View controls">
+      <a class="btn primary" href="./" title="3D view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg><span>3D view</span></a>
+      <a class="btn" href="./#intro" title="Intro video" aria-label="Intro video"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Video</span></a>
+      <button class="btn" id="theme" type="button" aria-label="Switch colour theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10l2 2M5 19l2-2M17 7l2-2"/></svg><span>Theme</span></button>
+    </nav>
+    <div class="appbar-health">
       <p class="take" id="takeaway">Loading the latest snapshot…</p>
       <p class="snap" id="snap"></p>
     </div>
-    <div style="display:flex;gap:8px"><a class="theme" href="./" style="text-decoration:none">3D view</a><button class="theme" id="theme" type="button" aria-label="Switch colour theme">Light theme</button></div>
   </header>
 
   <div class="warnbox" id="unavailable" hidden></div>
@@ -402,7 +409,7 @@
 
   // Theme
   const themeBtn = $("#theme");
-  const syncTheme = () => { themeBtn.textContent = document.documentElement.dataset.theme === "dark" ? "Light theme" : "Dark theme"; };
+  const syncTheme = () => { const text = document.documentElement.dataset.theme === "dark" ? "Light theme" : "Dark theme"; themeBtn.setAttribute("aria-label", text); themeBtn.title = text; };
   themeBtn.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
@@ -520,17 +527,20 @@
     const up = sites.filter((x) => x.status === "up").length;
     const uptimes = sites.map((x) => valueOf(x, "uptime_7d")).filter((v) => v != null);
     const over = sites.reduce((n, x) => n + Object.keys(LIMITS).filter((k) => overLimit(k, valueOf(x, k))).length, 0);
-    const t = $("#takeaway");
-    t.replaceChildren();
-    const b = (text, cls) => { const e = el("b", cls, text); return e; };
-    t.append(b(up + " of " + sites.length, up === sites.length ? "" : "bad"), " sites up · lowest 7-day uptime ", b(uptimes.length ? fmt(Math.min(...uptimes), "percent") : "—"), " · ", b(String(over), over ? "bad" : ""), over === 1 ? " web-vital reading over its good limit" : " web-vital readings over their good limit");
+    // Same chips and freshness line as the 3D view's header.
+    const chip = (value, label, bad) => { const c = el("span", "stat-chip" + (bad ? " bad" : "")); c.append(el("b", null, value), label); return c; };
+    $("#takeaway").replaceChildren(
+      chip(up + " of " + sites.length, "sites up", up !== sites.length),
+      chip(uptimes.length ? fmt(Math.min(...uptimes), "percent") : "—", "lowest 7-day uptime", false),
+      chip(String(over), over === 1 ? "real-user limit exceeded" : "real-user limits exceeded", over > 0),
+    );
 
     const gen = new Date(s.generated_at);
     const age = Date.now() - gen.getTime();
-    const snap = $("#snap");
-    snap.replaceChildren(el("span", null, "Snapshot " + istFull.format(gen) + " IST (" + ago(age) + ")"));
-    const pill = el("span", "pill " + (age > STALE_MINUTES * 60e3 ? "stale" : "fresh"), age > STALE_MINUTES * 60e3 ? "Stale" : "Fresh");
-    snap.append(pill);
+    const stale = age > STALE_MINUTES * 60e3;
+    const state = el("span", "state " + (stale ? "stale" : "fresh"));
+    state.append(el("i", "live-dot"), stale ? "Stale" : "Fresh");
+    $("#snap").replaceChildren(state, el("span", null, "Snapshot " + istFull.format(gen) + " IST · " + ago(age)));
 
     const un = s.unavailable_sources || [];
     const box = $("#unavailable");
