@@ -277,15 +277,11 @@
   .estate-box .estate-head { margin: 0; padding: 14px 0 12px; border-bottom: 1px solid var(--border); align-items: center; }
   .estate-box .estate-head h2 { display: flex; align-items: center; gap: 10px; font-size: 18px; }
   .estate-box .estate-head > span { font-size: 13px; }
-  .box-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; flex: none; }
+  .box-icon { display: grid; place-items: center; width: 18px; height: 24px; flex: none; color: var(--text-muted); }
   .box-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-  .box-sites .box-icon { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
-  .box-ai { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
-  .box-ai .box-icon { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
-  .box-ai .estate-head { border-bottom-color: color-mix(in srgb, var(--accent) 25%, var(--border)); }
-  .box-ai .estate-row { border-bottom-color: color-mix(in srgb, var(--accent) 18%, var(--border)); }
+  .box-ai { background: var(--surface); }
   .estate-box .estate-row:last-child { border-bottom: 0; }
-  .estate-sub { margin: 0; padding: 14px 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-subtle); }
+  .estate-sub { margin: 0; padding: 16px 0 4px; font-size: 13px; font-weight: 500; color: var(--text-muted); }
   .estate-sub[hidden] { display: none; }
   #estate-direct { padding-bottom: 2px; }
   .estate-note { margin: 20px 0 8px; font-size: 15px; color: var(--text-muted); line-height: 1.6; }
@@ -296,9 +292,9 @@
   .lbl { font-size: 11px; padding: 2px 4px; border-radius: 4px; min-height: 22px; border-color: var(--border); }
   .lbl b { font-weight: 500; }
   .lbl small { display: none; }
-  .lbl.model { font-size: 10px; padding: 2px 4px; min-height: 18px; max-width: 144px; }
-  .lbl.provider-group { max-width: 100px; }
-  .lbl.provider-group b { font-size: 10px; font-weight: 500; }
+  .lbl.model { font-size: 12px; padding: 4px 6px; min-height: 28px; max-width: 160px; }
+  .lbl.provider-group { max-width: 120px; }
+  .lbl.provider-group b { font-size: 12px; font-weight: 500; }
   .lbl.provider-group small { display: none; }
   .lbl .label-select { min-height: 22px; padding: 2px 4px; }
   .lbl .open-site { width: 24px; min-height: 24px; }
@@ -337,7 +333,7 @@
     .estate-meta, .estate-status { font-size: 15px; }
     .legend { position: relative; inset: auto; margin: 24px 16px 0; max-width: none; display: block; }
     .lbl { max-width: 124px; min-height: 22px; padding: 2px 4px; font-size: 11px; }
-    .lbl.model { font-size: 10px; max-width: 130px; min-height: 18px; }
+    .lbl.model { font-size: 12px; max-width: 130px; min-height: 28px; }
     .panel { top: auto; bottom: calc(64px + env(safe-area-inset-bottom)); max-height: 76dvh; border-radius: 6px 6px 0 0; z-index: 6; }
     .panel.wide { max-height: 82dvh; }
     .panel-head { padding: 16px; }
@@ -352,57 +348,72 @@
 
   }
 
-  /* Header: eyebrow with live state, then title, tagline and stat chips; one clear lead, grouped by spacing */
-  .eyebrow-row { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; min-height: 18px; }
-  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
-  .snap { margin: 0; padding-left: 12px; border-left: 1px solid var(--border); display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--text-subtle); }
+  /* Health leads; freshness stays beside the evidence rather than above the title. */
+  .snap { margin: 12px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--text-subtle); }
   .snap .state { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
   .snap .state.fresh { color: var(--good); }
   .snap .state.stale { color: var(--warn); }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 22%, transparent); }
-  h1 { font-size: 32px; line-height: 1.1; letter-spacing: -0.022em; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  h1 { font-size: 30px; line-height: 1.15; letter-spacing: -0.022em; }
   .intro { margin: 6px 0 0; font-size: 15px; color: var(--text-muted); }
-  .take { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 13px; }
-  .stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-muted); white-space: nowrap; }
-  .stat-chip b { color: var(--text-main); font-size: 14px; font-weight: 600; }
-  .stat-chip.bad { border-color: color-mix(in srgb, var(--bad) 40%, var(--border)); }
+  .take { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 12px 28px; font-size: 13px; }
+  .stat-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; color: var(--text-muted); }
+  .stat-chip b { color: var(--text-main); font-size: 20px; font-weight: 500; line-height: 1.2; }
+  .stat-chip:first-child b { font-size: 26px; }
   .stat-chip.bad b { color: var(--bad); }
-  .chip-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
-  .stat-chip.bad .chip-dot { background: var(--bad); }
-  /* A single, quiet entrance per page load: rows rise 6px in a 40ms stagger */
-  @media (prefers-reduced-motion: no-preference) {
-    .brief > * { animation: hud-rise 320ms cubic-bezier(0.23, 1, 0.32, 1) both; }
-    .brief > :nth-child(2) { animation-delay: 40ms; }
-    .brief > :nth-child(3) { animation-delay: 80ms; }
-    .brief > :nth-child(4) { animation-delay: 120ms; }
+  .stat-chip i { display: none; }
+  .take { align-items: baseline; }
+  .hud .brief { max-width: 700px; }
+  .estate, .panel { top: 208px; }
+  .map-region { top: 208px; }
+  .estate-row { min-height: 64px; padding: 10px 0; }
+  .lbl { font-size: 12px; }
+  .map-name-short { display: none; }
+  @media (max-width: 1100px) {
+    .lbl .map-name-full { display: none; }
+    .lbl .map-name-short { display: inline; }
   }
-  @keyframes hud-rise { from { opacity: 0; transform: translateY(6px); } }
   @media (max-width: 720px) {
-    .eyebrow-row { flex-direction: column; align-items: flex-start; gap: 6px; }
-    .snap { padding-left: 0; border-left: 0; }
-    h1 { font-size: 26px; }
-    .take { margin-top: 12px; }
+    h1 { font-size: 24px; }
+    .take { margin-top: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: none; line-height: 1.4; }
+    .stat-chip b, .stat-chip:first-child b { font-size: 22px; }
+    .stat-chip { font-size: 12px; }
+    body { display: flex; flex-direction: column; gap: 24px; }
+    .hud { order: 0; margin: 20px 16px 0; }
+    .estate { display: contents; }
+    .estate-box { margin: 0 16px; }
+    .estate-box + .estate-box { margin-top: 0; }
+    .box-sites { order: 1; }
+    .map-region { order: 2; inset: auto; margin: 0 16px; flex: none; height: 360px; }
+    .box-ai { order: 3; }
+    .estate-note { order: 5; margin: 0 16px; }
+    .source-link { order: 6; margin: -12px 16px 0; }
+    .legend { order: 7; margin: 0 16px; }
+    .panel { top: auto; }
+    .open-site { min-height: 44px; width: 36px; }
+    .estate-name { min-height: 44px; }
+    .estate-row { padding: 8px 0; }
+    .estate-reading { justify-content: center; }
   }
 
   /* Intro video: a captioned card on the page itself, like gate.atla.in's hero video.
      Pressing play grows the card into a large player in place (FLIP), so the 1080p diagrams are readable. */
   :root { --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1); }
-  .explainer { position: fixed; z-index: 4; top: 24px; right: 40px; width: max(420px, min(720px, 40vw, calc(100vw - 760px))); margin: 0; background: var(--surface); border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border)); border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent), 0 24px 60px -20px rgba(0, 0, 0, 0.7), 0 0 80px -20px color-mix(in srgb, var(--accent) 45%, transparent); transition: opacity 260ms var(--ease-out-strong), transform 260ms var(--ease-out-strong); }
-  @starting-style { .explainer { opacity: 0; transform: translateY(8px) scale(0.98); } }
+  .explainer { position: fixed; z-index: 4; top: 24px; left: 440px; width: 400px; margin: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; transition: opacity 160ms var(--ease-out-strong), transform 160ms var(--ease-out-strong); }
   .explainer.leaving { opacity: 0; transform: translateY(-4px) scale(0.98); transition-duration: 150ms; }
   .explainer[hidden] { display: none; }
   .explainer-media { position: relative; }
   .explainer video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: var(--bg-page); }
-  .explainer-play { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; cursor: pointer; color: inherit; font: inherit; background: linear-gradient(180deg, rgba(19, 18, 23, 0) 55%, rgba(19, 18, 23, 0.55) 100%); -webkit-tap-highlight-color: transparent; }
+  .explainer-play { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; cursor: pointer; color: inherit; font: inherit; background: transparent; -webkit-tap-highlight-color: transparent; }
   .explainer.playing .explainer-play { display: none; }
-  .play-disc { display: grid; place-items: center; width: clamp(56px, 6vw, 80px); height: clamp(56px, 6vw, 80px); border-radius: 50%; background: rgba(255, 255, 255, 0.94); color: #131217; box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.55); transition: transform 160ms var(--ease-out-strong); }
+  .play-disc { display: grid; place-items: center; width: clamp(48px, 5vw, 64px); height: clamp(48px, 5vw, 64px); border-radius: 50%; background: #ffffff; color: #131217; transition: transform 160ms var(--ease-out-strong); }
   .play-disc svg { width: 40%; height: 40%; margin-left: 6%; }
   .play-chip { position: absolute; left: 12px; bottom: 12px; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: rgba(19, 18, 23, 0.82); color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.08); font-variant-numeric: tabular-nums; }
   .play-chip:empty { display: none; }
   @media (hover: hover) and (pointer: fine) { .explainer-play:hover .play-disc { transform: scale(1.05); } }
   .explainer-play:active .play-disc { transform: scale(0.97); }
   .explainer-play:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
-  .explainer .close { position: absolute; z-index: 1; top: 10px; right: 10px; width: 36px; height: 36px; min-height: 36px; font-size: 16px; border: 0; border-radius: 50%; background: rgba(19, 18, 23, 0.7); color: #fff; }
+  .explainer .close { position: absolute; z-index: 1; top: 8px; right: 8px; width: 44px; height: 44px; min-height: 44px; font-size: 18px; border: 0; border-radius: 6px; background: #131217; color: #fff; }
   @media (hover: hover) and (pointer: fine) { .explainer .close:hover { background: rgba(19, 18, 23, 0.92); } }
   .explainer.theater .close { top: 14px; right: 14px; }
   /* Theatre: the same element, fixed and centred; JS sets its box and animates from the card */
@@ -410,14 +421,21 @@
   .explainer-scrim { position: fixed; inset: 0; z-index: 7; background: rgba(10, 10, 12, 0.76); opacity: 0; transition: opacity 180ms ease-out; }
   .explainer-scrim.on { opacity: 1; transition-duration: 260ms; }
   .explainer-scrim[hidden] { display: none; }
+  /* The header and video use the same two columns as the list and map below. */
+  @media (min-width: 1101px) {
+    .hud .brief { max-width: 336px; }
+    .take { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .estate, .map-region, .panel { top: 273px; }
+    body:has(.explainer[hidden]) .estate, body:has(.explainer[hidden]) .map-region, body:has(.explainer[hidden]) .panel { top: 232px; }
+  }
   @media (min-width: 721px) { body:has(.panel.open) .explainer:not(.theater) { visibility: hidden; } }
   /* Tablets: the card takes the top of the map column and the map sits below it */
   @media (min-width: 721px) and (max-width: 1100px) {
-    .explainer:not(.theater) { top: 204px; left: 392px; right: 24px; width: auto; }
-    body:has(.explainer:not([hidden])) .map-region { top: calc(204px + (100vw - 416px) * 9 / 16 + 18px); }
+    .explainer:not(.theater) { top: 208px; left: 392px; right: 24px; width: auto; }
+    body:has(.explainer:not([hidden])) .map-region { top: calc(208px + (100vw - 416px) * 9 / 16 + 18px); }
   }
   @media (max-width: 720px) {
-    .explainer { position: relative; top: auto; right: auto; width: auto; margin: 0 16px 24px; }
+    .explainer { position: relative; top: auto; left: auto; right: auto; width: auto; margin: 0 16px; order: 4; flex: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     @starting-style { .explainer { transform: none; } }
@@ -438,10 +456,10 @@
 <body>
 <div class="hud">
   <div class="brief">
-    <p class="eyebrow-row"><span class="eyebrow">atla.in</span><span class="snap" id="snap"></span></p>
-    <h1>Observability &amp; Architecture</h1>
-    <p class="intro">Explore how each site is built, connected, and performing.</p>
+    <h1>atla.in · Observability</h1>
+    <p class="intro">Site health, AI usage and architecture.</p>
     <p class="take" id="takeaway">Loading the latest snapshot…</p>
+    <p class="snap" id="snap"></p>
     <div class="warnbox" id="unavailable" hidden></div>
   </div>
   <nav class="controls" aria-label="Map controls"><a class="brand-mark" href="/" aria-label="atla.in observability"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l6-7 5 4 7-10"/><path d="M3 21h18"/></svg></a>
@@ -605,6 +623,8 @@
   // Play grows the card into a centred player (FLIP from where it sits); closing shrinks it back, faster than it opened.
   const explainer = $("#explainer"), introVideo = $("#intro-video"), scrim = $("#explainer-scrim"), hideBtn = $("#explainer-hide");
   let theater = false;
+  let playerReturnFocus = null;
+  let playerBackground = [];
   const setExplainer = (show) => {
     explainer.hidden = !show;
     try { localStorage.setItem("obs-intro-hidden", show ? "0" : "1"); } catch (e) {}
@@ -623,7 +643,7 @@
     explainer.getAnimations().forEach((a) => a.cancel());
     const first = explainer.getBoundingClientRect();
     change();
-    if (reduceMotion) return;
+    if (reduceMotion || document.documentElement.dataset.input === "keyboard") return;
     const last = explainer.getBoundingClientRect();
     const k = first.width / last.width;
     explainer.animate([
@@ -632,6 +652,8 @@
     ], { duration, easing: "cubic-bezier(0.77, 0, 0.175, 1)" });
   };
   const openTheater = () => {
+    if (theater) return;
+    playerReturnFocus = document.activeElement;
     explainer.classList.add("playing");
     introVideo.controls = true;
     introVideo.muted = false;
@@ -639,9 +661,13 @@
     introVideo.play().catch(() => {});
     if (narrow()) return;   // phones play inline; the card is already full width
     theater = true;
+    playerBackground = [...document.querySelectorAll(".hud, .map-region, .estate, .legend, #panel")].map(node => [node, node.inert]);
+    playerBackground.forEach(([node]) => { node.inert = true; });
+    explainer.setAttribute("role", "dialog");
+    explainer.setAttribute("aria-modal", "true");
     scrim.hidden = false;
     requestAnimationFrame(() => scrim.classList.add("on"));
-    flip(() => { explainer.classList.add("theater"); placeTheater(); }, 420);
+    flip(() => { explainer.classList.add("theater"); placeTheater(); }, 260);
     hideBtn.setAttribute("aria-label", "Close the player");
     hideBtn.focus({ preventScroll: true });
   };
@@ -663,29 +689,40 @@
     explainer.classList.remove("playing");
     if (!theater) return;
     theater = false;
+    playerBackground.forEach(([node, wasInert]) => { node.inert = wasInert; });
+    playerBackground = [];
+    explainer.removeAttribute("role");
+    explainer.removeAttribute("aria-modal");
     scrim.classList.remove("on");
     setTimeout(() => { if (!theater) scrim.hidden = true; }, 180);
-    flip(() => { explainer.classList.remove("theater"); explainer.style.left = explainer.style.top = explainer.style.width = ""; }, 300);
+    flip(() => { explainer.classList.remove("theater"); explainer.style.left = explainer.style.top = explainer.style.width = ""; }, 180);
     hideBtn.setAttribute("aria-label", "Hide intro video");
-    $("#explainer-play").focus({ preventScroll: true });
+    (playerReturnFocus?.isConnected ? playerReturnFocus : $("#explainer-play")).focus({ preventScroll: true });
   };
   $("#explainer-play").addEventListener("click", openTheater);
   scrim.addEventListener("click", closeTheater);
   introVideo.addEventListener("ended", closeTheater);
-  addEventListener("keydown", (e) => { if (e.key === "Escape" && theater) closeTheater(); });
-  addEventListener("resize", () => { if (theater) placeTheater(); });
+  addEventListener("keydown", (e) => {
+    if (!theater) return;
+    if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); closeTheater(); }
+    if (e.key === "Tab") {
+      // The native video controls are one tab stop; cycle them with the close button.
+      if (e.shiftKey && document.activeElement === introVideo) { e.preventDefault(); hideBtn.focus(); }
+      else if (!e.shiftKey && document.activeElement === hideBtn) { e.preventDefault(); introVideo.focus(); }
+    }
+  }, true);
+  addEventListener("resize", () => { if (theater) { if (narrow()) closeTheater(); else placeTheater(); } });
   hideBtn.addEventListener("click", () => {
     if (theater) { closeTheater(); return; }
     introVideo.pause();
     const done = () => { explainer.classList.remove("leaving"); setExplainer(false); };
-    if (reduceMotion) { done(); } else { explainer.classList.add("leaving"); setTimeout(done, 150); }
+    if (reduceMotion || document.documentElement.dataset.input === "keyboard") { done(); } else { explainer.classList.add("leaving"); setTimeout(done, 150); }
     $("#intro-open").focus({ preventScroll: true });
   });
   $("#intro-open").addEventListener("click", () => {
     setExplainer(true);
-    explainer.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
-    // let the card arrive before it grows
-    setTimeout(openTheater, reduceMotion ? 0 : 200);
+    explainer.scrollIntoView({ block: "nearest", behavior: "instant" });
+    openTheater();
   });
   const tableLink = document.querySelector('.controls a[href="classic.html"]');
   tableLink.setAttribute("aria-label", "Table view"); tableLink.setAttribute("title", "Table view");
@@ -855,7 +892,9 @@
     control.title = title + (line ? " · " + line : "");
     const t = el("b");
     if (dotCls != null) t.append(el("span", "dot " + dotCls));
-    t.append(title);
+    // Short map captions keep the topology readable; the full name stays in the accessible label and list.
+    const compactTitle = isSite ? title.replace(/\.atla\.in$/, "") : title.replace(/^(Google|Amazon) /, "");
+    t.append(el("span", "map-name-full", title), el("span", "map-name-short", compactTitle));
     control.append(t);
     if (line) control.append(el("small", null, line));
     b.dataset.ref = ref.kind + ":" + ref.id;
@@ -1611,14 +1650,17 @@
     fitLabels();
   }
 
-  addEventListener("resize", () => {
+  const resizeScene = () => {
     if (!renderer) return;
     if (!selected) { const h = homeView(); camera.position.copy(h.pos); controls.target.copy(h.target); }
     camera.aspect = sceneSize().width / sceneSize().height;
     setViewShift(panel.classList.contains("open"));
     renderer.setSize(sceneSize().width, sceneSize().height);
     labelRenderer.setSize(sceneSize().width, sceneSize().height);
-  });
+  };
+  addEventListener("resize", resizeScene);
+  // Hiding the video also changes the map's size on tablets without a window resize.
+  new ResizeObserver(resizeScene).observe(stage);
 
   themeBtn.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";

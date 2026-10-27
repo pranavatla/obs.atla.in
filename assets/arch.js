@@ -216,7 +216,7 @@
       rows.forEach((row) => {
         if (Array.isArray(row) || row.heading) {
           const list = Array.isArray(row) ? row : row.tiles;
-          if (row.heading) { texts.push({ x: X0, y: y + 11, text: row.heading.toUpperCase(), cls: "a-head" }); y += 18; }
+          if (row.heading) { texts.push({ x: X0, y: y + 11, text: row.heading, cls: "a-head" }); y += 18; }
           let col = 0, rowY = y;
           // When a row that starts the main path wraps, later lines skip column 1 so the path stays clear
           const wrapCol = mainIds.has(list[0] && list[0].id) ? 1 : 0;
