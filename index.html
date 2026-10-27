@@ -257,13 +257,20 @@
   .estate-row { display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 0; min-height: 72px; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: transparent; color: var(--text-main); font: inherit; cursor: pointer; text-align: left; }
   .estate-identity, .estate-reading { display: flex; flex-direction: column; gap: 4px; }
   .estate-reading { text-align: right; }
-  .estate-name { font-size: 18px; font-weight: 500; overflow-wrap: anywhere; }
+  .estate-name { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; font-size: 18px; font-weight: 500; overflow-wrap: anywhere; }
   .estate-identity { min-width: 0; }
   .estate-reading { flex-shrink: 0; }
   .estate-value { font-size: 18px; }
   .estate-meta, .estate-status { color: var(--text-muted); font-size: 15px; }
-  .estate-row[aria-expanded="true"] .estate-name { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 6px; text-decoration-thickness: 1px; }
+  .estate-row[data-selected="true"] .estate-name { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 6px; text-decoration-thickness: 1px; }
   .estate-row:focus-visible, .source-link:focus-visible, .legend summary:focus-visible, .brand-mark:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .estate-name-line { display: flex; align-items: center; gap: 4px; }
+  .open-site { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; min-height: 32px; color: var(--text-muted); border-radius: 4px; text-decoration: none; touch-action: manipulation; }
+  .open-site svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .open-site:focus-visible, .label-select:focus-visible, .estate-name:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lbl.site-label { display: flex; align-items: center; padding: 0 2px 0 0; }
+  .label-select { color: inherit; background: none; border: 0; padding: 6px 8px; font: inherit; text-align: left; cursor: pointer; min-width: 0; min-height: 32px; touch-action: manipulation; }
+  @media (hover: hover) and (pointer: fine) { .open-site:hover { color: var(--accent); background: var(--surface-raised); } }
   .providers-heading { margin-top: 24px; }
   .estate-note { margin: 20px 0 8px; font-size: 15px; color: var(--text-muted); line-height: 1.6; }
   .source-link { font-size: 15px; color: var(--text-muted); }
@@ -301,16 +308,15 @@
     .controls .btn span { display: block; }
     .controls .brand-mark { display: none; }
     #theme { margin: 0; }
-    .map-region { position: relative; inset: auto; margin: 0 16px; height: 250px; }
+    .map-region { position: relative; inset: auto; margin: 0 16px; height: 320px; }
     .estate { position: relative; inset: auto; margin: 24px 16px 0; width: auto; padding: 0; overflow: visible; }
     .estate-row { min-height: 72px; padding: 12px 0; }
     .estate-meta, .estate-status { font-size: 15px; }
     .legend { position: relative; inset: auto; margin: 24px 16px 0; max-width: none; display: block; }
     .lbl { max-width: 132px; min-height: 32px; padding: 4px 6px; font-size: 12px; }
     .lbl.model { font-size: 11px; max-width: 112px; }
-    /* The measured list replaces overlapping projected captions on narrow screens. */
-    .lbl { display: none; }
-    .lbl.sel { display: block; }
+    /* Keep every site identifiable on the map; model names remain in the AI list. */
+    .lbl.model { display: none; }
     .panel { top: auto; bottom: calc(64px + env(safe-area-inset-bottom)); max-height: 76dvh; border-radius: 6px 6px 0 0; z-index: 6; }
     .panel.wide { max-height: 82dvh; }
     .panel-head { padding: 16px; }
@@ -617,19 +623,35 @@
   };
   const healthColor = (h) => css(h === "bad" ? "--bad" : h === "warn" ? "--warn" : h === "good" ? "--good" : "--text-subtle");
 
+  const openSiteLink = (domain) => {
+    const a = el("a", "open-site");
+    a.href = "https://" + domain;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.title = "Open " + domain;
+    a.setAttribute("aria-label", "Open " + domain + " in a new tab");
+    a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3L10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>';
+    a.addEventListener("click", e => e.stopPropagation());
+    a.addEventListener("pointerdown", e => e.stopPropagation());
+    return a;
+  };
   const makeLabel = (ref, title, line, dotCls, extraCls) => {
-    const b = el("button", "lbl" + (extraCls ? " " + extraCls : ""));
-    b.type = "button";
+    const isSite = ref.kind === "site";
+    const b = el(isSite ? "div" : "button", "lbl" + (isSite ? " site-label" : "") + (extraCls ? " " + extraCls : ""));
+    const control = isSite ? el("button", "label-select") : b;
+    control.type = "button";
     const t = el("b");
     if (dotCls != null) t.append(el("span", "dot " + dotCls));
     t.append(title);
-    b.append(t);
-    if (line) b.append(el("small", null, line));
+    control.append(t);
+    if (line) control.append(el("small", null, line));
     b.dataset.ref = ref.kind + ":" + ref.id;
-    b.setAttribute("aria-expanded", "false");
-    b.setAttribute("aria-controls", "panel");
-    b.setAttribute("aria-label", title + (line ? ", " + line : "") + ". Show details");
-    b.addEventListener("click", (e) => { e.stopPropagation(); select(ref, true, e.detail === 0); });
+    control.dataset.ref = b.dataset.ref;
+    control.setAttribute("aria-expanded", "false");
+    control.setAttribute("aria-controls", "panel");
+    control.setAttribute("aria-label", title + (line ? ", " + line : "") + ". Show details");
+    control.addEventListener("click", (e) => { e.stopPropagation(); select(ref, true, e.detail === 0); });
+    if (isSite) b.append(control, openSiteLink(ref.id));
     labelsBy.set(ref.kind + ":" + ref.id, b);
     return new CSS2DObject(b);
   };
@@ -871,12 +893,21 @@
   function renderEstate(s) {
     const sites = $("#estate-sites"), providers = $("#estate-providers");
     const makeRow = (ref, title, detail, value, status) => {
-      const b = el("button", "estate-row"); b.type = "button";
+      const b = el("div", "estate-row");
       b.dataset.ref = ref.kind + ":" + ref.id;
-      b.setAttribute("aria-controls", "panel");
-      b.setAttribute("aria-expanded", String(!!selected && selected.kind === ref.kind && selected.id === ref.id));
+      const active = !!selected && selected.kind === ref.kind && selected.id === ref.id;
+      b.dataset.selected = String(active);
       const identity = el("span", "estate-identity");
-      identity.append(el("span", "estate-name", title), el("span", "estate-meta", detail));
+      const nameLine = el("span", "estate-name-line");
+      const name = el("button", "estate-name", title);
+      name.type = "button";
+      name.dataset.ref = b.dataset.ref;
+      name.setAttribute("aria-controls", "panel");
+      name.setAttribute("aria-expanded", String(active));
+      name.setAttribute("aria-label", title + ". Show details");
+      nameLine.append(name);
+      if (ref.kind === "site") nameLine.append(openSiteLink(ref.id));
+      identity.append(nameLine, el("span", "estate-meta", detail));
       const reading = el("span", "estate-reading");
       reading.append(el("span", "estate-value", value), el("span", "estate-status", status));
       b.append(identity, reading);
@@ -1020,7 +1051,7 @@
     const title = $("#p-title");
     title.replaceChildren(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")));
     const link = el("a", null, site.domain); link.href = "https://" + site.domain; link.rel = "noopener";
-    title.append(link);
+    title.append(link, openSiteLink(site.domain));
     $("#p-sub").textContent = (site.status === "up" ? "Up · " : site.status === "down" ? "Down · " : "No check data · ") + (site.description || site.name || "");
     const body = $("#p-body");
     body.replaceChildren();
@@ -1189,11 +1220,15 @@
     flight = { fromT: controls.target.clone(), toT: target, fromP: camera.position.clone(), toP: pos, t: 0 };
   };
   const markSelected = () => {
-    document.querySelectorAll(".estate-row").forEach(b => b.setAttribute("aria-expanded", String(!!selected && b.dataset.ref === selected.kind + ":" + selected.id)));
+    document.querySelectorAll(".estate-row").forEach(b => {
+      const active = !!selected && b.dataset.ref === selected.kind + ":" + selected.id;
+      b.dataset.selected = String(active);
+      b.querySelector(".estate-name").setAttribute("aria-expanded", String(active));
+    });
     labelsBy.forEach((b, key) => {
       const active = !!selected && key === selected.kind + ":" + selected.id;
       b.classList.toggle("sel", active);
-      b.setAttribute("aria-expanded", String(active));
+      (b.querySelector(".label-select") || b).setAttribute("aria-expanded", String(active));
     });
   };
   // With the side panel open, shift the picture left so the selection sits in the visible part
@@ -1230,7 +1265,7 @@
     flight = null;
     panel.inert = true;
     panel.classList.remove("open");
-    if (restore) (returnTo || $("#tour")).focus({ preventScroll: true });
+    if (restore) (returnTo?.querySelector(".estate-name, .label-select") || returnTo || $("#tour")).focus({ preventScroll: true });
     selected = null;
     markSelected();
     setViewShift(false);
@@ -1356,13 +1391,13 @@
     const activeRef = document.activeElement?.dataset.ref;
     buildWorld(s);
     markSelected();
-    if (activeRef) labelsBy.get(activeRef)?.focus({ preventScroll: true });
+    if (activeRef) { const label = labelsBy.get(activeRef); (label?.querySelector(".label-select") || label)?.focus({ preventScroll: true }); }
   }
   function render(s) {
     renderHeader(s);
     const activeRef = document.activeElement?.dataset.ref;
     renderEstate(s);
-    if (activeRef) [...document.querySelectorAll(".estate-row")].find(b => b.dataset.ref === activeRef)?.focus({ preventScroll: true });
+    if (activeRef) [...document.querySelectorAll(".estate-row")].find(b => b.dataset.ref === activeRef)?.querySelector(".estate-name")?.focus({ preventScroll: true });
     if (renderer) rebuildWorld(s);
     const body = $("#p-body"), scroll = body.scrollTop;
     // Don't discard a keyboard user's focused architecture node during polling.

@@ -105,6 +105,8 @@
   .card h2, .card h3 { font-size: 16px; font-weight: 600; margin: 0; }
   .note { color: var(--text-muted); font-size: 13px; margin: 4px 0 16px; }
 
+  .site-top h3 { display: flex; align-items: center; gap: 4px; }
+  .site-top h3 .visit { margin: 0; padding: 6px; min-width: 32px; justify-content: center; }
   .site-top { display: flex; align-items: center; gap: 10px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-subtle); flex: none; }
   .dot.up { background: var(--good); }
@@ -554,15 +556,14 @@
       const link = el("a", null, site.domain); link.href = "https://" + site.domain; link.rel = "noopener";
       const h = el("h3"); h.append(link);
       top.append(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")), h, el("span", "status", site.status === "up" ? "Up" : site.status === "down" ? "Down" : "No check data"));
-      // Visit the live site in a new tab, top-right of the card beside its status
+      // Open the live site separately from the metric and architecture controls.
       const visit = el("a", "visit");
       visit.href = "https://" + site.domain;
       visit.target = "_blank";
       visit.rel = "noopener noreferrer";
       visit.setAttribute("aria-label", "Visit " + site.domain + " (opens in a new tab)");
-      visit.append("Visit");
       visit.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16L16 8M9 8h7v7"/></svg>');
-      top.append(visit);
+      h.append(visit);
       const info = el("details", "site-info");
       info.append(el("summary", null, "Infrastructure"), el("p", "note", site.description || site.name || ""));
       card.append(top, info);

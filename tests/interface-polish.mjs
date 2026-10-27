@@ -32,7 +32,7 @@ const closing = html.match(/  function closePanel\(\) \{[\s\S]*?\n  \}/)[0];
 let focused = false, marked = false, shifted = true;
 const context = vm.createContext({
   selected: { kind: 'site', id: 'gita.atla.in' }, flight: {},
-  labelsBy: new Map([['site:gita.atla.in', { focus: () => { focused = true; } }]]),
+  labelsBy: new Map([['site:gita.atla.in', { querySelector: () => ({ focus: () => { focused = true; } }) }]]),
   panel: { inert: false, contains: () => true, classList: { remove: () => {} } },
   document: { activeElement: {}, querySelectorAll: () => [] }, markSelected: () => { marked = true; }, setViewShift: on => { shifted = on; },
 });
