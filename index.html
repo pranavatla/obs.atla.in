@@ -3,758 +3,1634 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>obs.atla.in – the status of every atla.in site</title>
-<meta name="description" content="A public status panel for every atla.in site: uptime, traffic, real-visitor experience, security and AI usage, each reading measured from a named source. Measured, never simulated.">
-<meta property="og:title" content="obs.atla.in – the status of every atla.in site">
-<meta property="og:description" content="Uptime, traffic, real-visitor experience, security and AI usage for every atla.in site, each reading measured from a named source. Measured, never simulated.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23313c36'/%3E%3Cpath d='M7 21l5-6 4 4 9-9' stroke='%235fcb85' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Observability &amp; Architecture — atla.in</title>
+<meta name="description" content="Explore the infrastructure, service connections, operational health, and AI usage behind every atla.in site. Architecture diagrams alongside uptime, traffic, errors, performance, and cost metrics.">
+<meta property="og:title" content="obs.atla.in · Observability &amp; Architecture">
+<meta property="og:description" content="Explore the infrastructure, service connections, operational health, and AI usage behind every atla.in site. Architecture diagrams alongside uptime, traffic, errors, performance, and cost metrics.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1915'/%3E%3Cpath d='M7 21l5-6 4 4 9-9' stroke='%23e08a6b' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <script>
   try {
     const t = localStorage.getItem("obs-theme");
     document.documentElement.dataset.theme = t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  } catch (e) {
-    document.documentElement.dataset.theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
+  } catch (e) {}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/arch.css">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* Signalling panel. Colour means state and nothing else: green up, amber degraded, red down, unlit no reading. */
+  @font-face {
+    font-family: "Inter";
+    src: url("assets/fonts/inter.woff2") format("woff2");
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+  }
   :root {
     color-scheme: dark;
-    --ground: #1e2522;
-    --plate: #313c36;
-    --plate-edge: #3f4b44;
-    --well: #263029;
-    --ink: #e7ebe5;
-    --ink-muted: #b3bdb5;
-    --ink-subtle: #95a199;
-    --rule: #46534b;
-    --lamp-green: #5fcb85;
-    --lamp-amber: #f0a43a;
-    --lamp-red: #ef5b64;
-    --flag: #f3b65e;
-    --focus: #9fd8ff;
-    --sel-bg: #e7ebe5;
-    --sel-ink: #1e2522;
 
-    /* aliases read by assets/arch.css */
-    --bg-page: var(--well);
-    --surface: var(--plate);
-    --surface-raised: var(--ground);
-    --border: var(--rule);
-    --text-main: var(--ink);
-    --text-muted: var(--ink-muted);
-    --text-subtle: var(--ink-subtle);
-    --accent: var(--lamp-green);
+    --bg-page: #171719;
+    --surface: #131217;
+    --surface-raised: #212023;
+    --text-main: #ffffff;
+    --text-muted: #b4b4b8;
+    --text-subtle: #94949b;
+    --accent: #4a8ad6;
+    --on-accent: #101820;
+    --border: #29282d;
+    --grid: rgba(255, 255, 255, 0.08);
+    --bar-muted: rgba(255, 255, 255, 0.22);
 
-    --plate-font: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
-    --sans: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --good: #5fc39c;
+    --warn: #d9a441;
+    --bad: #f18c9b;
+    --shield: #8a8c92;
+    --ground: #171719;
+    --tower: #333339;
+
+    --sans: "Public Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --serif: var(--sans);
+    --radius: 6px;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   }
+
   :root[data-theme="light"] {
     color-scheme: light;
-    --ground: #e4e8e2;
-    --plate: #d1d8d0;
-    --plate-edge: #b9c2b8;
-    --well: #eef1ec;
-    --ink: #17201b;
-    --ink-muted: #3f4a43;
-    --ink-subtle: #535e57;
-    --rule: #a7b1a7;
-    --lamp-green: #23a057;
-    --lamp-amber: #e0961c;
-    --lamp-red: #d6333c;
-    --flag: #8a5600;
-    --focus: #0b5cad;
-    --sel-bg: #17201b;
-    --sel-ink: #e4e8e2;
+
+    --bg-page: #f4f5f6;
+    --surface: #ffffff;
+    --surface-raised: #f7f8f9;
+    --text-main: #171719;
+    --text-muted: #55565c;
+    --text-subtle: #62636a;
+    --accent: #2864ad;
+    --on-accent: #ffffff;
+    --border: #e2e4e8;
+    --grid: rgba(23, 23, 25, 0.08);
+    --bar-muted: rgba(23, 23, 25, 0.22);
+
+    --good: #247b50;
+    --warn: #805b00;
+    --bad: #b3263d;
+    --shield: #5d626b;
+    --ground: #eceef0;
+    --tower: #c4c7cd;
   }
 
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 17px;
-    line-height: 1.5;
-    font-variant-numeric: tabular-nums;
-    -webkit-font-smoothing: antialiased;
+  html, body { height: 100%; }
+  body { margin: 0; overflow: hidden; background: var(--bg-page); color: var(--text-main); font-family: var(--sans); font-size: 15px; line-height: 1.45; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+
+  #stage { position: fixed; inset: 0; }
+  #stage canvas { display: block; outline: none; }
+  #labels { position: fixed; inset: 0; pointer-events: none; }
+
+  /* Heads-up display */
+  .hud { position: fixed; top: 20px; left: 24px; right: 24px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; pointer-events: none; z-index: 2; }
+  .hud > * { pointer-events: auto; }
+  .brief { max-width: 560px; background: var(--surface);  border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; }
+  h1 { font-family: var(--sans); font-weight: 600; font-size: 26px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+  .intro { margin: 8px 0 0; color: var(--text-muted); font-size: 13px; line-height: 1.45; }
+  .take { margin: 6px 0 0; font-size: 15px; }
+  .take b { font-weight: 600; }
+  .snap { margin: 6px 0 0; color: var(--text-muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 13px; }
+  .pill.fresh { color: var(--good); }
+  .pill.stale { color: var(--warn); }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .btn { background: var(--surface); color: var(--text-main); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 13px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+  @media (hover: hover) and (pointer: fine) { .btn:hover { background: var(--surface-raised); } }
+  .btn:focus-visible, .lbl:focus-visible, .close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .warnbox { margin-top: 10px; border: 1px solid var(--border); border-left: 3px solid var(--warn); background: var(--surface); border-radius: 10px; padding: 8px 12px; font-size: 13px; color: var(--text-muted); }
+  .warnbox[hidden] { display: none; }
+  .warnbox ul { margin: 4px 0 0; padding-left: 18px; }
+
+  .legend { position: fixed; left: 24px; bottom: 20px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px 14px; max-width: 560px; color: var(--text-muted); font-size: 12px; background: var(--surface);  border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+  .legend .hint { color: var(--text-subtle); }
+
+  /* Floating labels above each object; they are real buttons, so Tab reaches every site */
+  .lbl { pointer-events: auto; cursor: pointer; font: inherit; font-size: 12px; line-height: 1.25; color: var(--text-main); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; text-align: left; white-space: nowrap; transform: translateY(-6px); }
+  .lbl b { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .lbl small { color: var(--text-muted); font-size: 13px; }
+  .lbl.sel { border-color: var(--accent); }
+  .lbl.model { font-size: 13px; padding: 3px 7px; }
+  .lbl.idle { color: var(--text-muted); border-style: dashed; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-subtle); flex: none; display: inline-block; }
+  .dot.up { background: var(--good); }
+  .dot.down { background: var(--bad); }
+
+  /* Detail panel: a side sheet on wide screens, a bottom sheet on phones */
+  .panel { position: fixed; z-index: 3; top: 20px; right: 24px; bottom: 20px; width: min(400px, calc(100vw - 48px)); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);  display: flex; flex-direction: column; transform: translateX(calc(100% + 40px)); transition: transform 240ms var(--ease-out); }
+  .panel.open { transform: none; }
+  .panel:not(.open) { visibility: hidden; transition: transform 160ms var(--ease-out), visibility 0s 160ms; }
+  .panel-head { display: flex; align-items: flex-start; gap: 10px; padding: 18px 20px 10px; border-bottom: 1px solid var(--border); }
+  .panel-head h2 { font-size: 18px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .panel-head a { color: inherit; text-decoration: none; }
+  @media (hover: hover) and (pointer: fine) { .panel-head a:hover { text-decoration: underline; } }
+  .panel-head .sub { color: var(--text-muted); font-size: 13px; margin: 4px 0 0; }
+  .close { margin-left: auto; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-raised); color: var(--text-main); font-size: 18px; line-height: 1; cursor: pointer; }
+  .panel-body { overflow: auto; padding: 14px 20px 20px; display: flex; flex-direction: column; gap: 18px; }
+  .sec h3 { font-size: 13px; font-weight: 600; margin: 0 0 8px; color: var(--text-muted); text-transform: none; letter-spacing: 0; }
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .stat { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .stat-l { color: var(--text-muted); font-size: 13px; }
+  .stat-v { font-family: var(--sans); font-weight: 600; font-size: 22px; line-height: 1.2; }
+  .stat-w { color: var(--text-subtle); font-size: 13px; }
+  .bad { color: var(--bad); }
+  .good { color: var(--good); }
+  .warn { color: var(--warn); }
+  .muted { color: var(--text-muted); font-size: 13px; }
+  .flag { font-size: 13px; color: var(--text-muted); margin: 8px 0 0; }
+
+  .spark { position: relative; height: 64px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
+  .spark svg { display: block; width: 100%; height: 64px; }
+  .spark-scale { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; color: var(--text-subtle); font-size: 13px; line-height: 1; }
+  .spark-cap { display: flex; justify-content: space-between; gap: 8px; color: var(--text-subtle); font-size: 12px; margin-top: 6px; }
+  .tip { position: absolute; top: -6px; transform: translate(-50%, -100%); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px;  padding: 4px 8px; font-size: 12px; white-space: nowrap; pointer-events: none; }
+  .tip[hidden] { display: none; }
+  .tip .d { color: var(--text-muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 500; color: var(--text-muted); font-size: 13px; padding: 5px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  .num { text-align: right; white-space: nowrap; }
+  .src { color: var(--text-subtle); font-size: 13px; }
+
+  .fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; color: var(--text-muted); }
+  .fallback a { color: var(--accent); }
+  .fallback[hidden] { display: none; }
+
+  /* Panel tabs and the architecture view */
+  .ptabs { display: flex; gap: 4px; margin-top: 12px; }
+  .ptabs[hidden] { display: none; }
+  .ptab { font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: none; color: var(--text-muted); cursor: pointer; }
+  .ptab[aria-selected="true"] { background: none; border-color: transparent; border-bottom-color: var(--accent); color: var(--text-main); }
+  .ptab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .panel.wide { width: min(880px, calc(100vw - 48px)); }
+  .arch-sum { margin: 0; font-size: 14px; color: var(--text-main); }
+  .arch { margin: 0; }
+  .arch svg { display: block; width: 100%; height: auto; color: var(--text-subtle); font-family: var(--sans); }
+  .arch figcaption { color: var(--text-subtle); font-size: 12px; margin-top: 8px; }
+  .arch .band { fill: color-mix(in srgb, var(--surface-raised) 75%, transparent); stroke: var(--border); }
+  .arch .band-bg { fill: var(--surface-raised); }
+  .arch .band-l { font-size: 11px; font-weight: 600; letter-spacing: 0; fill: var(--text-subtle); }
+  .arch .edge { fill: none; stroke: currentColor; stroke-width: 1.3; opacity: 0.8; }
+  .arch .edge.main { stroke: var(--accent); stroke-width: 1.9; opacity: 1; stroke-dasharray: 6 5; }
+  .arch .ahm { fill: var(--accent); }
+  .arch .nbox { fill: var(--surface); stroke: var(--border); stroke-width: 1; transition: stroke 0.2s; }
+  .arch .node { cursor: pointer; outline: none; }
+  .arch .node.on .nbox, .arch .node:focus-visible .nbox { stroke: var(--accent); stroke-width: 1.6; }
+  .arch-detail { margin: 8px 0 0; font-size: 13px; color: var(--text-main); background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+  .arch .nbar { fill: var(--text-subtle); }
+  .arch .ntag { font-size: 11px; font-weight: 700; letter-spacing: 0; fill: var(--text-subtle); }
+  .arch .nlabel { font-size: 12.5px; font-weight: 600; fill: var(--text-main); }
+  .arch .nsub { font-size: 11px; fill: var(--text-muted); }
+  .arch .k-sec .nbar { fill: var(--bad); } .arch .k-sec .ntag { fill: var(--bad); }
+  .arch .k-edge .nbar { fill: var(--shield); } .arch .k-edge .ntag { fill: var(--shield); }
+  .arch .k-static .nbar, .arch .k-compute .nbar { fill: var(--accent); }
+  .arch .k-static .ntag, .arch .k-compute .ntag { fill: var(--accent); }
+  .arch .k-data .nbar { fill: var(--warn); } .arch .k-data .ntag { fill: var(--warn); }
+  .arch .k-ai .nbar { fill: var(--good); } .arch .k-ai .ntag { fill: var(--good); }
+  .arch .k-none .nbox { fill: none; stroke-dasharray: 4 4; }
+  .arch .epill { fill: var(--surface); stroke: var(--border); }
+  .arch .epill.main { stroke: var(--accent); }
+  .arch .elabel { font-size: 11px; fill: var(--text-muted); }
+  @media (hover: hover) and (pointer: fine) { .arch .node:hover .nbox { stroke: var(--accent); stroke-width: 1.6; } }
+  @media (prefers-reduced-motion: no-preference) { html[data-motion="on"] .arch .edge.main { animation: archflow 1.2s linear infinite; } }
+  @keyframes archflow { to { stroke-dashoffset: -11; } }
+  .lane { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center; }
+  .lane li { font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--surface-raised); border: 1px solid var(--border); }
+  .lane li:not(:last-child)::after { content: "→"; margin-left: 8px; color: var(--accent); }
+  .sec h3 a { color: inherit; text-transform: none; letter-spacing: 0; }
+
+  @media (max-width: 720px) {
+    .hud { top: 12px; left: 12px; right: 12px; flex-direction: column; gap: 8px; }
+    .brief { padding: 10px 14px; max-width: none; width: 100%; }
+    h1 { font-size: 24px; }
+    .take { font-size: 16px; }
+    .controls { justify-content: flex-start; }
+    .legend { display: none; }
+    .panel.wide { width: 100%; max-height: 86dvh; }
+    .panel { top: auto; left: 0; right: 0; bottom: 0; width: 100%; max-height: 62dvh; border-radius: 16px 16px 0 0; transform: translateY(calc(100% + 20px)); }
+    .lbl small { display: none; }
   }
-  a { color: inherit; text-underline-offset: 3px; text-decoration-thickness: 1px; }
-  a:hover { text-decoration-thickness: 2px; }
-  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
-  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .btn, .close, .ptab { min-height: 44px; touch-action: manipulation; transition: transform 120ms var(--ease-out), background-color 140ms ease; }
+  .close { width: 44px; height: 44px; }
+  .lbl { min-height: 36px; max-width: min(240px, calc(100vw - 24px)); white-space: normal; overflow-wrap: anywhere; touch-action: manipulation; transition: border-color 140ms ease; }
+  .lbl b, .lbl small { pointer-events: none; }
+  .lbl.model b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lbl:active { border-color: var(--accent); }
+  .btn:active, .close:active, .ptab:active { transform: scale(.97); }
+  .panel-body { min-height: 0; overscroll-behavior: contain; overflow-wrap: anywhere; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .panel-head > div { min-width: 0; }
+  .panel-head h2 { overflow-wrap: anywhere; }
+  .spark:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+  html[data-input="keyboard"] .panel, html[data-input="keyboard"] .btn, html[data-input="keyboard"] .close, html[data-input="keyboard"] .ptab { transition: none; }
+  html[data-input="keyboard"] button:active { transform: none; }
+  @media (max-width: 720px) { .lbl { min-height: 44px; max-width: 160px; } .hud { top: max(12px, env(safe-area-inset-top)); } }
+  @media (prefers-reduced-motion: reduce) { .panel, .btn, .close, .ptab, .lbl, .arch .nbox { transition: none; } .btn:active, .close:active, .ptab:active { transform: none; } }
 
-  /* ---------- Top bar ---------- */
-  .bar { display: flex; align-items: center; gap: 16px; padding: 18px 0; flex-wrap: wrap; }
-  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .brand-mark { width: 34px; height: 34px; flex: none; }
-  .brand-mark rect { fill: var(--plate); stroke: var(--plate-edge); }
-  .brand-mark path { stroke: var(--lamp-green); }
-  .brand-name { font-family: var(--plate-font); font-weight: 700; font-size: 21px; letter-spacing: 0.01em; }
-  .motto { font-family: var(--plate-font); font-weight: 500; font-size: 17px; color: var(--ink-muted); }
-  .bar-end { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-  .snap { font-size: 15px; color: var(--ink-muted); }
-  .snap b { color: var(--ink); font-weight: 600; }
-  .icon-btn {
-    width: 38px; height: 38px; display: inline-grid; place-items: center;
-    background: transparent; color: var(--ink); border: 1px solid var(--rule); border-radius: 10px; cursor: pointer;
+  /* 24 gutter + 336 list + 24 gap + map + 24 gutter = viewport. Controls get their own centred header row. */
+  body { font-size: 16px; }
+  .hud { top: 16px; left: 24px; right: 24px; display: block; }
+  .brief { max-width: none; padding: 0; background: var(--bg-page); border: 0; border-radius: 0; }
+  h1 { font-family: var(--sans); font-size: 30px; font-weight: 600; }
+  .take { font-size: 16px; }
+  .snap { font-size: 15px; }
+  .intro { margin: 6px 0 0; font-size: 16px; color: var(--text-muted); }
+  .pill { border: 0; padding: 0; border-radius: 0; }
+  .controls { position: relative; z-index: 5; width: max-content; max-width: 100%; margin: 0 auto 24px; background: var(--surface); border: 0; border-radius: 6px; padding: 6px; display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap; justify-content: center; gap: 4px; }
+  .brand-mark { color: var(--text-main); margin: 0; }
+  .controls .btn { width: auto; min-width: 84px; min-height: 56px; border: 0; background: none; padding: 6px 12px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 14px; line-height: 1.2; color: var(--text-muted); }
+  .controls .btn svg { width: 19px; height: 19px; }
+  .controls .btn span { display: block; }
+  .controls .btn[aria-pressed="true"], .controls .btn[aria-current="page"] { color: var(--text-main); }
+  #theme { margin: 0; }
+  .map-region { isolation: isolate; z-index: 0; position: fixed; inset: 284px 24px 24px 384px; background: var(--surface); border-radius: 6px; overflow: hidden; }
+  #stage, #labels { position: absolute; inset: 0; }
+  .estate { position: fixed; left: 24px; top: 184px; bottom: 24px; width: 336px; overflow: auto; scrollbar-width: thin; padding-right: 4px; }
+  .legend summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .label-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lbl.site-label { display: flex; align-items: center; padding: 0 2px 0 0; }
+  .label-select { color: inherit; background: none; border: 0; padding: 6px 8px; font: inherit; text-align: left; cursor: pointer; min-width: 0; min-height: 32px; touch-action: manipulation; }
+  /* Two distinct boxes: Sites (status, green) and AI usage (spend, accent-tinted) */
+  .legend { font-size: 13px; left: auto; right: 36px; bottom: 36px; display: block; max-width: 360px; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; }
+  .legend summary { min-height: 24px; cursor: pointer; color: var(--text-main); }
+  /* Motion controls mirror the Map key: same inset from the map's bottom-left corner, same box. */
+  .map-tools { position: absolute; left: 12px; bottom: 12px; z-index: 3; display: flex; gap: 2px; padding: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+  .map-tools .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 4px; background: none; color: var(--text-main); font: inherit; font-size: 13px; cursor: pointer; touch-action: manipulation; transition: background-color 140ms ease, transform 120ms cubic-bezier(.23, 1, .32, 1); }
+  .map-tools .btn svg { width: 15px; height: 15px; }
+  .map-tools .btn:active { transform: scale(.97); }
+  .map-tools .btn:disabled { opacity: .45; cursor: default; }
+  .map-tools .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) { .map-tools .btn:not(:disabled):hover { background: var(--surface-raised); } }
+  @media (prefers-reduced-motion: reduce) { .map-tools .btn { transition: none; } .map-tools .btn:active { transform: none; } }
+  .legend-items { display: grid; gap: 8px; padding-top: 12px; }
+  .lbl { font-size: 11px; padding: 2px 4px; border-radius: 4px; min-height: 22px; border-color: var(--border); }
+  .lbl b { font-weight: 500; }
+  .lbl small { display: none; }
+  .lbl.model { font-size: 12px; padding: 4px 6px; min-height: 28px; max-width: 160px; }
+  .lbl.provider-group { max-width: 120px; }
+  .lbl.provider-group b { font-size: 12px; font-weight: 500; }
+  .lbl.provider-group small { display: none; }
+  .lbl .label-select { min-height: 22px; padding: 2px 4px; }
+  .lbl .open-site { width: 24px; min-height: 24px; }
+  .lbl .open-site svg { width: 11px; height: 11px; }
+  .lbl b { gap: 4px; }
+  .lbl .dot { width: 5px; height: 5px; }
+  .lbl.sel { border-color: transparent; border-bottom-color: var(--accent); }
+  .panel { border-radius: 6px; border-color: var(--border); top: 184px; bottom: 24px; }
+  .panel-head { padding: 20px 20px 12px; }
+  .panel-head h2 { font-size: 18px; }
+  .panel-head .sub { line-height: 1.6; }
+  .sec h3 { font-size: 14px; font-weight: 500; text-transform: none; letter-spacing: 0; }
+  .stat { background: none; border: 0; border-radius: 0; padding: 10px 0; }
+  .stat-v { font-family: var(--sans); font-size: 22px; font-weight: 500; }
+  .stat-w { font-size: 12px; }
+  .ptab { border: 0; border-radius: 0; border-bottom: 1px solid transparent; padding: 8px 0; margin-right: 16px; }
+  .ptab[aria-selected="true"] { border-bottom-color: var(--accent); background: transparent; color: var(--text-main); }
+  .close { background: transparent; border-radius: 6px; }
+  @media (hover: hover) and (pointer: fine) { .controls .btn:hover { color: var(--text-main); background: var(--surface-raised); } }
+  @media (min-width: 721px) and (max-width: 1100px) { .map-region { left: 336px; } .estate { width: 288px; } }
+  @media (max-width: 720px) {
+    html, body { height: auto; }
+    body { overflow: auto; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+    .hud { position: relative; inset: auto; margin: 20px 16px 24px; }
+    .brief { padding: 0; }
+    h1 { font-size: 24px; }
+    .take { font-size: 16px; line-height: 1.6; max-width: 40ch; }
+    .controls { width: 100%; padding: 4px; gap: 0; }
+    .controls .btn { flex: 1; min-width: 0; padding: 4px 2px; }
+    .map-region { position: relative; inset: auto; margin: 0 16px; height: 320px; }
+    .estate { position: relative; inset: auto; margin: 24px 16px 0; width: auto; padding: 0; overflow: visible; }
+    .legend { position: relative; inset: auto; margin: 24px 16px 0; max-width: none; display: block; }
+    .lbl { max-width: 124px; min-height: 22px; padding: 2px 4px; font-size: 11px; }
+    .lbl.model { font-size: 12px; max-width: 130px; min-height: 28px; }
+    .panel { top: auto; bottom: 0; max-height: 84dvh; border-radius: 6px 6px 0 0; z-index: 6; }
+    .panel.wide { max-height: 82dvh; }
+    .panel-head { padding: 16px; }
+    .panel-head .sub { max-height: 84px; overflow: auto; }
+    .panel-body table, .panel-body tbody { display: block; width: 100%; }
+    .panel-body thead { display: none; }
+    .panel-body tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .panel-body td { display: flex; flex-direction: column; padding: 0; border: 0; white-space: normal; overflow-wrap: anywhere; }
+    .panel-body td:first-child { grid-column: 1 / -1; font-weight: 500; }
+    .panel-body td.num { align-items: flex-end; text-align: right; }
+    .panel-body td::before { content: attr(data-label); font-size: 12px; font-weight: 400; color: var(--text-muted); }
+
   }
-  .icon-btn:hover { background: var(--plate); }
-  .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* ---------- Intro ---------- */
-  .intro { padding: 28px 0 26px; max-width: 760px; }
-  h1 {
-    font-family: var(--plate-font); font-weight: 700;
-    font-size: clamp(34px, 5.2vw, 56px); line-height: 1.02; letter-spacing: -0.005em;
-    margin: 0 0 14px;
+  /* Health leads; freshness stays beside the evidence rather than above the title. */
+  .snap { margin: 12px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--text-subtle); }
+  .snap .state { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+  .snap .state.fresh { color: var(--good); }
+  .snap .state.stale { color: var(--warn); }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  h1 { font-size: 30px; line-height: 1.15; letter-spacing: -0.022em; }
+  .intro { margin: 6px 0 0; font-size: 15px; color: var(--text-muted); }
+  .take { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 12px 28px; font-size: 13px; }
+  .stat-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; color: var(--text-muted); }
+  .stat-chip b { color: var(--text-main); font-size: 20px; font-weight: 500; line-height: 1.2; }
+  .stat-chip:first-child b { font-size: 26px; }
+  .stat-chip.bad b { color: var(--bad); }
+  .stat-chip i { display: none; }
+  .take { align-items: baseline; }
+  .hud .brief { max-width: 700px; }
+  .estate, .panel { top: 284px; }
+  .map-region { top: 284px; }
+  .lbl { font-size: 12px; }
+  .map-name-short { display: none; }
+  @media (max-width: 1300px) {
+    .lbl .map-name-full { display: none; }
+    .lbl .map-name-short { display: inline; }
   }
-  .intro p { margin: 0; font-size: 19px; color: var(--ink-muted); max-width: 64ch; }
-
-  .notice {
-    border-left: 4px solid var(--lamp-amber); background: var(--plate); padding: 12px 16px; margin: 0 0 18px;
-    border-radius: 0 8px 8px 0; font-size: 16px; max-width: 80ch;
+  @media (max-width: 720px) {
+    h1 { font-size: 24px; }
+    .take { margin-top: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: none; line-height: 1.4; }
+    .stat-chip b, .stat-chip:first-child b { font-size: 22px; }
+    .stat-chip { font-size: 12px; }
+    body { display: flex; flex-direction: column; gap: 24px; }
+    .hud { order: 0; margin: max(16px, env(safe-area-inset-top)) 16px 0; }
+    .estate { display: contents; }
+    .estate-box { margin: 0 16px; }
+    .estate-box + .estate-box { margin-top: 0; }
+    .box-sites { order: 1; }
+    .map-region { order: 2; inset: auto; margin: 0 16px; flex: none; height: 360px; }
+    .box-ai { order: 3; }
+    .estate-note { order: 5; margin: 0 16px; }
+    .source-link { order: 6; margin: -12px 16px 0; }
+    .legend { order: 7; margin: 0 16px; }
+    .panel { top: auto; }
   }
-  .notice ul { margin: 6px 0 0; padding-left: 20px; }
-  .notice[hidden] { display: none; }
 
-  /* ---------- The panel ---------- */
-  .panel {
-    position: relative;
-    background: var(--plate);
-    border: 1px solid var(--plate-edge);
-    border-radius: 16px;
-    padding: 30px 28px 26px;
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 0 rgb(0 0 0 / 0.18);
-    transition: filter 0.4s ease;
+  /* The full title spans the deck. A full-width video tile leads the site column. */
+  .hud .brief { display: grid; grid-template-columns: 336px minmax(0, 1fr); gap: 0 24px; max-width: none; background: transparent; pointer-events: none; }
+  .brief-intro > *, .brief-health { pointer-events: auto; }
+  .brief-intro { display: contents; }
+  .brief-intro h1, .brief-intro .intro { grid-column: 1 / -1; }
+  .brief-health { min-width: 0; grid-column: 2; grid-row: 3; align-self: start; padding-top: 18px; }
+  .brief-health .take { margin-top: 0; gap: 24px 36px; }
+  .brief-health .snap { margin-top: 16px; }
+  .estate { top: var(--estate-top, 320px); }
+  @media (min-width: 721px) and (max-width: 1100px) {
+    .hud .brief { grid-template-columns: 288px minmax(0, 1fr); }
+    .brief-intro h1 { font-size: 26px; }
+    .brief-health .take { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   }
-  .panel-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 26px; }
-  .panel-head h2 { font-family: var(--plate-font); font-weight: 600; font-size: 22px; margin: 0; }
-  .panel-head p { margin: 0; color: var(--ink-muted); font-size: 15px; }
-  .panel.is-stale { filter: saturate(0.25); }
-  .panel.is-stale .lamp { box-shadow: none !important; animation: none !important; }
-
-  .track { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--n, 6), minmax(0, 1fr)); gap: 0 14px; position: relative; }
-  .track::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 12px; height: 3px; border-radius: 2px;
-    background: var(--ink); opacity: 0.85;
+  @media (max-width: 720px) {
+    .hud .brief { display: flex; flex-direction: column; gap: 0; }
+    .brief-intro { display: contents; }
+    .brief-intro h1 { order: 0; }
+    .brief-intro .intro { order: 1; }
+    .brief-health { order: 2; width: 100%; padding: 0; }
+    .brief-health .take { margin-top: 16px; }
+    .watch-card { order: 3; margin-top: 16px; }
   }
-  .station { position: relative; min-width: 0; }
-  .station-btn {
-    display: block; width: 100%; text-align: left; background: none; border: 0; padding: 0 0 6px; margin: 0;
-    color: inherit; font: inherit; cursor: pointer; border-radius: 10px;
+
+  /* Header lives in assets/header.css. Below it, the site column is exactly as wide as the title
+     (--rail-w, measured in JS) and the map starts one gutter under the bar (--content-top). */
+  @media (min-width: 721px) {
+    .hud { top: 24px; }
+    .hud .brief { display: block; width: var(--rail-w, 336px); margin-top: 24px; }
+    .watch-card { margin: 0; }
+    .hud .brief .warnbox { margin-top: 12px; }
+    .estate { width: var(--rail-w, 336px); top: var(--estate-top, 320px); }
+    .map-region { top: var(--content-top, 140px); left: calc(48px + var(--rail-w, 336px)); }
+    .panel { top: var(--content-top, 140px); }
   }
-  .lamp-row { height: 27px; display: flex; align-items: center; margin-bottom: 14px; }
-  .lamp {
-    position: relative; width: 26px; height: 26px; border-radius: 50%; flex: none;
-    background: var(--plate); border: 3px solid var(--ink);
-  }
-  .lamp.up { background: var(--lamp-green); border-color: var(--ink); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lamp-green) 22%, transparent), 0 0 18px color-mix(in srgb, var(--lamp-green) 55%, transparent); }
-  .lamp.degraded { background: var(--plate); border: 7px solid var(--lamp-amber); box-shadow: 0 0 16px color-mix(in srgb, var(--lamp-amber) 50%, transparent); }
-  .lamp.down { background: var(--lamp-red); border-color: var(--ink); box-shadow: 0 0 0 4px var(--plate), 0 0 0 7px var(--lamp-red), 0 0 20px color-mix(in srgb, var(--lamp-red) 60%, transparent); animation: blink 1.6s steps(2, jump-none) infinite; }
-  .lamp.unknown { background: var(--plate); border: 3px dashed var(--ink-muted); }
-  @keyframes blink { 50% { background: color-mix(in srgb, var(--lamp-red) 35%, var(--plate)); } }
-  .nameplate {
-    display: inline-block; max-width: 100%;
-    font-family: var(--plate-font); font-weight: 700; font-size: 20px; line-height: 1.15;
-    padding: 3px 8px; margin-left: -8px; border-radius: 6px; overflow-wrap: anywhere;
-  }
-  .station-btn[aria-pressed="true"] .nameplate { background: var(--sel-bg); color: var(--sel-ink); }
-  .station-btn:hover .nameplate { text-decoration: underline; text-underline-offset: 4px; }
-  .station-role { display: block; font-size: 14px; color: var(--ink-muted); margin-top: 2px; }
-  .state { display: block; font-weight: 600; font-size: 16px; margin-top: 8px; }
-  .reason { display: block; font-size: 14px; color: var(--ink-muted); }
+  @media (max-width: 720px) { .hud .brief { margin-top: 20px; } }
 
-  .sidings { list-style: none; margin: 10px 0 0 12px; padding: 0 0 0 18px; border-left: 2px solid var(--ink); position: relative; }
-  .sidings li { position: relative; font-size: 14px; line-height: 1.3; padding: 6px 0; }
-  .sidings li::before { content: ""; position: absolute; left: -18px; top: 15px; width: 12px; height: 2px; background: var(--ink); }
-  .sidings .s-lamp { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; background: var(--lamp-green); border: 1.5px solid var(--ink); }
-  .sidings .s-lamp.idle { background: transparent; border: 1.5px dashed var(--ink-muted); }
-  .sidings .s-name { font-weight: 600; }
-  .sidings .s-sub { display: block; color: var(--ink-muted); padding-left: 16px; }
-  .sidings-label { font-size: 13px; color: var(--ink-muted); margin: 14px 0 0 12px; }
-
-  .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 26px 0 0; padding: 14px 0 0; border-top: 1px solid var(--plate-edge); font-size: 14px; color: var(--ink-muted); list-style: none; }
-  .legend li { display: flex; align-items: center; gap: 8px; }
-  .legend .lamp { width: 16px; height: 16px; border-width: 2px; box-shadow: none; animation: none; }
-  .legend .lamp.degraded { border-width: 4px; }
-  .legend .lamp.down { box-shadow: 0 0 0 2px var(--plate), 0 0 0 4px var(--lamp-red); }
-
-  /* first-load sequence: lamps light along the route, left to right */
-  .panel.setting .lamp { animation: setroute 0.5s ease-out both; animation-delay: calc(var(--i) * 130ms); }
-  @keyframes setroute { from { background: var(--plate); box-shadow: none; border-color: var(--ink-muted); } }
-
-  /* ---------- Readings ---------- */
-  section.block { padding: 56px 0 0; }
-  h2.block-title { font-family: var(--plate-font); font-weight: 700; font-size: clamp(28px, 3.4vw, 38px); line-height: 1.1; margin: 0 0 8px; }
-  .block-lede { margin: 0 0 26px; color: var(--ink-muted); max-width: 70ch; }
-  .site-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin-bottom: 6px; }
-  .site-head .open-link { font-size: 16px; }
-  .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px 48px; margin-top: 22px; }
-  .group h3 { font-family: var(--plate-font); font-weight: 600; font-size: 20px; margin: 0 0 6px; padding-bottom: 6px; border-bottom: 2px solid var(--ink); }
-  .group-note { font-size: 14px; color: var(--ink-muted); margin: 8px 0 0; }
-  .reading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; padding: 10px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
-  .r-label { font-weight: 500; }
-  .r-win { color: var(--ink-muted); font-weight: 400; }
-  .r-value { font-family: var(--plate-font); font-weight: 600; font-size: 22px; text-align: right; white-space: nowrap; }
-  .r-value.absent { font-family: var(--sans); font-weight: 500; font-size: 15px; color: var(--ink-muted); }
-  .r-note { grid-column: 1 / -1; font-size: 14px; color: var(--ink-muted); }
-  .r-flag { grid-column: 1 / -1; font-size: 14px; font-weight: 600; color: var(--flag); }
-  .r-source { font-size: 13.5px; color: var(--ink-subtle); padding: 8px 0 4px; border-bottom: 1px solid var(--rule); overflow-wrap: anywhere; }
-  .r-source b { font-weight: 600; color: var(--ink-muted); }
-
-  .hourly { margin: 26px 0 0; }
-  .hourly figcaption { font-size: 15px; color: var(--ink-muted); margin-bottom: 8px; }
-  .hourly svg { display: block; width: 100%; height: 90px; }
-  .hourly .bar-r { fill: var(--ink-subtle); }
-  .hourly .bar-r.peak { fill: var(--ink); }
-  .hourly .base { stroke: var(--ink); stroke-width: 1.5; }
-  .hourly .ticks { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-muted); margin-top: 4px; }
-
-  details.arch-box { margin-top: 30px; border-top: 2px solid var(--ink); }
-  details.arch-box summary { cursor: pointer; font-family: var(--plate-font); font-weight: 600; font-size: 20px; padding: 12px 0; }
-  details.arch-box .arch { background: var(--well); }
-
-  /* ---------- Tables ---------- */
-  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 0 30px; }
-  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 16px; }
-  caption { text-align: left; font-family: var(--plate-font); font-weight: 600; font-size: 20px; padding-bottom: 8px; }
-  th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-  thead th { font-weight: 600; font-size: 14px; color: var(--ink-muted); border-bottom: 2px solid var(--ink); }
-  td.num, th.num { text-align: right; white-space: nowrap; }
-  td .sub { display: block; font-size: 13.5px; color: var(--ink-muted); }
-  .model-id { font-weight: 600; overflow-wrap: anywhere; }
-
-  /* ---------- How this is measured ---------- */
-  .route { list-style: none; margin: 8px 0 34px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0 18px; position: relative; }
-  .route::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 3px; background: var(--ink); border-radius: 2px; }
-  .route li { position: relative; padding-top: 34px; font-size: 15px; color: var(--ink-muted); }
-  .route li::before { content: ""; position: absolute; top: 2px; left: 0; width: 17px; height: 17px; background: var(--ground); border: 3px solid var(--ink); border-radius: 3px; }
-  .route b { display: block; font-family: var(--plate-font); font-weight: 700; font-size: 19px; color: var(--ink); margin-bottom: 4px; }
-  .rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 40px; margin: 0; }
-  .rules dt { font-family: var(--plate-font); font-weight: 700; font-size: 20px; margin-bottom: 4px; }
-  .rules dd { margin: 0; color: var(--ink-muted); }
-
-  footer.wrap { margin-top: 72px; padding: 22px 0 40px; border-top: 1px solid var(--rule); font-size: 15px; color: var(--ink-muted); display: flex; flex-wrap: wrap; gap: 10px 28px; }
-
-  /* ---------- Narrow screens: the track turns vertical ---------- */
-  @media (max-width: 860px) {
-    .track { grid-template-columns: 1fr; gap: 0; }
-    .track::before { left: 11.5px; right: auto; top: 0; bottom: 0; width: 3px; height: auto; }
-    .station { padding: 0 0 22px; }
-    .station-btn { display: grid; grid-template-columns: 27px minmax(0, 1fr); gap: 0 16px; }
-    .lamp-row { margin: 0; align-self: start; }
-    .station:last-child { padding-bottom: 0; }
-    .station:last-child::after { content: ""; position: absolute; left: 0; width: 27px; top: 27px; bottom: 0; background: var(--plate); }
-    .sidings, .sidings-label { margin-left: 55px; }
-    .groups { grid-template-columns: 1fr; }
-    .route { grid-template-columns: 1fr; gap: 18px; }
-    .route::before { left: 7px; right: auto; top: 0; bottom: 0; width: 3px; height: auto; }
-    .route li { padding: 0 0 0 34px; }
-    .route li::before { top: 3px; }
-    .rules { grid-template-columns: 1fr; }
-  }
-  @media (max-width: 560px) {
-    .wrap { padding: 0 16px; }
-    .panel { padding: 22px 16px 18px; border-radius: 12px; }
-    .motto { display: none; }
-    .bar-end { margin-left: 0; width: 100%; justify-content: space-between; }
-    .intro p { font-size: 17px; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .lamp.down { animation: none; }
-    .panel.setting .lamp { animation: none; }
-    .panel { transition: none; }
-  }
 </style>
+<link rel="stylesheet" href="assets/arch.css">
+<link rel="stylesheet" href="assets/header.css">
+<link rel="stylesheet" href="assets/sidebar.css">
+<script src="assets/arch.js" defer></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
 </head>
 <body>
-<header class="wrap bar">
-  <a class="brand" href="./" aria-label="obs.atla.in home">
-    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="0.5" y="0.5" width="31" height="31" rx="8"/><path d="M7 21l5-6 4 4 9-9" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span class="brand-name">obs.atla.in</span>
-  </a>
-  <span class="motto">Measured, never simulated.</span>
-  <div class="bar-end">
-    <span class="snap" id="snap" aria-live="polite">Loading readings…</span>
-    <button class="icon-btn" id="theme" type="button" aria-label="Switch to light theme"></button>
-  </div>
-</header>
-
-<main class="wrap">
-  <div class="intro">
-    <h1>Every atla.in site, on one panel</h1>
-    <p>Uptime, traffic, real-visitor experience, security and AI usage, read from CloudWatch, uptime checks, AWS WAF and Amazon Bedrock. Each reading names its source. When a source has no data, the panel says so instead of guessing.</p>
-  </div>
-
-  <div class="notice" id="stale" hidden></div>
-  <div class="notice" id="unavailable" hidden></div>
-
-  <section class="panel" id="panel" aria-labelledby="panel-title">
-    <div class="panel-head">
-      <h2 id="panel-title">Sites</h2>
-      <p>Select a site to see its readings.</p>
+<div class="hud">
+  <header class="appbar">
+    <div class="appbar-title">
+      <h1>Observability <span class="amp">&amp;</span> Architecture</h1>
+      <p class="intro">Health, AI usage and AWS architecture of every atla.in site.</p>
     </div>
-    <ol class="track" id="track" aria-label="atla.in sites in fixed order"></ol>
-    <ul class="legend" aria-label="Lamp key">
-      <li><span class="lamp up"></span>Up</li>
-      <li><span class="lamp degraded"></span>Degraded: up, with errors or slow pages</li>
-      <li><span class="lamp down"></span>Down</li>
-      <li><span class="lamp unknown"></span>No reading</li>
-    </ul>
-  </section>
+    <nav class="controls" aria-label="View controls">
+      <a class="btn primary" href="classic.html">Table view</a>
+    </nav>
+    <div class="appbar-health">
+      <p class="take" id="takeaway">Loading the latest snapshot…</p>
+      <p class="snap" id="snap"></p>
+      <button class="theme-toggle" id="theme" type="button" aria-label="Switch colour theme"></button>
+    </div>
+  </header>
+  <div class="brief">
+    <button class="watch-card" id="explainer-play" type="button" aria-haspopup="dialog" aria-controls="explainer" aria-label="Play the obs.atla.in overview">
+      <span class="watch-thumb"><img src="assets/intro.jpg" alt="" width="640" height="360"><span class="watch-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span></span>
+      <span class="watch-copy"><strong>Inside obs.atla.in</strong><small id="watch-caption">Watch overview</small></span>
+    </button>
+    <div class="warnbox" id="unavailable" hidden></div>
+  </div>
+</div>
 
-  <section class="block" id="readings" aria-live="polite"></section>
+<dialog class="explainer" id="explainer" aria-labelledby="player-title">
+  <div class="player-head">
+    <h2 id="player-title">Inside obs.atla.in</h2>
+    <button class="close" id="explainer-hide" type="button" aria-label="Close video">×</button>
+  </div>
+  <video id="intro-video" src="assets/intro.mp4" poster="assets/intro.jpg" controls playsinline preload="none" aria-label="What obs.atla.in is for"></video>
+</dialog>
 
-  <section class="block" id="ai" aria-labelledby="ai-title">
-    <h2 class="block-title" id="ai-title">AI usage</h2>
-    <p class="block-lede">Amazon Bedrock models with activity in the last 7 days, and the model calls routed through gate.atla.in. Token counts and costs are public on purpose.</p>
-    <div id="ai-body"></div>
-  </section>
+<main class="map-region" aria-label="Infrastructure map"><div id="stage" aria-hidden="true"></div>
+<div class="map-tools" role="group" aria-label="Map motion and view">
+  <button class="btn" id="motion" type="button" aria-pressed="true">Pause motion</button>
+  <button class="btn" id="tour" type="button" aria-label="Reset view">Reset</button>
+</div>
+<div id="labels"></div><div class="fallback" id="fallback" hidden>
+  <p>This browser can't draw the 3D view (WebGL is off or unavailable).<br>Every number is on the <a href="classic.html">table view</a>.</p>
+</div>
 
-  <section class="block" id="method" aria-labelledby="method-title">
-    <h2 class="block-title" id="method-title">How this is measured</h2>
-    <p class="block-lede">Readings travel one route, every 15 minutes. This page only reads the end of it.</p>
-    <ol class="route">
-      <li><b>Sources</b>CloudWatch for CloudFront, load balancers, Bedrock and real-visitor monitoring. AWS WAF. Grafana Synthetic Monitoring uptime checks from 3 probes. The gateway's audit log.</li>
-      <li><b>Collector</b><code>collect_status.py</code> runs in GitHub Actions every 15 minutes, started by an Amazon EventBridge rule.</li>
-      <li><b>Snapshot</b>The results go into one file, <a href="status.json">status.json</a>, with the source of every value.</li>
-      <li><b>Hosting</b>The snapshot and this page sit in a private S3 bucket behind CloudFront.</li>
-      <li><b>This page</b>Reads only the snapshot. It never queries AWS or Grafana, so a page view costs the same however many people visit.</li>
-    </ol>
-    <dl class="rules">
-      <div><dt>Real or absent</dt><dd>A missing value shows as “No reading”. A source that fails is listed at the top of the page, and its numbers are left out.</dd></div>
-      <div><dt>Every number names its source</dt><dd>Each reading lists where it came from, its window (24 hours or 7 days), and any caveat, such as bots being included.</dd></div>
-      <div><dt>Equal weight</dt><dd>Sites stay in a fixed order on the panel and are never ranked.</dd></div>
-    </dl>
-  </section>
 </main>
+<aside class="estate" aria-label="Sites and AI usage">
+  <section class="estate-box box-sites" aria-labelledby="estate-title">
+    <div class="estate-head"><h2 id="estate-title"><span class="box-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg></span>Sites</h2><span>Uptime · 7 d</span></div>
+    <div id="estate-sites"></div>
+  </section>
+  <section class="estate-box box-ai" aria-labelledby="ai-title">
+    <div class="estate-head"><h2 id="ai-title"><span class="box-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg></span>AI usage</h2><span>Calls · 7 d</span></div>
+    <p class="estate-sub">Through gate.atla.in</p>
+    <div id="estate-providers"></div>
+    <p class="estate-sub" id="direct-sub">Direct to Amazon Bedrock</p>
+    <div id="estate-direct"></div>
+  </section>
+<p class="estate-note">Measured, never simulated. Select a site for its metrics and architecture.</p><a class="source-link" href="status.json">View source snapshot ↗</a></aside>
 
-<footer class="wrap">
-  <a href="status.json" download>Download status.json</a>
-  <a href="classic.html">Table view</a>
-  <a href="https://atla.in">atla.in</a>
-  <span>Times are shown in your local time zone.</span>
-</footer>
+<details class="legend"><summary>Map key</summary><div class="legend-items" aria-label="How to read the map">
+  <span><i style="background: var(--tower)"></i>Height = 24 h requests (log scale)</span>
+  <span><i style="background: var(--accent)"></i>Ring = hourly requests, scaled per site</span>
+  <span><i style="background: var(--shield); opacity: .6"></i>Wall = AWS WAF, taller = more blocked</span>
+  <span><i style="background: var(--good)"></i>Beacon: up</span>
+  <span><i style="background: var(--warn)"></i>Over a real-user limit or erroring</span>
+  <span><i style="background: var(--bad)"></i>Down</span>
+  <span><i style="background: var(--shield)"></i>Orbs = gateway providers, grey = idle this week</span>
+  <span><i style="background: var(--warn); border-radius: 1px; transform: rotate(45deg)"></i>Diamonds = Bedrock called directly</span>
+  <span class="hint">Drag to orbit, scroll to zoom, click anything for its numbers.</span>
+</div></details>
 
-<script src="assets/arch.js" defer></script>
-<script>
-(() => {
+<aside class="panel" id="panel" role="region" aria-labelledby="p-title" inert>
+  <div class="panel-head">
+    <div>
+      <h2 id="p-title" tabindex="-1"></h2>
+      <p class="sub" id="p-sub"></p>
+      <div class="ptabs" id="p-tabs" role="tablist" aria-label="Detail view" hidden>
+        <button class="ptab" type="button" role="tab" id="metrics-tab" aria-controls="p-body" data-v="metrics" aria-selected="true">Metrics</button>
+        <button class="ptab" type="button" role="tab" id="arch-tab" aria-controls="p-body" tabindex="-1" data-v="arch" aria-selected="false">Architecture</button>
+      </div>
+    </div>
+    <button class="close" id="p-close" type="button" aria-label="Close details">×</button>
+  </div>
+  <div class="panel-body" id="p-body"></div>
+</aside>
+
+<script type="module">
+  import * as THREE from "three";
+  import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+  import { CSS2DRenderer, CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
+
   const SITE_ORDER = ["atla.in", "gita.atla.in", "gate.atla.in", "obs.atla.in", "games.atla.in", "aif.atla.in"];
   const orderSites = (sites) => sites.map((s, i) => [s, i]).sort(([a, i], [b, j]) => ((SITE_ORDER.indexOf(a.domain) + 1 || 999) - (SITE_ORDER.indexOf(b.domain) + 1 || 999)) || i - j).map(([s]) => s);
 
   const LIMITS = { lcp_p75_7d: 2500, cls_p75_7d: 0.1, inp_p75_7d: 200 };
-  const LIMIT_TEXT = { lcp_p75_7d: "Over the 2.5 s good limit", cls_p75_7d: "Over the 0.1 good limit", inp_p75_7d: "Over the 200 ms good limit" };
   const STALE_MINUTES = 45;
   const GATE = "gate.atla.in";
-
-  const $ = (s) => document.querySelector(s);
+  const $ = (sel) => document.querySelector(sel);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const nf = (o) => new Intl.NumberFormat("en", o);
+  const nf = (opts) => new Intl.NumberFormat("en", opts);
   const int = nf({ maximumFractionDigits: 0 });
+  const compact = nf({ notation: "compact", maximumFractionDigits: 1 });
   const dec = (d) => nf({ minimumFractionDigits: 0, maximumFractionDigits: d });
-  const usd = (v) => {
-    if (v == null || Number.isNaN(+v)) return null;
-    v = +v;
-    if (v === 0) return "$0.00";
-    if (v >= 1) return "$" + nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
-    return "$" + nf({ maximumSignificantDigits: 3 }).format(v);
-  };
   const fmt = (v, unit) => {
-    if (v == null || Number.isNaN(+v)) return null;
+    if (v == null || Number.isNaN(+v)) return "—";
     v = +v;
     switch (unit) {
-      case "percent": return dec(v !== 0 && Math.abs(v) < 0.1 ? 2 : 1).format(v) + "%";
+      case "percent": return dec(1).format(v) + "%";
       case "ms": return v >= 1000 ? dec(2).format(v / 1000) + " s" : (v < 10 ? dec(1).format(v) : int.format(v)) + " ms";
-      case "bytes": { const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0; while (v >= 1000 && i < u.length - 1) { v /= 1000; i++; } return dec(v < 10 ? 1 : 0).format(v) + " " + u[i]; }
-      case "usd": return usd(v);
+      case "bytes": {
+        const u = ["B", "KB", "MB", "GB", "TB"]; let i = 0;
+        while (v >= 1000 && i < u.length - 1) { v /= 1000; i++; }
+        return dec(v < 10 ? 1 : 0).format(v) + " " + u[i];
+      }
+      case "usd": return "$" + nf({ minimumFractionDigits: 6, maximumFractionDigits: 6 }).format(v);
       case "score": return nf({ minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
       default: return int.format(v);
     }
   };
-  const WIN = { "24h": "24 hours", "7d": "7 days" };
-  const when = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
-  const hourFmt = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
-  const dayHour = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-  const ago = (ms) => { const m = Math.round(ms / 60000); if (m < 1) return "just now"; if (m < 60) return m + " min ago"; const h = Math.round(m / 60); if (h < 48) return h + " h ago"; return Math.round(h / 24) + " days ago"; };
+  const IST = { timeZone: "Asia/Kolkata", hour12: false };
+  const istFull = new Intl.DateTimeFormat("en-IN", { ...IST, day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  const istHour = new Intl.DateTimeFormat("en-IN", { ...IST, hour: "2-digit", minute: "2-digit" });
+  const ago = (ms) => { const m = Math.round(ms / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + " h ago"; };
 
   const metricOf = (site, key) => (site.metrics || []).find((m) => m.key === key);
   const valueOf = (site, key) => { const m = metricOf(site, key); return m ? m.value : null; };
-  const over = (key, v) => LIMITS[key] != null && v != null && +v > LIMITS[key];
-
-  /* ---------- Health, in the panel's words ---------- */
-  function health(site) {
-    if (site.status === "down") return { state: "down", word: "Down", reason: "The uptime check is failing." };
-    if (site.status !== "up") return { state: "unknown", word: "No reading", reason: "No uptime check data in this snapshot." };
-    const why = [];
-    const r5 = valueOf(site, "error_5xx_rate_7d");
-    if (r5 != null && +r5 > 0) why.push("5xx rate " + fmt(r5, "percent") + " over 7 days");
-    Object.keys(LIMITS).forEach((k) => { const v = valueOf(site, k); if (over(k, v)) why.push((metricOf(site, k).label || k) + " " + fmt(v, metricOf(site, k).unit) + " is slow"); });
-    const js = valueOf(site, "js_errors_7d");
-    if (js != null && +js > 0) why.push(int.format(js) + " JavaScript " + (+js === 1 ? "error" : "errors") + " in 7 days");
-    if (why.length) return { state: "degraded", word: "Degraded", reason: why[0] + (why.length > 1 ? ", and " + (why.length - 1) + " more" : "") + "." };
-    const up = valueOf(site, "uptime_7d");
-    return { state: "up", word: "Up", reason: up != null ? fmt(up, "percent") + " uptime over 7 days." : "Uptime check passing." };
-  }
-
-  /* ---------- Sidings: what a site calls beyond itself ---------- */
+  const overLimit = (key, v) => LIMITS[key] != null && v != null && v > LIMITS[key];
+  // The gateway's providers. Newer gateway releases publish the full list (idle ones included);
+  // for older snapshots, fall back to the providers named in gate.atla.in's description plus any with traffic.
   const PROVIDER_NAMES = { anthropic: "Anthropic", openai: "OpenAI", gemini: "Google Gemini", bedrock: "Amazon Bedrock" };
-  function gatewayProviders(s) {
+  const gatewayProviders = (s) => {
     const used = ((s.gateway && s.gateway.models_7d) || []).filter((m) => m.model.includes("/"));
     const usage = (name) => used.filter((m) => m.model.split("/")[0] === name);
     const listed = s.gateway && s.gateway.providers;
-    if (listed && listed.length) return listed.map((p) => ({ provider: p.provider, calls: +p.calls_7d || 0 }));
+    if (listed && listed.length) {
+      return listed.map((p) => {
+        const names = new Set([...(p.catalog_models || []), ...usage(p.provider).map((m) => m.model)]);
+        const models = [...names].map((model) => { const u = used.find((m) => m.model === model); return { model, calls: u ? +u.calls : 0, tokens: u ? +u.tokens : 0, cost_usd: u ? +u.cost_usd : 0 }; });
+        models.sort((a, b) => b.calls - a.calls || a.model.localeCompare(b.model));
+        return { provider: p.provider, calls_7d: +p.calls_7d || 0, tokens_7d: +p.tokens_7d || 0, cost_usd_7d: +p.cost_usd_7d || 0, models, fromGateway: true };
+      });
+    }
     const gate = (s.sites || []).find((x) => x.domain === GATE);
     const desc = (gate && gate.description) || "";
     const names = Object.keys(PROVIDER_NAMES).filter((k) => desc.includes(PROVIDER_NAMES[k].replace("Google ", "")) || usage(k).length);
     used.forEach((m) => { const k = m.model.split("/")[0]; if (!names.includes(k)) names.push(k); });
-    return names.map((k) => ({ provider: k, calls: usage(k).reduce((n, m) => n + (+m.calls || 0), 0) }));
-  }
-  const shortModel = (id) => id.replace(/^(global|us|eu|apac)\./, "").replace(/^(amazon|anthropic|meta|mistral|cohere)\./, "").replace(/:\d+$/, "");
-
-  function sidingsFor(site, s) {
-    const items = [];
-    if (site.domain === GATE) {
-      if (!s.gateway) return { label: "Model providers", items: [], none: "No reading: the gateway's stats endpoint didn't answer." };
-      gatewayProviders(s).forEach((p) => items.push({ name: PROVIDER_NAMES[p.provider] || p.provider, sub: p.calls ? int.format(p.calls) + " calls in 7 days" : "Idle in the last 7 days", idle: !p.calls }));
-      return { label: "Model providers", items };
-    }
-    (s.ai_models || []).filter((m) => (m.used_by || []).includes(site.domain)).forEach((m) => {
-      items.push({ name: shortModel(m.model_id), sub: (m.role || "Model") + ", " + (m.calls_7d ? int.format(m.calls_7d) + " calls" : "idle"), idle: !m.calls_7d });
+    return names.map((k) => {
+      const u = usage(k);
+      const models = u.map((m) => ({ model: m.model, calls: +m.calls || 0, tokens: +m.tokens || 0, cost_usd: +m.cost_usd || 0 }));
+      return { provider: k, calls_7d: models.reduce((n, m) => n + m.calls, 0), tokens_7d: models.reduce((n, m) => n + m.tokens, 0), cost_usd_7d: models.reduce((n, m) => n + m.cost_usd, 0), models, fromGateway: false };
     });
-    if (window.architectureReaches && window.architectureReaches(site.domain, GATE)) items.push({ name: GATE, sub: "Model calls go through the gateway", idle: false });
-    return items.length ? { label: "Calls beyond the site", items } : null;
+  };
+  const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+  let reduceMotion = motionPreference.matches;
+  let motionPaused = reduceMotion;
+  const motionBtn = $("#motion");
+  const syncMotion = () => {
+    const enabled = !reduceMotion && !motionPaused;
+    document.documentElement.dataset.motion = enabled ? "on" : "off";
+    railIcon("#motion", enabled ? '<path d="M8 5v14M16 5v14"/>' : '<path d="M8 4l12 8-12 8z"/>', enabled ? "Pause" : "Play");
+    motionBtn.setAttribute("aria-label", enabled ? "Pause motion" : "Resume motion");
+    motionBtn.setAttribute("aria-pressed", String(enabled));
+    motionBtn.disabled = reduceMotion;
+    motionBtn.title = reduceMotion ? "Motion is disabled by your device preference" : "Pause or resume map motion";
+    if (controls) controls.autoRotate = false;
+  };
+  addEventListener("keydown", () => { document.documentElement.dataset.input = "keyboard"; });
+  addEventListener("pointerdown", () => { document.documentElement.dataset.input = "pointer"; }, { passive: true });
+  const narrow = () => innerWidth <= 720;
+
+  const railIcon = (id, path, text) => {
+    const b = $(id);
+    b.setAttribute("title", text);
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">${path}</svg><span>${text}</span>`;
+  };
+  railIcon("#tour", '<path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/>', "Reset");
+
+  /* ---------- Intro film: a quiet watch card opens a native modal player ---------- */
+  const explainer = $("#explainer"), introVideo = $("#intro-video");
+  let playerReturnFocus = null;
+  const openPlayer = () => {
+    if (explainer.open) return;
+    playerReturnFocus = document.activeElement;
+    explainer.showModal();
+    if (renderer) renderer.setAnimationLoop(null);
+    introVideo.play().catch(() => {});
+    $("#explainer-hide").focus({ preventScroll: true });
+  };
+  const closePlayer = () => {
+    if (explainer.open) explainer.close();
+  };
+  explainer.addEventListener("close", () => {
+    introVideo.pause();
+    last = performance.now();
+    if (renderer && !document.hidden) renderer.setAnimationLoop(frame);
+    const resume = !introVideo.ended && introVideo.currentTime > 1;
+    $("#watch-caption").textContent = resume ? "Resume overview" : "Watch overview";
+    (playerReturnFocus?.isConnected ? playerReturnFocus : $("#explainer-play")).focus({ preventScroll: true });
+  });
+  $("#explainer-play").addEventListener("click", openPlayer);
+  $("#explainer-hide").addEventListener("click", closePlayer);
+  // Close only an actual backdrop press, never a drag that began on the video controls.
+  let playerBackdropPress = false;
+  const outsidePlayer = (e) => {
+    const r = explainer.getBoundingClientRect();
+    return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+  };
+  explainer.addEventListener("pointerdown", (e) => { playerBackdropPress = outsidePlayer(e); });
+  explainer.addEventListener("click", (e) => { if (playerBackdropPress && outsidePlayer(e)) closePlayer(); playerBackdropPress = false; });
+  addEventListener("keydown", (e) => {
+    if (!explainer.open || e.key !== "Escape") return;
+    e.preventDefault(); e.stopImmediatePropagation(); closePlayer();
+  }, true);
+  const tableLink = document.querySelector('.controls a[href="classic.html"]');
+  tableLink.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 10v10"/></svg><span>Table view</span>';
+  // Arriving from the table view's Video button opens the player straight away.
+  if (location.hash === "#intro") { history.replaceState(null, "", location.pathname); setTimeout(openPlayer, 300); }
+
+  /* ---------- Theme ---------- */
+  const themeBtn = $("#theme");
+  const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+  const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>';
+  const syncTheme = () => { const dark = document.documentElement.dataset.theme === "dark"; const text = dark ? "Switch to light theme" : "Switch to dark theme"; themeBtn.innerHTML = dark ? SUN : MOON; themeBtn.setAttribute("aria-label", text); themeBtn.title = text; };
+  syncTheme();
+
+  /* ---------- Renderer, camera, controls ---------- */
+  const stage = $("#stage");
+  const sceneSize = () => ({ width: Math.max(1, stage.clientWidth), height: Math.max(1, stage.clientHeight) });
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+  } catch (e) {
+    $("#fallback").hidden = false;
+    document.querySelector(".legend").hidden = true;
+    document.querySelector(".map-tools").hidden = true;
   }
 
-  /* ---------- State ---------- */
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, sceneSize().width / sceneSize().height, 0.1, 400);
+  const labelRenderer = new CSS2DRenderer({ element: $("#labels") });
+  let controls;
+  if (renderer) {
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(sceneSize().width, sceneSize().height);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    stage.append(renderer.domElement);
+    labelRenderer.setSize(sceneSize().width, sceneSize().height);
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 10;
+    controls.maxDistance = 70;
+    controls.maxPolarAngle = Math.PI * 0.47;
+    controls.autoRotate = false;
+    controls.autoRotateSpeed = 0.35;
+    controls.addEventListener("start", () => { controls.autoRotate = false; flight = null; });
+  }
+  syncMotion();
+  motionBtn.addEventListener("click", () => { motionPaused = !motionPaused; syncMotion(); });
+  motionPreference.addEventListener("change", (e) => {
+    reduceMotion = e.matches;
+    motionPaused = reduceMotion;
+    flight = null;
+    if (controls) controls.enableDamping = !reduceMotion;
+    syncMotion();
+  });
+  if (controls) controls.enableDamping = !reduceMotion;
+  // Home view looks in from +z, through the gap between obs.atla.in and games.atla.in, straight at the gate
+  const HOME = { pos: new THREE.Vector3(2, 26, 36), target: new THREE.Vector3(0, 4, 0) };
+  const homeView = () => {
+    const aspect = sceneSize().width / sceneSize().height;
+    const target = HOME.target.clone();
+    return { pos: target.clone().add(HOME.pos.clone().sub(target).multiplyScalar(Math.max(1, 1.05 / aspect))), target };
+  };
+  camera.position.copy(homeView().pos);
+  if (controls) controls.target.copy(homeView().target);
+
+  // Lights
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.1);
+  const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+  sun.position.set(14, 26, 10);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -22, right: 22, top: 22, bottom: -22, near: 1, far: 70 });
+  scene.add(hemi, sun);
+
+  // Ground and grid stay for the life of the page; their colours follow the theme
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(60, 96), new THREE.MeshStandardMaterial({ roughness: 1 }));
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+  let grid = null;
+
+
+  function applyThemeToScene() {
+    const bg = new THREE.Color(css("--bg-page"));
+    scene.background = bg;
+    scene.fog = new THREE.Fog(bg, 55, 120);
+    ground.material.color.set(css("--ground"));
+    if (grid) { scene.remove(grid); grid.geometry.dispose(); grid.material.dispose(); }
+    const dark = document.documentElement.dataset.theme === "dark";
+    grid = new THREE.GridHelper(120, 60, new THREE.Color(css("--text-subtle")), new THREE.Color(css("--text-subtle")));
+    grid.material.transparent = true;
+    grid.material.opacity = dark ? 0.08 : 0.14;
+    grid.position.y = 0.01;
+    scene.add(grid);
+    hemi.intensity = dark ? 0.9 : 1.4;
+    sun.intensity = dark ? 1.4 : 1.8;
+  }
+
+  /* ---------- World built from the snapshot ---------- */
+  let world = null;            // THREE.Group rebuilt on each snapshot
   let snapshot = null;
-  let selected = null;
-  let firstPaint = true;
+  let pickables = [];          // meshes the raycaster can hit; userData.ref points at what to show
+  let flows = [];              // particles travelling along gateway arcs
+  let beacons = [];            // pulsing beacons
+  let labelsBy = new Map();    // ref id -> label element
+  let selected = null;         // { kind, id }
+  let hovered = null;
 
-  function renderPanel(s) {
-    const sites = orderSites(s.sites || []);
-    const track = $("#track");
-    track.style.setProperty("--n", sites.length || 1);
-    const focused = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.domain : null;
-    track.replaceChildren(...sites.map((site, i) => {
-      const h = health(site);
-      const li = el("li", "station");
-      const btn = el("button", "station-btn");
-      btn.type = "button";
-      btn.dataset.domain = site.domain;
-      btn.setAttribute("aria-pressed", String(site.domain === selected));
-      btn.setAttribute("aria-label", site.domain + ", " + h.word + ". " + h.reason);
-      const lampRow = el("span", "lamp-row");
-      const lamp = el("span", "lamp " + h.state);
-      lamp.style.setProperty("--i", i);
-      lampRow.append(lamp);
-      const text = el("span", "station-text");
-      text.append(el("span", "nameplate", site.domain), el("span", "station-role", site.name || ""), el("span", "state", h.word), el("span", "reason", h.reason));
-      btn.append(lampRow, text);
-      btn.addEventListener("click", () => select(site.domain, true));
-      btn.addEventListener("keydown", onTrackKey);
-      li.append(btn);
-      const sd = sidingsFor(site, s);
-      if (sd) {
-        li.append(el("p", "sidings-label", sd.label));
-        if (sd.none) li.append(el("p", "sidings-label", sd.none));
-        if (sd.items.length) {
-          const ul = el("ul", "sidings");
-          sd.items.forEach((it) => {
-            const x = el("li");
-            x.append(el("span", "s-lamp" + (it.idle ? " idle" : "")), el("span", "s-name", it.name), el("span", "s-sub", it.sub));
-            ul.append(x);
-          });
-          li.append(ul);
-        }
-      }
-      return li;
-    }));
-    if (focused) { const b = track.querySelector('[data-domain="' + CSS.escape(focused) + '"]'); if (b) b.focus({ preventScroll: true }); }
-    const panel = $("#panel");
-    if (firstPaint && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      panel.classList.add("setting");
-      setTimeout(() => panel.classList.remove("setting"), 600 + sites.length * 130);
-    }
-    firstPaint = false;
-  }
-
-  function onTrackKey(e) {
-    const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-    if (!(e.key in keys) && e.key !== "Home" && e.key !== "End") return;
-    const btns = [...document.querySelectorAll(".station-btn")];
-    let i = btns.indexOf(e.currentTarget);
-    if (e.key === "Home") i = 0; else if (e.key === "End") i = btns.length - 1; else i = (i + keys[e.key] + btns.length) % btns.length;
-    e.preventDefault();
-    btns[i].focus();
-  }
-
-  function select(domain, user) {
-    selected = domain;
-    document.querySelectorAll(".station-btn").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.domain === domain)));
-    renderReadings(snapshot);
-    if (user) {
-      history.replaceState(null, "", "#" + domain);
-      const top = $("#readings").getBoundingClientRect().top;
-      if (top > window.innerHeight * 0.8) $("#readings").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-    }
-  }
-
-  /* ---------- Readings for one site ---------- */
-  const GROUPS = [
-    { title: "Availability", keys: ["uptime_24h", "uptime_7d", "check_duration_24h", "response_p90_24h"] },
-    { title: "Traffic", keys: ["requests_24h", "requests_7d", "bytes_7d"] },
-    { title: "Real visitors", keys: ["page_views_7d", "lcp_p75_7d", "inp_p75_7d", "cls_p75_7d", "js_errors_7d"] },
-    { title: "Errors", keys: ["error_5xx_rate_7d", "error_5xx_count_7d", "error_4xx_rate_7d"] },
-    { title: "Security", keys: ["waf_blocked_7d", "waf_blocked_share_7d", "gateway_blocked_7d", "gateway_limited_7d"] },
-    { title: "AI", match: (k) => /^(llm_|bedrock_|gateway_)/.test(k) },
-  ];
-
-  function readingRow(site, m) {
-    const row = el("div", "reading");
-    const lab = el("span", "r-label");
-    let label = m.label || m.key;
-    if (site.domain === GATE && /^requests_/.test(m.key)) label = "Model calls";
-    lab.append(label + " ", el("span", "r-win", WIN[m.window] || m.window || ""));
-    const shown = fmt(m.value, m.unit);
-    const val = el("span", "r-value" + (shown == null ? " absent" : ""), shown == null ? "No reading" : shown);
-    row.append(lab, val);
-    if (over(m.key, m.value)) row.append(el("span", "r-flag", LIMIT_TEXT[m.key]));
-    if (m.note) row.append(el("span", "r-note", m.note));
-    return row;
-  }
-
-  function groupBlock(site, title, metrics, note) {
-    if (!metrics.length) return null;
-    const g = el("div", "group");
-    g.append(el("h3", null, title));
-    let pending = null;
-    const flush = () => { if (pending) { const p = el("p", "r-source"); p.append(el("b", null, "Source: "), pending); g.append(p); pending = null; } };
-    metrics.forEach((m, i) => {
-      g.append(readingRow(site, m));
-      const next = metrics[i + 1];
-      pending = m.source || null;
-      if (!next || next.source !== m.source) flush();
+  const disposeWorld = () => {
+    if (!world) return;
+    world.traverse((o) => {
+      if (o.isCSS2DObject) o.element.remove();
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose());
     });
-    if (note) g.append(el("p", "group-note", note));
+    scene.remove(world);
+    world = null; pickables = []; flows = []; beacons = []; labelsBy = new Map();
+  };
+
+  // Layout: the gateway sits in the middle, every other site on a ring around it.
+  const layout = (sites) => {
+    const pos = new Map();
+    const ring = sites.filter((s) => s.domain !== GATE);
+    const R = 10.5;
+    ring.forEach((s, i) => {
+      const a = (i / ring.length) * Math.PI * 2 - Math.PI / 2;
+      pos.set(s.domain, new THREE.Vector3(Math.cos(a) * R, 0, Math.sin(a) * R));
+    });
+    if (sites.some((s) => s.domain === GATE)) pos.set(GATE, new THREE.Vector3(0, 0, 0));
+    return pos;
+  };
+
+  const towerHeight = (req) => 1.4 + 2.3 * Math.log10(1 + Math.max(0, +req || 0));
+
+  const siteHealth = (site) => {
+    if (site.status === "down") return "bad";
+    const rumOver = Object.keys(LIMITS).some((k) => overLimit(k, valueOf(site, k)));
+    if ((valueOf(site, "error_5xx_rate_7d") || 0) > 0 || rumOver || (valueOf(site, "js_errors_7d") || 0) > 0) return "warn";
+    if (site.status === "up") return "good";
+    return "unknown";
+  };
+  const healthColor = (h) => css(h === "bad" ? "--bad" : h === "warn" ? "--warn" : h === "good" ? "--good" : "--text-subtle");
+
+  const openSiteLink = (domain) => {
+    const a = el("a", "open-site");
+    a.href = "https://" + domain;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.title = "Open " + domain;
+    a.setAttribute("aria-label", "Open " + domain + " in a new tab");
+    a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7M21 3L10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>';
+    a.addEventListener("click", e => e.stopPropagation());
+    a.addEventListener("pointerdown", e => e.stopPropagation());
+    return a;
+  };
+  const modelName = (id) => {
+    const name = id.split("/").pop().replace(/^(global|us|eu|apac)\./, "").replace(/^(amazon|anthropic)\./, "");
+    if (/^nova-2-lite/.test(name)) return "Nova 2 Lite";
+    if (/^titan-embed-text-v2/.test(name)) return "Titan Embed v2";
+    const claude = name.match(/^claude-(sonnet|haiku|opus)-(\d+)-(\d+)/);
+    if (claude) return claude[1][0].toUpperCase() + claude[1].slice(1) + " " + claude[2] + "." + claude[3];
+    return name.replace(/-\d{8}$/, "").replace(/-v\d+:\d+$/, "").replace(/^text-embedding-/, "Embed ").replace(/^gpt-/, "GPT-").replace(/^gemini-/, "Gemini ");
+  };
+  const makeLabel = (ref, title, line, dotCls, extraCls, labelKey = "") => {
+    const isSite = ref.kind === "site" && !(extraCls || "").includes("model");
+    const b = el(isSite ? "div" : "button", "lbl" + (isSite ? " site-label" : "") + (extraCls ? " " + extraCls : ""));
+    const control = isSite ? el("button", "label-select") : b;
+    control.type = "button";
+    control.title = title + (line ? " · " + line : "");
+    const t = el("b");
+    if (dotCls != null) t.append(el("span", "dot " + dotCls));
+    // Short map captions keep the topology readable; the full name stays in the accessible label and list.
+    const compactTitle = isSite ? title.replace(/\.atla\.in$/, "") : title.replace(/^(Google|Amazon) /, "");
+    t.append(el("span", "map-name-full", title), el("span", "map-name-short", compactTitle));
+    control.append(t);
+    if (line) control.append(el("small", null, line));
+    b.dataset.ref = ref.kind + ":" + ref.id;
+    control.dataset.ref = b.dataset.ref;
+    control.setAttribute("aria-expanded", "false");
+    control.setAttribute("aria-controls", "panel");
+    control.setAttribute("aria-label", title + (line ? ", " + line : "") + ". Show details");
+    control.addEventListener("click", (e) => { e.stopPropagation(); select(ref, true, e.detail === 0); });
+    if (isSite) b.append(control, openSiteLink(ref.id));
+    labelsBy.set(ref.kind + ":" + ref.id + (labelKey ? ":" + labelKey : ""), b);
+    return new CSS2DObject(b);
+  };
+
+  function buildSite(site, at, group) {
+    const g = new THREE.Group();
+    g.position.copy(at);
+    const ref = { kind: "site", id: site.domain };
+    const isGate = site.domain === GATE;
+    let h = towerHeight(valueOf(site, "requests_24h"));
+    const health = siteHealth(site);
+    const hc = new THREE.Color(healthColor(health));
+
+    // Plinth
+    const plinth = new THREE.Mesh(isGate ? new THREE.CylinderGeometry(3.9, 4.1, 0.35, 64) : new THREE.CylinderGeometry(3.1, 3.3, 0.35, 48), new THREE.MeshStandardMaterial({ color: css("--surface-raised"), roughness: 0.9 }));
+    plinth.position.y = 0.175; plinth.receiveShadow = true;
+    g.add(plinth);
+
+    const mat = new THREE.MeshStandardMaterial({ color: css("--tower"), roughness: 0.55, metalness: 0.15, emissive: hc, emissiveIntensity: 0.0 });
+    const edgeMat = () => new THREE.LineBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.55 });
+    const solid = (geo, x, y, z) => {
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(x, y, z);
+      m.castShadow = true; m.receiveShadow = true;
+      m.userData.ref = ref;
+      g.add(m);
+      pickables.push(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), edgeMat());
+      e.position.copy(m.position);
+      g.add(e);
+      return m;
+    };
+
+    if (isGate) {
+      // The gateway is drawn as a gate: two pillars, a crossbeam and cap, and a glowing
+      // arched portal the tenants' traffic flows into. Pillar height still tracks API calls.
+      const ph = Math.max(6.2, h + 0.6);
+      const span = 2.1;                       // half the opening's width
+      const spring = Math.max(0.6, ph - span - 0.2);
+      [-1, 1].forEach((side) => {
+        solid(new THREE.BoxGeometry(0.85, ph, 1.1), side * (span + 0.425), 0.35 + ph / 2, 0);
+        solid(new THREE.BoxGeometry(1.2, 0.35, 1.45), side * (span + 0.425), 0.52, 0);      // pillar foot
+      });
+      solid(new THREE.BoxGeometry(span * 2 + 1.9, 0.5, 1.15), 0, 0.35 + ph + 0.25, 0);     // crossbeam
+      solid(new THREE.BoxGeometry(span * 2 + 2.6, 0.22, 1.45), 0, 0.35 + ph + 0.61, 0);    // cap
+
+      // Arched opening outline and portal
+      const arch = new THREE.Mesh(new THREE.TorusGeometry(span, 0.09, 8, 40, Math.PI), new THREE.MeshBasicMaterial({ color: css("--accent") }));
+      arch.position.set(0, 0.35 + spring, 0);
+      g.add(arch);
+      [-1, 1].forEach((side) => {
+        const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.18, spring, 0.18), new THREE.MeshBasicMaterial({ color: css("--accent") }));
+        jamb.position.set(side * span, 0.35 + spring / 2, 0);
+        g.add(jamb);
+      });
+      const shape = new THREE.Shape();
+      shape.moveTo(-span, 0); shape.lineTo(-span, spring); shape.absarc(0, spring, span, Math.PI, 0, true); shape.lineTo(span, 0); shape.lineTo(-span, 0);
+      const portal = new THREE.Mesh(new THREE.ShapeGeometry(shape, 32), new THREE.MeshBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+      portal.position.y = 0.35;
+      portal.userData.ref = ref;
+      g.add(portal);
+      pickables.push(portal);
+      g.userData.portal = portal;
+      g.userData.portalY = 0.35 + spring * 0.75;
+      h = ph + 0.8;                            // beacon and label sit above the cap
+    } else {
+      // Tower with floor lines so the height reads at a glance
+      solid(new THREE.BoxGeometry(2, h, 2), 0, 0.35 + h / 2, 0);
+      const floors = Math.max(1, Math.floor(h / 1.1));
+      for (let i = 1; i < floors; i++) {
+        const band = new THREE.Mesh(new THREE.BoxGeometry(2.04, 0.04, 2.04), new THREE.MeshBasicMaterial({ color: css("--accent"), transparent: true, opacity: 0.35 }));
+        band.position.y = 0.35 + (h / floors) * i;
+        g.add(band);
+      }
+    }
+
+    // Beacon on top: green up, amber over a limit, red down
+    const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 16), new THREE.MeshBasicMaterial({ color: hc }));
+    beacon.position.y = 0.35 + h + 0.55;
+    beacon.userData.ref = ref;
+    g.add(beacon);
+    pickables.push(beacon);
+
+
+    // Ring of 24 hourly bars around the plinth (the gateway only reports a 24 h total)
+    const hourly = !isGate && site.series && site.series.requests_hourly_24h;
+    if (hourly && hourly.length) {
+      const max = Math.max(...hourly.map(Number), 1);
+      const n = hourly.length;
+      const peak = hourly.indexOf(Math.max(...hourly));
+      hourly.forEach((v, i) => {
+        const bh = Math.max(0.05, (Number(v) / max) * 1.6);
+        const a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(0.22, bh, 0.22), new THREE.MeshStandardMaterial({ color: css("--accent"), emissive: css("--accent"), emissiveIntensity: i === peak ? 0.6 : 0.15, transparent: true, opacity: i === peak ? 1 : 0.8 }));
+        bar.position.set(Math.cos(a) * 2.55, 0.35 + bh / 2, Math.sin(a) * 2.55);
+        bar.rotation.y = -a;
+        bar.castShadow = true;
+        bar.userData.ref = ref;
+        g.add(bar);
+        pickables.push(bar);
+      });
+    }
+
+    // WAF wall: a low perimeter around the plinth, only where WAF metrics exist.
+    // Taller and more opaque when the firewall blocks a larger share of requests.
+    const blocked = valueOf(site, "waf_blocked_7d");
+    if (metricOf(site, "waf_blocked_7d")) {
+      const share = Math.min(100, valueOf(site, "waf_blocked_share_7d") || 0) / 100;
+      const wh = 0.6 + share * 2.4;
+      const wall = new THREE.Mesh(new THREE.CylinderGeometry(3.25, 3.25, wh, 48, 1, true), new THREE.MeshBasicMaterial({ color: css("--shield"), transparent: true, opacity: 0.1 + share * 0.25, depthWrite: false, side: THREE.DoubleSide }));
+      wall.position.y = 0.35 + wh / 2;
+      g.add(wall);
+      const wire = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.CylinderGeometry(3.25, 3.25, wh, 24, 1, true)), new THREE.LineBasicMaterial({ color: css("--shield"), transparent: true, opacity: 0.35 + share * 0.4 }));
+      wire.position.copy(wall.position);
+      g.add(wire);
+      if (blocked > 0) g.userData.shieldSpin = wire;
+    }
+
+    // Label
+    const reqLabel = isGate ? "API calls" : "requests";
+    const lbl = makeLabel(ref, site.domain, fmt(valueOf(site, "requests_24h"), "count") + " " + reqLabel + " · 24 h", site.status === "up" ? "up" : site.status === "down" ? "down" : "");
+    lbl.position.set(0, 0.35 + h + 1.4, 0);
+    g.add(lbl);
+
+    g.userData = { ...g.userData, ref, top: 0.35 + h + 0.55, height: h };
+    group.add(g);
     return g;
   }
 
-  function hourlyChart(site, s) {
-    const vals = site.series && site.series.requests_hourly_24h;
-    if (!vals || !vals.length) return null;
-    const n = vals.length, max = Math.max(1, ...vals.map((v) => +v || 0));
-    const peakI = vals.reduce((bi, v, i) => ((+v || 0) > (+vals[bi] || 0) ? i : bi), 0);
-    const end = new Date((s.windows && s.windows["24h"] && s.windows["24h"].end) || s.generated_at);
-    const start = new Date(end.getTime() - 24 * 3600e3);
-    const peakAt = new Date(start.getTime() + peakI * 3600e3);
-    const fig = el("figure", "hourly");
-    const noun = site.domain === GATE ? "Model calls" : "Requests";
-    fig.append(el("figcaption", null, noun + " per hour, last 24 hours. Busiest hour " + hourFmt.format(peakAt) + " with " + int.format(+vals[peakI] || 0) + "."));
-    const ns = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(ns, "svg");
-    svg.setAttribute("viewBox", "0 0 " + (n * 10) + " 90");
-    svg.setAttribute("preserveAspectRatio", "none");
-    svg.setAttribute("role", "img");
-    svg.setAttribute("aria-label", noun + " per hour: " + vals.map((v) => int.format(+v || 0)).join(", "));
-    vals.forEach((v, i) => {
-      const h = ((+v || 0) / max) * 84;
-      const r = document.createElementNS(ns, "rect");
-      r.setAttribute("x", i * 10 + 1.5); r.setAttribute("width", 7);
-      r.setAttribute("y", 88 - h); r.setAttribute("height", Math.max(h, (+v || 0) > 0 ? 1.5 : 0));
-      r.setAttribute("class", "bar-r" + (i === peakI && +v > 0 ? " peak" : ""));
-      svg.append(r);
-    });
-    const base = document.createElementNS(ns, "line");
-    base.setAttribute("x1", 0); base.setAttribute("x2", n * 10); base.setAttribute("y1", 88.5); base.setAttribute("y2", 88.5);
-    base.setAttribute("class", "base");
-    svg.append(base);
-    const ticks = el("div", "ticks");
-    ticks.append(el("span", null, dayHour.format(start)), el("span", null, dayHour.format(end)));
-    fig.append(svg, ticks);
-    return fig;
-  }
-
-  function renderReadings(s) {
-    const box = $("#readings");
-    const site = (s.sites || []).find((x) => x.domain === selected);
-    if (!site) { box.replaceChildren(); return; }
-    const h = health(site);
-    const head = el("div", "site-head");
-    const title = el("h2", "block-title", "Readings for " + site.domain);
-    const open = el("a", "open-link", "Open " + site.domain);
-    open.href = "https://" + site.domain;
-    head.append(title, open);
-    const lede = el("p", "block-lede", (site.description || "") + " Current state: " + h.word.toLowerCase() + ". " + h.reason);
-
-    const used = new Set();
-    const groups = el("div", "groups");
-    const metrics = site.metrics || [];
-    GROUPS.forEach((g) => {
-      const list = g.keys ? g.keys.map((k) => metricOf(site, k)).filter(Boolean) : metrics.filter((m) => g.match(m.key) && !used.has(m.key));
-      list.forEach((m) => used.add(m.key));
-      let note = null;
-      if (g.title === "Real visitors") {
-        const blank = ["lcp_p75_7d", "cls_p75_7d", "inp_p75_7d"].every((k) => metricOf(site, k) && valueOf(site, k) == null);
-        note = blank ? "No reading: too few real visits for monitoring to report." : null;
-      }
-      const b = groupBlock(site, g.title, list, note);
-      if (b) groups.append(b);
-    });
-    const rest = metrics.filter((m) => !used.has(m.key));
-    const other = groupBlock(site, "Other", rest);
-    if (other) groups.append(other);
-
-    const parts = [head, lede];
-    const chart = hourlyChart(site, s);
-    if (chart) parts.push(chart);
-    parts.push(groups);
-
-    if (window.hasArchitecture && window.hasArchitecture(site.domain)) {
-      const d = el("details", "arch-box");
-      const sum = el("summary", null, "Architecture of " + site.domain);
-      const host = el("div");
-      d.append(sum, host);
-      d.addEventListener("toggle", () => { if (d.open && !host.childElementCount) window.renderArchitecture(site.domain, host); }, { once: false });
-      parts.push(d);
+  // An arc from a to b with particles flowing along it; more calls, more particles
+  function buildFlow(a, b, calls, color, group, lift) {
+    const mid = a.clone().add(b).multiplyScalar(0.5);
+    mid.y = Math.max(a.y, b.y) + (lift || 4);
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+    const line = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 0.035, 6, false), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45 }));
+    group.add(line);
+    const count = Math.max(2, Math.min(14, Math.round(Math.log2(1 + (+calls || 0)) * 1.6)));
+    for (let i = 0; i < count; i++) {
+      const p = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 8), new THREE.MeshBasicMaterial({ color }));
+      group.add(p);
+      flows.push({ mesh: p, curve, t: i / count, speed: 0.08 + Math.min(0.12, (+calls || 0) / 4000) });
     }
-    box.replaceChildren(...parts);
   }
 
-  /* ---------- AI usage ---------- */
-  function renderAI(s) {
-    const body = $("#ai-body");
-    const parts = [];
-    const models = s.ai_models || [];
-    if (models.length) {
-      const wrap = el("div", "table-scroll");
-      const t = el("table");
-      t.append(el("caption", null, "Amazon Bedrock models, last 7 days"));
-      const thead = el("thead"), tr = el("tr");
-      [["Model", ""], ["Used by", ""], ["Calls", "num"], ["Tokens in / out", "num"], ["Latency p90", "num"], ["Cost", "num"]].forEach(([x, c]) => { const th = el("th", c, x); th.scope = "col"; tr.append(th); });
-      thead.append(tr);
-      const tb = el("tbody");
-      models.forEach((m) => {
-        const r = el("tr");
-        const c1 = el("td"); c1.append(el("span", "model-id", shortModel(m.model_id)), el("span", "sub", (m.role || "") + (m.region ? ", " + m.region : "")));
-        const c2 = el("td", null, (m.used_by && m.used_by.length) ? m.used_by.join(", ") : "Not assigned to a site");
-        const tok = (m.input_tokens_7d == null && m.output_tokens_7d == null) ? "No reading" : (fmt(m.input_tokens_7d, "count") || "–") + " / " + (fmt(m.output_tokens_7d, "count") || "–");
-        const cost = el("td", "num"); cost.append(usd(m.cost_usd_7d) || "No reading"); if (m.cost_usd_7d == null && m.cost_note) cost.append(el("span", "sub", m.cost_note));
-        r.append(c1, c2, el("td", "num", fmt(m.calls_7d, "count") || "No reading"), el("td", "num", tok), el("td", "num", fmt(m.latency_p90_ms_7d, "ms") || "No reading"), cost);
-        tb.append(r);
+  function buildWorld(s) {
+    disposeWorld();
+    world = new THREE.Group();
+    const sites = orderSites(s.sites || []);
+    const pos = layout(sites);
+    const built = new Map();
+    sites.forEach((site) => built.set(site.domain, buildSite(site, pos.get(site.domain), world)));
+
+    const gateG = built.get(GATE);
+    const accent = new THREE.Color(css("--accent"));
+    if (gateG) {
+      const gateTop = gateG.position.clone().setY(gateG.userData.top);
+      // Tenants: the gateway's description lists who calls models through it
+      const gateSite = sites.find((x) => x.domain === GATE);
+      // A site is linked when the gateway names it or its own architecture lists the gateway as an outside service
+      const tenants = sites.filter((x) => x.domain !== GATE && gateSite && ((gateSite.description || "").includes(x.domain) || (window.architectureReaches && window.architectureReaches(x.domain, GATE))));
+      tenants.forEach((t) => {
+        const tg = built.get(t.domain);
+        // Tenant traffic lands in the portal, so it reads as passing through the gate
+        const portalIn = gateG.position.clone().setY(gateG.userData.portalY || gateG.userData.top);
+        buildFlow(tg.position.clone().setY(tg.userData.top), portalIn, valueOf(gateSite, "requests_7d"), accent, world, 4);
       });
-      t.append(thead, tb);
-      wrap.append(t);
-      parts.push(wrap);
-      const srcs = [...new Set(models.map((m) => m.source).filter(Boolean))];
-      if (srcs.length) { const p = el("p", "r-source"); p.append(el("b", null, "Source: "), srcs.length > 2 ? "CloudWatch AWS/Bedrock metrics, one per model ID. " + (models[0].cost_note || "") : srcs.join("; ")); parts.push(p); }
-    } else {
-      parts.push(el("p", null, "No reading: no Bedrock model had activity in the last 7 days, or the source didn't answer."));
-    }
-    const g = s.gateway;
-    if (g && (g.models_7d || []).length) {
-      const wrap = el("div", "table-scroll");
-      wrap.style.marginTop = "34px";
-      const t = el("table");
-      t.append(el("caption", null, "Calls through gate.atla.in, last 7 days"));
-      const thead = el("thead"), tr = el("tr");
-      [["Route", ""], ["Calls", "num"], ["Tokens", "num"], ["Cost", "num"]].forEach(([x, c]) => { const th = el("th", c, x); th.scope = "col"; tr.append(th); });
-      thead.append(tr);
-      const tb = el("tbody");
-      g.models_7d.forEach((m) => {
-        const r = el("tr");
-        const name = m.model === "cache" ? "Answered from the semantic cache" : m.model.replace(/^([^/]+)\//, (_, p) => (PROVIDER_NAMES[p] || p) + ": ");
-        r.append(el("td", "model-id", name), el("td", "num", fmt(m.calls, "count") || "No reading"), el("td", "num", fmt(m.tokens, "count") || "No reading"), el("td", "num", usd(m.cost_usd) || "No reading"));
-        tb.append(r);
+
+      // Every provider the gateway can route to floats above it, busy or idle. Each orb is sized by
+      // its 7-day calls; small moons around it are its catalog models (bright = used this week).
+      const provs = gatewayProviders(s);
+      provs.forEach((pv, i) => {
+        const a = (i / Math.max(provs.length, 1)) * Math.PI * 2 + Math.PI / 4;
+        const p = new THREE.Vector3(Math.cos(a) * 5.6, gateG.userData.top + 5.2, Math.sin(a) * 5.6);
+        const ref = { kind: "provider", id: pv.provider };
+        const idle = !(pv.calls_7d > 0);
+        const r = idle ? 0.5 : 0.6 + Math.min(0.6, Math.log10(1 + pv.calls_7d) * 0.22);
+        const tint = css(idle ? "--text-subtle" : "--shield");
+        const orb = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 2), new THREE.MeshStandardMaterial({ color: tint, emissive: tint, emissiveIntensity: idle ? 0.05 : 0.35, roughness: 0.4, flatShading: true, transparent: idle, opacity: idle ? 0.55 : 1 }));
+        orb.position.copy(p);
+        orb.userData.ref = ref;
+        orb.userData.spin = true;
+        world.add(orb);
+        pickables.push(orb);
+        if (idle) {
+          // Wired but quiet: a faint dashed link, no traffic particles
+          const mid = gateTop.clone().add(p).multiplyScalar(0.5); mid.y = Math.max(gateTop.y, p.y) + 1.5;
+          const pts = new THREE.QuadraticBezierCurve3(gateTop, mid, p.clone().add(new THREE.Vector3(0, -r, 0))).getPoints(40);
+          const dash = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: tint, dashSize: 0.25, gapSize: 0.2, transparent: true, opacity: 0.6 }));
+          dash.computeLineDistances();
+          world.add(dash);
+        } else {
+          buildFlow(gateTop, p.clone().add(new THREE.Vector3(0, -r, 0)), pv.calls_7d, new THREE.Color(tint), world, 1.5);
+        }
+        // Moons: one per catalog model
+        const usedSet = new Set(pv.models.filter((m) => m.calls > 0).map((m) => m.model));
+        pv.models.forEach((m, j) => {
+          const moon = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 8), new THREE.MeshBasicMaterial({ color: css(usedSet.has(m.model) ? "--accent" : "--text-subtle") }));
+          const ang = (j / pv.models.length) * Math.PI * 2;
+          moon.userData.orbit = { center: p, radius: r + 0.45, angle: ang, speed: 0.6 };
+          moon.position.set(p.x + Math.cos(ang) * (r + 0.45), p.y, p.z + Math.sin(ang) * (r + 0.45));
+          moon.userData.ref = ref;
+          world.add(moon);
+          pickables.push(moon);
+        });
+        const line = idle ? "no calls in 7 d" : fmt(pv.calls_7d, "count") + " calls · 7 d";
+        const models = [...new Set(pv.models.map(m => modelName(m.model)))].join(" · ");
+        const lbl = makeLabel(ref, PROVIDER_NAMES[pv.provider] || pv.provider, models || line, null, "model provider-group" + (idle ? " idle" : ""));
+        lbl.position.copy(p).add(new THREE.Vector3(0, r + 0.6, 0));
+        world.add(lbl);
       });
-      t.append(thead, tb);
-      wrap.append(t);
-      parts.push(wrap);
-      if (g.source) { const p = el("p", "r-source"); p.append(el("b", null, "Source: "), g.source); parts.push(p); }
-    } else if (g === null) {
-      parts.push(el("p", "group-note", "No reading for gate.atla.in: its stats endpoint didn't answer this run."));
     }
-    body.replaceChildren(...parts);
+
+    // Keep each direct model interactive, but name the site's direct-model group once.
+    const directGroups = new Map();
+    (s.ai_models || []).forEach((m, i) => {
+      (m.used_by || []).forEach((domain) => {
+        const sg = built.get(domain);
+        if (!sg) return;
+        const ref = { kind: "bedrock", id: m.model_id };
+        const out = sg.position.clone().normalize();
+        // Stacked straight up beside the site so their labels never overlap, whatever the camera angle
+        const p = sg.position.clone().add(out.multiplyScalar(5.4)).setY(1.4 + i * 2.6);
+        const cube = new THREE.Mesh(new THREE.OctahedronGeometry(0.5, 0), new THREE.MeshStandardMaterial({ color: css("--warn"), emissive: css("--warn"), emissiveIntensity: 0.25, roughness: 0.5, flatShading: true }));
+        cube.position.copy(p);
+        cube.userData.ref = ref;
+        cube.userData.spin = true;
+        world.add(cube);
+        pickables.push(cube);
+        buildFlow(sg.position.clone().setY(sg.userData.top - 0.6), p, m.calls_7d, new THREE.Color(css("--warn")), world, 1.2);
+        if (!directGroups.has(domain)) directGroups.set(domain, { names: new Set(), position: p.clone(), count: 0 });
+        const group = directGroups.get(domain);
+        group.names.add(modelName(m.model_id));
+        group.position.y = Math.max(group.position.y, p.y);
+        group.count++;
+      });
+    });
+
+    directGroups.forEach((group, domain) => {
+      const lbl = makeLabel({ kind: "site", id: domain }, "Direct Bedrock", [...group.names].join(" · "), null, "model provider-group", "direct-bedrock");
+      lbl.position.copy(group.position).add(new THREE.Vector3(0, 1.1, 0));
+      world.add(lbl);
+    });
+    world.userData.built = built;
+    scene.add(world);
+    if (selected) markSelected();
   }
 
-  /* ---------- Snapshot age and failed sources ---------- */
-  function renderFreshness(s) {
+  /* ---------- Header ---------- */
+  function renderEstate(s) {
+    const sites = $("#estate-sites"), providers = $("#estate-providers"), direct = $("#estate-direct");
+    const makeRow = (ref, title, detail, value, status) => {
+      const b = el("div", "estate-row");
+      b.dataset.ref = ref.kind + ":" + ref.id;
+      const active = !!selected && selected.kind === ref.kind && selected.id === ref.id;
+      b.dataset.selected = String(active);
+      const identity = el("span", "estate-identity");
+      const nameLine = el("span", "estate-name-line");
+      const name = el("button", "estate-name", title);
+      name.type = "button";
+      name.dataset.ref = b.dataset.ref;
+      name.setAttribute("aria-controls", "panel");
+      name.setAttribute("aria-expanded", String(active));
+      name.setAttribute("aria-label", title + ". Show details");
+      nameLine.append(name);
+      if (ref.kind === "site") nameLine.append(openSiteLink(ref.id));
+      identity.append(nameLine, el("span", "estate-meta", detail));
+      const reading = el("span", "estate-reading");
+      reading.append(el("span", "estate-value", value), el("span", "estate-status", status));
+      b.append(identity, reading);
+      b.addEventListener("click", e => select(ref, true, e.detail === 0));
+      return b;
+    };
+    sites.replaceChildren(...orderSites(s.sites || []).map(site => makeRow(
+      { kind: "site", id: site.domain }, site.domain,
+      fmt(valueOf(site, "requests_24h"), "count") + (site.domain === GATE ? " API calls · 24 h" : " requests · 24 h"),
+      fmt(valueOf(site, "uptime_7d"), "percent"),
+      site.status === "up" ? "Operational" : site.status === "down" ? "Down" : "No check data"
+    )));
+    providers.replaceChildren(...gatewayProviders(s).map(p => makeRow(
+      { kind: "provider", id: p.provider }, PROVIDER_NAMES[p.provider] || p.provider,
+      p.models.length + (p.models.length === 1 ? " model" : " models"), fmt(p.calls_7d, "count"), p.calls_7d > 0 ? "Used this week" : "Idle this week"
+    )));
+    const directModels = s.ai_models || [];
+    $("#direct-sub").hidden = !directModels.length;
+    direct.replaceChildren(...directModels.map(m => makeRow({ kind: "bedrock", id: m.model_id }, m.model_id.replace(/^global\./, "").replace(/^amazon\./, ""), m.role || "Model", fmt(m.calls_7d, "count"), m.region || "")));
+  }
+
+  function renderHeader(s) {
+    const sites = s.sites || [];
+    const up = sites.filter((x) => x.status === "up").length;
+    const uptimes = sites.map((x) => valueOf(x, "uptime_7d")).filter((v) => v != null);
+    const over = sites.reduce((n, x) => n + Object.keys(LIMITS).filter((k) => overLimit(k, valueOf(x, k))).length, 0);
+    // Three stat chips: the number leads, the label explains, and anything wrong turns red
+    const chip = (value, label, bad, dot) => {
+      const c = el("span", "stat-chip" + (bad ? " bad" : ""));
+      if (dot) c.append(el("i", "chip-dot"));
+      c.append(el("b", null, value), el("span", null, label));
+      return c;
+    };
+    $("#takeaway").replaceChildren(
+      chip(up + " of " + sites.length, "sites up", up !== sites.length, true),
+      chip(uptimes.length ? fmt(Math.min(...uptimes), "percent") : "—", "lowest 7-day uptime", false),
+      chip(String(over), over === 1 ? "real-user limit exceeded" : "real-user limits exceeded", over > 0),
+    );
+
     const gen = new Date(s.generated_at);
     const age = Date.now() - gen.getTime();
-    const stale = !(age <= STALE_MINUTES * 60e3);
     const snap = $("#snap");
-    snap.replaceChildren(el("b", null, stale ? "Stale" : "Fresh"), ". Readings from " + when.format(gen) + ", " + ago(age) + ".");
-    $("#panel").classList.toggle("is-stale", stale);
-    const box = $("#stale");
-    box.hidden = !stale;
-    if (stale) box.textContent = "These readings are from " + when.format(gen) + ", more than " + STALE_MINUTES + " minutes ago. The collector hasn't published a newer snapshot, so the lamps show the last known state.";
-  }
+    const stale = age > STALE_MINUTES * 60e3;
+    const state = el("span", "state " + (stale ? "stale" : "fresh"));
+    state.append(el("i", "live-dot"), stale ? "Stale" : "Fresh");
+    snap.replaceChildren(state, el("span", null, "Snapshot " + istFull.format(gen) + " IST · " + ago(age)));
 
-  function renderUnavailable(s) {
     const un = s.unavailable_sources || [];
     const box = $("#unavailable");
     box.hidden = !un.length;
-    if (!un.length) return;
-    const ul = el("ul");
-    un.forEach((u) => ul.append(el("li", null, u)));
-    box.replaceChildren(el("div", null, "Some sources didn't answer this run, so their readings are left out rather than guessed:"), ul);
+    if (un.length) {
+      const ul = el("ul");
+      un.forEach((u) => ul.append(el("li", null, u)));
+      box.replaceChildren(el("div", null, "Some sources didn't answer this run, so their metrics are left out rather than guessed:"), ul);
+    }
   }
 
+  /* ---------- Detail panel ---------- */
+  const panel = $("#panel");
+  const SVG = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs) => { const e = document.createElementNS(SVG, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+
+  // Hourly requests: bucket i covers the hour ending at windowEnd - (23 - i) h
+  const spark = (box, values, windowEnd) => {
+    box.replaceChildren();
+    const max = Math.max(...values, 0);
+    const magnitude = 10 ** Math.floor(Math.log10(max || 1));
+    const ceiling = [1, 2, 5, 10].find((v) => v * magnitude >= (max || 1)) * magnitude;
+    const scale = el("div", "spark-scale");
+    scale.setAttribute("aria-hidden", "true");
+    scale.append(el("span", null, compact.format(ceiling)), el("span", null, "0"));
+    box.append(scale);
+    const W = Math.max(box.clientWidth - scale.offsetWidth - 10, 80), H = 64, n = values.length;
+    const step = W / n, bw = Math.max(1, step * 0.72);
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", role: "img", "aria-label": "Requests per hour, last 24 hours. Scale 0 to " + int.format(ceiling) + "; peak " + int.format(max) + " requests." });
+    svg.append(svgEl("line", { x1: 0, x2: W, y1: H - 0.5, y2: H - 0.5, stroke: "var(--grid)" }));
+    const bars = values.map((v, i) => {
+      const h = Math.max(v > 0 ? 1.5 : 0, (v / ceiling) * (H - 4));
+      const r = svgEl("rect", { x: i * step + (step - bw) / 2, y: H - h, width: bw, height: h, rx: Math.min(2, bw / 2), fill: "var(--accent)" });
+      svg.append(r);
+      return r;
+    });
+    const tip = el("div", "tip"); tip.hidden = true;
+    const hourEnd = (i) => new Date(windowEnd.getTime() - (n - 1 - i) * 3600e3);
+    let activeHour = 0;
+    box.tabIndex = 0;
+    box.setAttribute("role", "group");
+    box.setAttribute("aria-label", "Hourly requests. Use left and right arrows to inspect hours; Escape to dismiss.");
+    tip.setAttribute("role", "status");
+    const showHour = (i) => {
+      activeHour = i;
+      const rect = svg.getBoundingClientRect();
+      bars.forEach((b, j) => b.setAttribute("fill-opacity", j === i ? "1" : "0.45"));
+      const end = hourEnd(i), start = new Date(end.getTime() - 3600e3);
+      tip.replaceChildren(el("div", "d", istHour.format(start) + "–" + istHour.format(end) + " IST"), el("div", null, int.format(values[i]) + " requests"));
+      tip.hidden = false;
+      const px = rect.left - box.getBoundingClientRect().left + ((i + 0.5) / n) * rect.width;
+      tip.style.left = Math.min(Math.max(px, 85), box.clientWidth - 85) + "px";
+    };
+    const hideHour = () => { tip.hidden = true; bars.forEach((b) => b.setAttribute("fill-opacity", "1")); };
+    svg.addEventListener("pointermove", (ev) => {
+      const rect = svg.getBoundingClientRect();
+      showHour(Math.max(0, Math.min(n - 1, Math.floor(((ev.clientX - rect.left) / rect.width) * n))));
+    });
+    svg.addEventListener("pointerleave", hideHour);
+    box.addEventListener("focus", () => showHour(activeHour));
+    box.addEventListener("blur", hideHour);
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { e.stopPropagation(); hideHour(); return; }
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+      e.preventDefault();
+      showHour(e.key === "Home" ? 0 : e.key === "End" ? n - 1 : Math.max(0, Math.min(n - 1, activeHour + (e.key === "ArrowRight" ? 1 : -1))));
+    });
+    box.append(svg, tip);
+    return { max, first: new Date(hourEnd(0).getTime() - 3600e3), last: hourEnd(n - 1) };
+  };
+
+  const statTile = (label, value, window, cls) => {
+    const box = el("div", "stat");
+    box.append(el("div", "stat-l", label));
+    box.append(el("div", "stat-v" + (cls ? " " + cls : ""), value));
+    if (window) box.append(el("div", "stat-w", window));
+    return box;
+  };
+  const metricTile = (site, key, label) => {
+    const m = metricOf(site, key);
+    if (!m) return null;
+    let cls = "";
+    if (overLimit(key, m.value)) cls = "bad";
+    else if (LIMITS[key] != null && m.value != null) cls = "good";
+    if ((key === "error_5xx_rate_7d" || key === "js_errors_7d" || key === "error_5xx_count_7d") && m.value > 0) cls = "bad";
+    if (key === "error_4xx_rate_7d" && m.value > 100) cls = "warn";
+    const tile = statTile(label || m.label || key, fmt(m.value, m.unit), m.window === "24h" ? "Last 24 hours" : "Last 7 days", cls);
+    if (m.source) tile.title = m.source + (m.note ? " — " + m.note : "");
+    return tile;
+  };
+  const section = (title, tiles, note) => {
+    const t = tiles.filter(Boolean);
+    if (!t.length) return null;
+    const sec = el("section", "sec");
+    sec.append(el("h3", null, title));
+    const grid = el("div", "tiles"); grid.append(...t);
+    sec.append(grid);
+    if (note) sec.append(el("p", "flag", note));
+    return sec;
+  };
+  const table = (head, rows) => {
+    const t = el("table");
+    const tr = el("tr");
+    head.forEach(([h, cls]) => tr.append(el("th", cls || "", h)));
+    t.append(el("thead")); t.tHead.append(tr);
+    const tb = el("tbody");
+    rows.forEach((r) => { const row = el("tr"); r.forEach(([v, cls], i) => { const cell = el("td", cls || "", v); cell.dataset.label = head[i]?.[0] || ""; row.append(cell); }); tb.append(row); });
+    t.append(tb);
+    return t;
+  };
+
+  function renderSitePanel(site, s) {
+    const isGate = site.domain === GATE;
+    const title = $("#p-title");
+    title.replaceChildren(el("span", "dot " + (site.status === "up" ? "up" : site.status === "down" ? "down" : "")));
+    const link = el("a", null, site.domain); link.href = "https://" + site.domain; link.rel = "noopener";
+    title.append(link, openSiteLink(site.domain));
+    $("#p-sub").textContent = (site.status === "up" ? "Up · " : site.status === "down" ? "Down · " : "No check data · ") + (site.description || site.name || "");
+    const body = $("#p-body");
+    body.replaceChildren();
+    const used = new Set();
+    const take = (keys) => keys.map((k) => { used.add(k); return Array.isArray(k) ? null : metricTile(site, k); });
+    const takeL = (pairs) => pairs.map(([k, l]) => { used.add(k); return metricTile(site, k, l); });
+
+    const health = section("Health", takeL([["uptime_7d", "Uptime"], ["uptime_24h", "Uptime"], ["check_duration_24h", "Check time"], ["response_p90_24h", isGate ? null : "ALB p90"]]));
+    if (health) body.append(health);
+
+    const values = !isGate && site.series && site.series.requests_hourly_24h;
+    if (values && values.length) {
+      const sec = el("section", "sec");
+      sec.append(el("h3", null, "Requests per hour"));
+      const sp = el("div", "spark");
+      sec.append(sp);
+      body.append(sec);
+      const end = new Date((s.windows && s.windows["24h"] && s.windows["24h"].end) || s.generated_at);
+      const info = spark(sp, values.map(Number), end);
+      const cap = el("div", "spark-cap");
+      cap.append(el("span", null, "from " + istHour.format(info.first) + " IST"), el("span", null, "peak " + int.format(info.max) + " · to " + istHour.format(info.last)));
+      sec.append(cap);
+    } else if (isGate) {
+      body.append(el("p", "flag", "The gateway reports 24-hour totals, not hourly counts."));
+    }
+
+    const edgeNote = valueOf(site, "error_4xx_rate_7d") > 100 ? "A 4xx rate over 100% means the error and request counts don't line up; treat it as a collector bug." : (metricOf(site, "error_4xx_rate_7d") ? "4xx includes firewall blocks and bots asking for missing pages." : null);
+    const edge = section(isGate ? "API traffic" : "Traffic & edge", takeL([["requests_24h", isGate ? "API calls" : "Requests"], ["requests_7d", isGate ? "API calls" : "Requests"], ["error_5xx_rate_7d", "5xx rate"], ["error_5xx_count_7d", "5xx errors"], ["error_4xx_rate_7d", "4xx rate"], ["waf_blocked_7d", "WAF blocked"], ["waf_blocked_share_7d", "Share blocked"], ["bytes_7d", "Data served"]]), edgeNote);
+    if (edge) body.append(edge);
+
+    const rumKeys = ["page_views_7d", "lcp_p75_7d", "cls_p75_7d", "inp_p75_7d", "js_errors_7d"];
+    const rumBlank = ["lcp_p75_7d", "cls_p75_7d", "inp_p75_7d"].every((k) => metricOf(site, k) && valueOf(site, k) == null);
+    const rum = section("Real-user experience (p75)", takeL([["page_views_7d", "Page views"], ["lcp_p75_7d", "LCP"], ["cls_p75_7d", "CLS"], ["inp_p75_7d", "INP"], ["js_errors_7d", "JS errors"]]), rumBlank ? "Blank: too few real visits for RUM to report." : "Good is LCP ≤ 2.5 s, CLS ≤ 0.1, INP ≤ 200 ms.");
+    if (rum) body.append(rum);
+
+    if (isGate) {
+      const gw = section("Gateway", takeL([["gateway_tokens_7d", "Tokens"], ["gateway_cost_7d", "Spend"], ["gateway_latency_p90_7d", "Latency p90"], ["gateway_overhead_p50_7d", "Overhead p50"], ["gateway_cache_hit_rate_7d", "Cache hit rate"], ["gateway_failovers_7d", "Failovers"], ["gateway_limited_7d", "Rate limited"], ["gateway_blocked_7d", "Blocked"]]), "Spend is tokens × the gateway's price table; each provider's billing is the real charge.");
+      if (gw) body.append(gw);
+      const models = (s.gateway && s.gateway.models_7d) || [];
+      if (models.length) {
+        const sec = el("section", "sec");
+        sec.append(el("h3", null, "Models through the gateway · 7 d"));
+        sec.append(table([["Model"], ["Calls", "num"], ["Tokens", "num"], ["Spend", "num"]], models.map((m) => [[m.model], [fmt(m.calls, "count"), "num"], [fmt(m.tokens, "count"), "num"], [fmt(m.cost_usd, "usd"), "num"]])));
+        body.append(sec);
+      }
+    }
+
+    const llm = section("Amazon Bedrock", takeL([["llm_calls_7d", "Model calls"], ["llm_tokens_7d", "Tokens"], ["llm_latency_p90_7d", "Latency p90"], ["bedrock_cost_7d", "Cost"]]), "Cost is tokens × on-demand list prices.");
+    if (llm) body.append(llm);
+    const bed = (s.ai_models || []).filter((m) => (m.used_by || []).includes(site.domain));
+    if (bed.length) {
+      const sec = el("section", "sec");
+      sec.append(el("h3", null, "Bedrock models · 7 d"));
+      sec.append(table([["Model"], ["Calls", "num"], ["p90", "num"], ["Cost", "num"]], bed.map((m) => [[m.model_id], [fmt(m.calls_7d, "count"), "num"], [fmt(m.latency_p90_ms_7d, "ms"), "num"], [fmt(m.cost_usd_7d, "usd"), "num"]])));
+      body.append(sec);
+    }
+
+    // Anything the collector adds later still shows up here, never silently dropped
+    const rest = (site.metrics || []).filter((m) => !used.has(m.key));
+    if (rest.length) body.append(section("Other metrics", rest.map((m) => metricTile(site, m.key))));
+  }
+
+  function renderProviderPanel(id, s) {
+    const pv = gatewayProviders(s).find((x) => x.provider === id);
+    if (!pv) return false;
+    const idle = !(pv.calls_7d > 0);
+    $("#p-title").textContent = PROVIDER_NAMES[pv.provider] || pv.provider;
+    $("#p-sub").textContent = "Provider behind gate.atla.in · " + (idle ? "wired and available, no successful calls in the last 7 days" : "served traffic in the last 7 days");
+    const body = $("#p-body");
+    body.replaceChildren();
+    const total = gatewayProviders(s).reduce((n, x) => n + (x.calls_7d || 0), 0);
+    body.append(section("Last 7 days", [statTile("Calls", fmt(pv.calls_7d, "count"), "Successful, every tenant"), statTile("Tokens", fmt(pv.tokens_7d, "count"), "Input + output"), statTile("Spend", fmt(pv.cost_usd_7d, "usd"), "Gateway price table"), statTile("Share of calls", total ? fmt((pv.calls_7d / total) * 100, "percent") : "—", "Of gateway traffic")]));
+    if (pv.models.length) {
+      const sec = el("section", "sec");
+      sec.append(el("h3", null, "Models in the gateway catalog"));
+      sec.append(table([["Model"], ["Calls", "num"], ["Tokens", "num"], ["Spend", "num"]], pv.models.map((m) => [[m.model.split("/").slice(1).join("/")], [fmt(m.calls, "count"), "num"], [fmt(m.tokens, "count"), "num"], [fmt(m.cost_usd, "usd"), "num"]])));
+      body.append(sec);
+    }
+    if (!pv.fromGateway) body.append(el("p", "flag", "This snapshot predates the gateway's provider list, so models only show once they've had traffic."));
+    if (s.gateway && s.gateway.source) body.append(el("p", "src", "Source: " + s.gateway.source));
+    return true;
+  }
+
+  function renderBedrockPanel(id, s) {
+    const m = (s.ai_models || []).find((x) => x.model_id === id);
+    if (!m) return false;
+    $("#p-title").textContent = m.model_id;
+    $("#p-sub").textContent = "Amazon Bedrock · " + (m.region || "") + " · " + (m.role || "") + " · used by " + (m.used_by || []).join(", ");
+    const body = $("#p-body");
+    body.replaceChildren();
+    body.append(section("Last 7 days", [statTile("Calls", fmt(m.calls_7d, "count")), statTile("Latency p90", fmt(m.latency_p90_ms_7d, "ms")), statTile("Input tokens", fmt(m.input_tokens_7d, "count")), statTile("Output tokens", fmt(m.output_tokens_7d, "count")), statTile("Cost", fmt(m.cost_usd_7d, "usd"), m.cost_note || "")]));
+    if (m.source) body.append(el("p", "src", "Source: " + m.source));
+    return true;
+  }
+
+  function renderPanel() {
+    if (!selected || !snapshot) return;
+    $("#p-body").removeAttribute("role");
+    $("#p-body").removeAttribute("aria-labelledby");
+    let ok = false;
+    const tabs = $("#p-tabs");
+    tabs.hidden = selected.kind !== "site";
+    panel.classList.toggle("wide", selected.kind === "site" && panelTab === "arch");
+    if (selected.kind === "site") {
+      const site = (snapshot.sites || []).find((x) => x.domain === selected.id);
+      if (site) {
+        renderSitePanel(site, snapshot); ok = true;
+        tabs.querySelectorAll(".ptab").forEach((b) => {
+          b.setAttribute("aria-selected", String(b.dataset.v === panelTab));
+          b.tabIndex = b.dataset.v === panelTab ? 0 : -1;
+        });
+        $("#p-body").setAttribute("role", "tabpanel");
+        $("#p-body").setAttribute("aria-labelledby", panelTab === "arch" ? "arch-tab" : "metrics-tab");
+        if (panelTab === "arch") {
+          const host = el("div", "arch-view");
+          $("#p-body").replaceChildren(host);
+          $("#p-body").scrollTop = 0;
+          window.renderArchitecture(site.domain, host);
+        }
+      }
+    } else if (selected.kind === "provider") ok = renderProviderPanel(selected.id, snapshot);
+    else if (selected.kind === "bedrock") ok = renderBedrockPanel(selected.id, snapshot);
+    if (!ok) { closePanel(); return; }
+    panel.inert = false;
+    panel.classList.add("open");
+  }
+
+  let panelTab = "metrics";
+  document.querySelectorAll("#p-tabs .ptab").forEach((b) => b.addEventListener("click", () => {
+    panelTab = b.dataset.v;
+    renderPanel();
+    setViewShift(panel.classList.contains("open"));
+  }));
+  $("#p-tabs").addEventListener("keydown", (e) => {
+    const tabs = [...$("#p-tabs").querySelectorAll(".ptab")];
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0 || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    e.preventDefault();
+    const next = e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+    tabs[next].focus(); tabs[next].click();
+  });
+  let archW = 0;
+  addEventListener("resize", () => {
+    if (panelTab !== "arch" || !selected || selected.kind !== "site") return;
+    const w = $("#p-body").clientWidth;
+    if (Math.abs(w - archW) > 30) { archW = w; renderPanel(); }
+  });
+
+  /* ---------- Selection and camera flights ---------- */
+  let flight = null;
+  const worldPosOf = (ref) => {
+    if (!world) return null;
+    if (ref.kind === "site") {
+      const g = world.userData.built.get(ref.id);
+      return g ? g.position.clone().setY(g.userData.height * 0.55) : null;
+    }
+    const hit = pickables.find((p) => p.userData.ref.kind === ref.kind && p.userData.ref.id === ref.id);
+    return hit ? hit.getWorldPosition(new THREE.Vector3()) : null;
+  };
+  const flyTo = (target, distance, instant = false) => {
+    if (!controls) return;
+    const dir = camera.position.clone().sub(controls.target).normalize();
+    dir.y = Math.max(dir.y, 0.45); dir.normalize();
+    const pos = target.clone().add(dir.multiplyScalar(distance));
+    if (reduceMotion || instant) { flight = null; controls.target.copy(target); camera.position.copy(pos); controls.update(); return; }
+    flight = { fromT: controls.target.clone(), toT: target, fromP: camera.position.clone(), toP: pos, t: 0 };
+  };
+  const markSelected = () => {
+    document.querySelectorAll(".estate-row").forEach(b => {
+      const active = !!selected && b.dataset.ref === selected.kind + ":" + selected.id;
+      b.dataset.selected = String(active);
+      b.querySelector(".estate-name").setAttribute("aria-expanded", String(active));
+    });
+    labelsBy.forEach((b, key) => {
+      const active = !!selected && b.dataset.ref === selected.kind + ":" + selected.id;
+      b.classList.toggle("sel", active);
+      (b.querySelector(".label-select") || b).setAttribute("aria-expanded", String(active));
+    });
+  };
+  // With the side panel open, shift the picture left so the selection sits in the visible part
+  const setViewShift = (on) => {
+    if (on && !narrow()) camera.setViewOffset(sceneSize().width, sceneSize().height, Math.min(panel.offsetWidth / 2, sceneSize().width * 0.3), 0, sceneSize().width, sceneSize().height);
+    else camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+  };
+  setViewShift(false);
+  function select(ref, fly, instant = false) {
+    const changed = !selected || selected.kind !== ref.kind || selected.id !== ref.id;
+    flight = null;
+    selected = { kind: ref.kind, id: ref.id };
+    if (controls) controls.autoRotate = false;
+    markSelected();
+    renderPanel();
+    if (changed) $("#p-body").scrollTop = 0;
+    setViewShift(panel.classList.contains("open"));
+    if (instant && panel.classList.contains("open")) $("#p-title").focus({ preventScroll: true });
+    if (fly) {
+      const p = worldPosOf(ref);
+      if (p) {
+        // Keep the object clear of the panel: on wide screens shift the focus right a little
+        const g = ref.kind === "site" && world.userData.built.get(ref.id);
+        const base = g ? Math.max(24, g.userData.height * 3.2) : 22;
+        const dist = narrow() ? base * 1.35 : base;
+        flyTo(p, dist, instant);
+      }
+    }
+  }
+  function closePanel() {
+    const returnTo = selected && ([...document.querySelectorAll(".estate-row")].find(b => b.dataset.ref === selected.kind + ":" + selected.id) || (labelsBy.get(selected.kind + ":" + selected.id) || [...labelsBy.values()].find(b => b.dataset.ref === selected.kind + ":" + selected.id)));
+    const restore = panel.contains(document.activeElement);
+    flight = null;
+    panel.inert = true;
+    panel.classList.remove("open");
+    if (restore) (returnTo?.querySelector(".estate-name, .label-select") || returnTo || $("#tour")).focus({ preventScroll: true });
+    selected = null;
+    markSelected();
+    setViewShift(false);
+  }
+  $("#p-close").addEventListener("click", closePanel);
+  addEventListener("keydown", (e) => { if (e.key === "Escape") closePanel(); });
+  $("#tour").addEventListener("click", (e) => {
+    closePanel();
+    const h = homeView();
+    if (!controls) return;
+    if (reduceMotion || e.detail === 0) { controls.target.copy(h.target); camera.position.copy(h.pos); controls.update(); return; }
+    flight = { fromT: controls.target.clone(), toT: h.target.clone(), fromP: camera.position.clone(), toP: h.pos.clone(), t: 0 };
+    controls.autoRotate = false;
+  });
+
+  // Picking: click selects, hover lights the tower up
+  const ray = new THREE.Raycaster();
+  const ptr = new THREE.Vector2();
+  let downAt = null;
+  const pick = (ev) => {
+    const r = renderer.domElement.getBoundingClientRect();
+    ptr.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ptr, camera);
+    const hit = ray.intersectObjects(pickables, false)[0];
+    return hit ? hit.object.userData.ref : null;
+  };
+  if (renderer) {
+    const cv = renderer.domElement;
+    cv.addEventListener("pointerdown", (e) => { if (e.isPrimary && e.button === 0) downAt = [e.clientX, e.clientY, e.pointerId]; });
+    cv.addEventListener("pointercancel", () => { downAt = null; });
+    cv.addEventListener("pointerup", (e) => {
+      const start = downAt; downAt = null;
+      if (!start || e.pointerId !== start[2] || Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 6) return; // a drag, not a click
+      const ref = pick(e);
+      if (ref) select(ref, true); else closePanel();
+    });
+    cv.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const ref = pick(e);
+      const key = ref ? ref.kind + ":" + ref.id : null;
+      if (key === hovered) return;
+      hovered = key;
+      cv.style.cursor = ref ? "pointer" : "grab";
+      pickables.forEach((p) => {
+        const k = p.userData.ref.kind + ":" + p.userData.ref.id;
+        if (p.material.emissiveIntensity != null && p.geometry.type !== "SphereGeometry") {
+          if (p.userData.baseEmissive == null) p.userData.baseEmissive = p.material.emissiveIntensity;
+          p.material.emissiveIntensity = k === hovered ? p.userData.baseEmissive + 0.35 : p.userData.baseEmissive;
+        }
+      });
+    });
+  }
+
+  /* ---------- Animation loop ---------- */
+  let last = performance.now(), time = 0;
+  const ease = (t) => 1 - Math.pow(1 - t, 3);
+  // CSS2D projects labels beyond the viewport when a tower is near the edge.
+  // Read all bounds together, then apply independent translations without moving the anchors.
+  const labelOffsets = new WeakMap();
+  function fitLabels() {
+    const bounds = stage.getBoundingClientRect();
+    const updates = [...labelsBy.values()].map((b) => {
+      const r = b.getBoundingClientRect(), prev = labelOffsets.get(b) || [0, 0];
+      const left = r.left - prev[0], top = r.top - prev[1];
+      return [b, Math.max(bounds.left + 8 - left, Math.min(0, bounds.right - 8 - left - r.width)), Math.max(bounds.top + 8 - top, Math.min(0, bounds.bottom - 8 - top - r.height))];
+    });
+    updates.forEach(([b, x, y]) => {
+      const prev = labelOffsets.get(b);
+      if (!prev || prev[0] !== x || prev[1] !== y) {
+        b.style.translate = `${x}px ${y}px`;
+        labelOffsets.set(b, [x, y]);
+      }
+    });
+  }
+  function frame() {
+    const now = performance.now();
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now; time += dt;
+    if (flight) {
+      flight.t = Math.min(1, flight.t + dt / 0.24);
+      const k = ease(flight.t);
+      controls.target.lerpVectors(flight.fromT, flight.toT, k);
+      camera.position.lerpVectors(flight.fromP, flight.toP, k);
+      if (flight.t >= 1) flight = null;
+    }
+    if (!reduceMotion && !motionPaused) {
+      flows.forEach((f) => { f.t = (f.t + dt * f.speed) % 1; f.mesh.position.copy(f.curve.getPointAt(f.t)); });
+
+      if (world) world.traverse((o) => {
+        if (o.userData && o.userData.spin) { o.rotation.y += dt * 0.6; o.rotation.x += dt * 0.25; }
+        if (o.userData && o.userData.orbit) { const ob = o.userData.orbit; ob.angle += dt * ob.speed; o.position.set(ob.center.x + Math.cos(ob.angle) * ob.radius, ob.center.y + Math.sin(ob.angle * 2) * 0.15, ob.center.z + Math.sin(ob.angle) * ob.radius); }
+        if (o.userData && o.userData.shieldSpin) o.userData.shieldSpin.rotation.y += dt * 0.05;
+        if (o.userData && o.userData.portal) o.userData.portal.material.opacity = 0.2 + Math.sin(time * 2.2) * 0.08;
+      });
+    } else if (flows.length && !flows[0].placed) {
+      flows.forEach((f) => { f.mesh.position.copy(f.curve.getPointAt(f.t)); f.placed = true; });
+    }
+    controls.update();
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+    fitLabels();
+  }
+
+  const resizeScene = () => {
+    if (!renderer) return;
+    if (!selected) { const h = homeView(); camera.position.copy(h.pos); controls.target.copy(h.target); }
+    camera.aspect = sceneSize().width / sceneSize().height;
+    setViewShift(panel.classList.contains("open"));
+    renderer.setSize(sceneSize().width, sceneSize().height);
+    labelRenderer.setSize(sceneSize().width, sceneSize().height);
+  };
+  addEventListener("resize", resizeScene);
+  // Keep the canvas in sync with any responsive changes to its region.
+  new ResizeObserver(resizeScene).observe(stage);
+  // Keep the list below the actual video tile, including after fonts or viewport dimensions change.
+  const positionEstate = () => {
+    if (narrow()) return;
+    const root = document.documentElement.style;
+    const title = $(".appbar h1").getBoundingClientRect().width;
+    root.setProperty("--rail-w", Math.round(Math.max(288, title)) + "px");
+    root.setProperty("--content-top", Math.ceil($(".appbar").getBoundingClientRect().bottom + 24) + "px");
+    root.setProperty("--estate-top", Math.round($("#explainer-play").getBoundingClientRect().bottom + 24) + "px");
+  };
+  new ResizeObserver(positionEstate).observe($(".brief"));
+  new ResizeObserver(positionEstate).observe($(".appbar"));
+  document.fonts?.ready.then(positionEstate);
+  addEventListener("resize", positionEstate);
+
+  themeBtn.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("obs-theme", next); } catch (e) {}
+    syncTheme();
+    if (renderer) { applyThemeToScene(); if (snapshot) rebuildWorld(snapshot); }
+  });
+
+  /* ---------- Data ---------- */
+  function rebuildWorld(s) {
+    const activeRef = document.activeElement?.dataset.ref;
+    buildWorld(s);
+    markSelected();
+    if (activeRef) { const label = labelsBy.get(activeRef) || [...labelsBy.values()].find(b => b.dataset.ref === activeRef); (label?.querySelector(".label-select") || label)?.focus({ preventScroll: true }); }
+  }
   function render(s) {
-    const sites = orderSites(s.sites || []);
-    const fromHash = decodeURIComponent(location.hash.slice(1));
-    if (!selected || !sites.some((x) => x.domain === selected)) selected = sites.some((x) => x.domain === fromHash) ? fromHash : (sites[0] && sites[0].domain);
-    renderFreshness(s);
-    renderUnavailable(s);
-    renderPanel(s);
-    renderReadings(s);
-    renderAI(s);
+    renderHeader(s);
+    const activeRef = document.activeElement?.dataset.ref;
+    renderEstate(s);
+    if (activeRef) [...document.querySelectorAll(".estate-row")].find(b => b.dataset.ref === activeRef)?.querySelector(".estate-name")?.focus({ preventScroll: true });
+    if (renderer) rebuildWorld(s);
+    const body = $("#p-body"), scroll = body.scrollTop;
+    // Don't discard a keyboard user's focused architecture node during polling.
+    if (!body.contains(document.activeElement)) { renderPanel(); body.scrollTop = scroll; }
   }
-
   function load() {
     fetch("status.json", { cache: "no-cache" })
       .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then((s) => { snapshot = s; render(s); })
-      .catch((err) => {
+      .catch(() => {
         if (snapshot) return;
-        $("#snap").textContent = "No readings.";
-        $("#track").replaceChildren(el("li", "station", "The status snapshot couldn't be loaded (" + err.message + "). Try again in a few minutes, or download status.json directly."));
+        $("#takeaway").textContent = "The status snapshot could not be loaded. Use the source snapshot link to check availability.";
       });
   }
 
-  /* ---------- Theme ---------- */
-  const themeBtn = $("#theme");
-  const ICON_SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
-  const ICON_MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>';
-  const syncTheme = () => {
-    const dark = document.documentElement.dataset.theme !== "light";
-    themeBtn.innerHTML = dark ? ICON_SUN : ICON_MOON;
-    themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
-  };
-  themeBtn.addEventListener("click", () => {
-    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem("obs-theme", next); } catch (e) {}
-    syncTheme();
-  });
-  syncTheme();
-
-  window.addEventListener("hashchange", () => {
-    const d = decodeURIComponent(location.hash.slice(1));
-    if (snapshot && d !== selected && (snapshot.sites || []).some((x) => x.domain === d)) select(d, false);
-  });
-
-  // arch.js is deferred; render once it has loaded so sidings can ask which sites call the gateway.
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", load); else load();
+  if (renderer) {
+    applyThemeToScene();
+    renderer.setAnimationLoop(frame);
+    document.addEventListener("visibilitychange", () => {
+      last = performance.now();
+      renderer.setAnimationLoop(document.hidden || explainer.open ? null : frame);
+    });
+  }
+  load();
   setInterval(load, 5 * 60e3);
-  setInterval(() => snapshot && renderFreshness(snapshot), 60e3);
-})();
+  setInterval(() => snapshot && renderHeader(snapshot), 60e3);
+  // Deep links: obs.atla.in/#gita.atla.in opens that site
+  const fromHash = () => { const d = decodeURIComponent(location.hash.slice(1)); return d && d.includes(".") ? d : null; };
+  const wantHash = fromHash();
+  if (wantHash) { const iv = setInterval(() => { if (world) { clearInterval(iv); select({ kind: "site", id: wantHash }, true); } }, 200); setTimeout(() => clearInterval(iv), 10000); }
 </script>
 </body>
 </html>
